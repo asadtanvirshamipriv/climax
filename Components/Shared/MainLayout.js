@@ -14,7 +14,7 @@ import { companySelect, addCompanies } from '../../redux/company/companySlice';
 import { incrementTab } from '../../redux/tabs/tabSlice';
 import { useSelector, useDispatch } from 'react-redux';
 
-const App = ({children}) => {
+const MainLayout = ({children}) => {
 
   const [load, setLoad] = useState(true);
   const [companies, setCompanies] = useState([]);
@@ -240,4 +240,4 @@ const App = ({children}) => {
   );
 };
   
-export default App;
+export default MainLayout;
