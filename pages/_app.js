@@ -4,7 +4,7 @@ import '../styles/main.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'antd/dist/antd.css';
 import MainLayout from '/Components/Shared/MainLayout';
-import Loader from '/Components/shared/Loader';
+import Loader from '/Components/Shared/Loader';
 import Router, { useRouter  } from 'next/router';
 import { store } from '/redux/store';
 import { Provider } from 'react-redux';
