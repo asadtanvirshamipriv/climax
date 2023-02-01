@@ -83,9 +83,9 @@ const Notes = ({state, dispatch}) => {
                 <>
                 <Row style={{minWidth:400, maxWidth:401, maxHeight:200, overflowY:'auto'}}>
                 {state.notes.length<1 && <div style={{minWidth:400, maxHeight:100, textAlign:'center' ,color:'silver'}}>Empty</div>}
-                {state.notes.map((x)=>{
+                {state.notes.map((x, i)=>{
                 return(
-                <Col md={12}>
+                <Col md={12} key={i}>
                     <div className='mt-3'>
                         <div style={{float:'right'}}>
                             <strong>By:</strong> {x.createdBy}<br/>

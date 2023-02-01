@@ -129,7 +129,7 @@ const Charges = ({chargeData}) => {
       width={1000} footer={false} centered={false}
     >
       {!viewHistory && <CreateOrEdit state={state} dispatch={dispatch} baseValues={baseValues} />}
-      {viewHistory && <History history={state.history} load={state.load} />}
+      {/* {viewHistory && <History history={state.history} load={state.load} />} */}
     </Modal>
     </div>
   )

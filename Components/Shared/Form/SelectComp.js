@@ -23,7 +23,7 @@ const SelectComp = (props) => {
             {
               props.options.map((x, index) => {
                 return(
-                  <Select.Option value={x.id}>{x.name}</Select.Option>
+                  <Select.Option key={index} value={x.id}>{x.name}</Select.Option>
                 )
               })
             }

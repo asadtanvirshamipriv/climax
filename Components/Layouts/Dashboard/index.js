@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import Router from 'next/router';
 
-const index = ({sessionData}) => {
+const Dashboard = ({sessionData}) => {
 
   useEffect(() => {
     if(sessionData.isLoggedIn==false){
@@ -16,4 +16,4 @@ const index = ({sessionData}) => {
   )
 }
 
-export default index
+export default Dashboard
