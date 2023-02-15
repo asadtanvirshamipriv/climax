@@ -1,12 +1,13 @@
 import React from 'react';
-import Accounts from '../Components/Layouts/Accounts';
+//import Accounts from '../../Components/Layouts/Accounts';
+import ChartOFAccount from '../../Components/Layouts/AccountsComp/ChartOFAccount';
 import axios from 'axios';
 import Cookies from 'cookies';
 
 const accounts = ({accountsData}) => {
   return (
     <div>
-      <Accounts accountsData={accountsData} />
+      <ChartOFAccount accountsData={accountsData} />
     </div>
   )
 }

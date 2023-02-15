@@ -8,7 +8,6 @@
 .wh-txt{ color: white!important; }
 .grey-txt{ color: grey!important; }
 .silver-txt{ color: silver!important; }
-.wh-txt{ color: white!important; }
 .blue-txt{ color: rgb(45, 148, 176)!important; }
 
 .fs-12 { font-size: 12px!important; }
@@ -38,15 +37,15 @@
 .fs-45 { font-size: 45px!important; }
 .fs-65 { font-size: 65px!important; }
 
-.fw-1{ font-weight: 100; }
-.fw-2{ font-weight: 200; }
-.fw-3{ font-weight: 300; }
-.fw-4{ font-weight: 400; }
-.fw-5{ font-weight: 500; }
-.fw-6{ font-weight: 600; }
-.fw-7{ font-weight: 700; }
-.fw-8{ font-weight: 800; }
-.fw-9{ font-weight: 900; }
+.fw-1{ font-weight: 100!important; }
+.fw-2{ font-weight: 200!important; }
+.fw-3{ font-weight: 300!important; }
+.fw-4{ font-weight: 400!important; }
+.fw-5{ font-weight: 500!important; }
+.fw-6{ font-weight: 600!important; }
+.fw-7{ font-weight: 700!important; }
+.fw-8{ font-weight: 800!important; }
+.fw-9{ font-weight: 900!important; }
 
 .bg-signin{
   background-image: url("../public/loginBg.png");
@@ -155,9 +154,13 @@
   transition-duration: 300ms;
   position: sticky;
   top: 0;
-  background-color: rgb(239, 238, 238);
-  border: none;
+  background-color: rgb(243, 243, 243);
   z-index: 1;
+}
+.tableFixHead thead{
+  border: 1px solid rgb(232, 232, 232);
+  border-radius: 25px!important;
+  color: grey;
 }
 
 .modify-edit:hover{
@@ -275,4 +278,41 @@
   -webkit-user-select: none; /* Safari */
   -ms-user-select: none; /* IE 10 and IE 11 */
   user-select: none; /* Standard syntax */
+}
+
+.tr-clickable{
+  cursor: pointer;
+}
+.tr-clickable:hover{
+  transition-duration: 300ms;
+  background-color: rgb(240, 240, 240);
+}
+.tr-clickable:hover td:nth-child(2){
+  color: rgb(41, 145, 145);
+}
+
+.selected-invoice{
+  background-color: #32354d;
+  padding: 20px;
+  border-radius: 5px;
+}
+
+.searched-item{
+  background-color: white;
+  min-width: 398px!important;
+  cursor: pointer;
+}
+.searched-item:hover{
+  transition-duration: 300ms;
+  background-color: rgb(239, 239, 239);
+  color: rgb(41, 145, 145);
+}
+
+.vertical tbody tr{
+  height: 100%;
+}
+.vertical tbody tr td{
+  display: table-cell;
+  text-align: center;
+  vertical-align: middle;
 }

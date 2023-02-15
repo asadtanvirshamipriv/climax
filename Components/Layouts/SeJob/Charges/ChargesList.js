@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { Row, Col, Table } from 'react-bootstrap';
+import React, { useEffect, useState } from 'react';
+import { Row, Col, Table, Spinner } from 'react-bootstrap';
 import { CloseCircleOutlined, RightCircleOutlined } from '@ant-design/icons';
 import { Select, Input, Modal, Tag } from 'antd';
 import PopConfirm from '../../../Shared/PopConfirm';
@@ -8,6 +8,7 @@ import axios from 'axios';
 
 const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
 
+    const [load, setLoad] = useState(false)
     function calculate (i, amount, discount, taxApply, tax_rate, exRate, qty){
         let tempChargeList = [...chargeType];
         tempChargeList[i].amount = amount;
@@ -38,7 +39,6 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
         let charges = [];
         state.paybleCharges.forEach((x)=>{ charges.push(x) })
         state.reciveableCharges.forEach((x)=>{ charges.push(x) })
-        // console.log(charges)
         let invoices = [];
 
         charges.forEach((x) => {
@@ -47,7 +47,7 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
                     id:null, party_Id:x.partyId, party_Name:x.name,
                     type:x.invoiceType, status:0, operation:"SE",
                     payType:x.type,
-                    job_Id:state.selectedRecord.id
+                    SEJobId:state.selectedRecord.id
                 });
             } else {
                 let exist = false
@@ -60,7 +60,7 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
                             id:null, party_Id:x.partyId, party_Name:x.name,
                             type:x.invoiceType, status:0, operation:"SE",
                             payType:x.type,
-                            job_Id:state.selectedRecord.id
+                            SEJobId:state.selectedRecord.id
                         })
                     }
                 })
@@ -77,11 +77,8 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
             invoices[i].charges=addCharges
         });
 
-        console.log(invoices)
-
         await axios.post(process.env.NEXT_PUBLIC_CLIMAX_SAVE_HEADS, {invoices:invoices, deleteList:state.deleteList})
         .then((x)=>{
-            console.log(x.data)
             getHeads();
             dispatch({type:'toggle', fieldName:'deleteList', payload:[]});
         });
@@ -90,10 +87,10 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
     useEffect(() => {  getHeads() }, [state.selectedRecord])
 
     const getHeads = async() => {
+        setLoad(true);
         await axios.get(process.env.NEXT_PUBLIC_CLIMAX_GET_HEADS,{
-            headers:{"job_id": `${state.selectedRecord.id}`}
+            headers:{"id": `${state.selectedRecord.id}`}
         }).then((x)=>{
-            console.log(x.data)
             if(x.data.status=="success"){
                 let tempCharge = [];
                 x.data.result.forEach((x)=>{
@@ -114,6 +111,7 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
                 })
                 dispatch({type:'toggle', fieldName:'paybleCharges', payload:tempCharge});
             }
+            setLoad(false);
         })
     }
 
@@ -137,7 +135,7 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
     }
 
   return (
-  <div>
+    <div>
     <Row>
         <Col style={{maxWidth:150}} className="">
             <div className='div-btn-custom text-center py-1'
@@ -167,6 +165,7 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
         </Col>
     </Row>
       <div className='table-sm-1 mt-3' style={{maxHeight:300, overflowY:'auto'}}>
+      {!load &&
       <Table className='tableFixHead' bordered>
       <thead>
         <tr className='table-heading-center'>
@@ -227,12 +226,14 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
         </td>
         <td>{index + 1}</td>
         <td className='text-center'>{/* Invoice Number */}
-            {x.invoice_id!="" &&<Tag color="geekblue" style={{fontSize:15, cursor:"pointer"}}
+            {x.invoice_id!=null &&
+            <Tag color="geekblue" style={{fontSize:15, cursor:"pointer"}}
                 onClick={()=>{
-                    dispatch({type:'toggle', fieldName:'tabState', payload:"5"})
                     dispatch({type:'toggle', fieldName:'selectedInvoice', payload:x.invoice_id})
+                    dispatch({type:'toggle', fieldName:'tabState', payload:"5"})
                 }}
-            >{x.invoice_id}</Tag>}
+            >{x.invoice_id}</Tag>
+            }
         </td>
         <td style={{padding:3, minWidth:150}}> {/* charge selection */}
             <Select className='table-dropdown' showSearch value={x.charge}
@@ -356,7 +357,12 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
       })}
       </tbody>
       </Table>
-
+      }
+      {load &&
+        <div style={{textAlign:"center", paddingTop:'30%'}}>
+            <Spinner />
+        </div>
+      }
         <Modal
             open={state.headVisible}
             onOk={()=>dispatch({type:'toggle', fieldName:'headVisible', payload:false})} 
@@ -366,7 +372,6 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
             {state.headVisible && <PartySearch state={state} dispatch={dispatch} />}
         </Modal>
       </div>
-
     </div>
   )
 }

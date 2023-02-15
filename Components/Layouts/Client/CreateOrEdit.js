@@ -256,7 +256,7 @@ const CreateOrEdit = ({state, dispatch, baseValues}) => {
                 <SelectComp register={register} name='authorizedById' control={control} label='Authorized By:'
                     options={state.Representatives[0].records} />
             </Col>
-            <div style={{height:276}}></div>
+            <div style={{height:185}}></div>
         </Row>
         </Tabs.TabPane>
         <Tabs.TabPane tab="Account Info" key="3">
@@ -282,7 +282,7 @@ const CreateOrEdit = ({state, dispatch, baseValues}) => {
                         {id:'AED', name:'AED'},
                         {id:'AUD', name:'AUD'}
                 ]}/>
-            </Col><div style={{height:276}}></div>
+            </Col><div style={{height:186}}></div>
         </Row>
         </Tabs.TabPane>
         <Tabs.TabPane tab="Company Info" key="4">
@@ -291,7 +291,7 @@ const CreateOrEdit = ({state, dispatch, baseValues}) => {
                 <CheckGroupComp register={register} name='companies' control={control} label='Comapnies'
                     options={state.edit?state.editCompanyList:state.companyList} />
             </Col>
-            <div style={{height:473}}></div>
+            <div style={{height:383}}></div>
         </Row>
         </Tabs.TabPane>
       </Tabs>

@@ -6,7 +6,6 @@ import InputComp from '../../Shared/Form/InputComp';
 import SelectComp from '../../Shared/Form/SelectComp';
 import RadioComp from '../../Shared/Form/RadioComp';
 import { Row, Col, Spinner } from 'react-bootstrap';
-import moment from 'moment';
 import axios from 'axios';
 import openNotification from '../../Shared/Notification';
 

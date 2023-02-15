@@ -1,5 +1,6 @@
-import { TeamOutlined, UserOutlined, AccountBookOutlined, CloseOutlined, HistoryOutlined, SettingOutlined } from '@ant-design/icons';
+import { AccountBookOutlined, CloseOutlined, HomeOutlined, SettingOutlined } from '@ant-design/icons';
 import { AiOutlineLeft, AiOutlineRight } from "react-icons/ai";
+import { HiOutlineDocumentSearch } from "react-icons/hi";
 import React, { useState, useEffect } from 'react';
 import { IoMdArrowDropleft } from "react-icons/io";
 import { RiShipLine } from "react-icons/ri";
@@ -46,6 +47,15 @@ const MainLayout = ({children}) => {
   }
 
   const items = [
+    getParentItem('Dashboard', '1', <HomeOutlined />,
+      [
+        getItem('Home', '1-1',<></>, null, {
+          label: `Home`,
+          key: '1-1',
+          children: `Content of Tab Pane 2`,
+        }),
+      ]
+    ),
     getParentItem('Setup', '2', <SettingOutlined />,
       [
         getItem('Employees', '2-1',<></>, null, {
@@ -87,6 +97,21 @@ const MainLayout = ({children}) => {
           key: '3-1',
           children: `Content of Tab Pane 2`,
         }),
+        getItem('Account Activity', '3-2',<></>, null, {
+          label: `Account Activity`,
+          key: '3-2',
+          children: `Content of Tab Pane 2`,
+        }),
+        getItem('Invoice / Bills', '3-3',<></>, null, {
+          label: `Invoice / Bills`,
+          key: '3-3',
+          children: `Content of Tab Pane 2`,
+        }),
+        getItem('Payment / Receipt', '3-4',<></>, null, {
+          label: `Payment / Receipt`,
+          key: '3-4',
+          children: `Content of Tab Pane 2`,
+        }),
       ]
     ),
     getParentItem('Sea Export', '4', <span className=''><RiShipLine /><IoMdArrowDropleft className='flip' /></span>,
@@ -94,6 +119,15 @@ const MainLayout = ({children}) => {
         getItem('SE Job', '4-1',<></>, null, {
           label: `SE Job`,
           key: '4-1',
+          children: `Content of Tab Pane 2`,
+        }),
+      ]
+    ),
+    getParentItem('Reports', '5', <HiOutlineDocumentSearch/>,
+      [
+        getItem('Job Balancing', '5-1',<></>, null, {
+          label: `Job Balancing`,
+          key: '5-1',
           children: `Content of Tab Pane 2`,
         }),
       ]
@@ -117,6 +151,7 @@ const MainLayout = ({children}) => {
   const [tabItems, setTabItems] = useState([]);
 
   const [tabActive, setTabActive] = useState({
+    home:false,
     employee:false,
     clients:false,
     accounts:false,
@@ -126,6 +161,10 @@ const MainLayout = ({children}) => {
     vessel:false,
     seJob:false,
     charges:false,
+    accountActivity:false,
+    jobBalancing:false,
+    invoiceBills:false,
+    paymentReceipt:false,
   });
 
   useEffect(()=>{alterTabs()}, [tabs])
@@ -142,14 +181,19 @@ const MainLayout = ({children}) => {
       if(cancel==false){
         tempTabs.push({ key:tabs.key, label:tabs.label })
         let tempTabActive = {...tabActive};
-        if(tabs.key=='2-1'){ tempTabActive.employee=true }
+        if(tabs.key=='1-1'){ tempTabActive.home=true }
+        else if(tabs.key=='2-1'){ tempTabActive.employee=true }
         else if(tabs.key=='2-2'){ tempTabActive.clients=true }
         else if(tabs.key=='2-3'){ tempTabActive.commodity=true }
         else if(tabs.key=='2-4'){ tempTabActive.vessel=true }
         else if(tabs.key=='2-5'){ tempTabActive.vendor=true }
         else if(tabs.key=='2-6'){ tempTabActive.charges=true }
         else if(tabs.key=='3-1'){ tempTabActive.accounts=true }
+        else if(tabs.key=='3-2'){ tempTabActive.accountActivity=true }
+        else if(tabs.key=='3-3'){ tempTabActive.invoiceBills=true }
+        else if(tabs.key=='3-4'){ tempTabActive.paymentReceipt=true }
         else if(tabs.key=='4-1'){ tempTabActive.seJob=true }
+        else if(tabs.key=='5-1'){ tempTabActive.jobBalancing=true }
 
         setTabItems(tempTabs);
         setTabActive(tempTabActive)
@@ -159,14 +203,19 @@ const MainLayout = ({children}) => {
 
   const toggleTab = (index) => {
     setToggleState(index);
-    if(index=='2-1'){ Router.push('./employees') }
-    else if(index=='2-2'){ Router.push('./client') }
-    else if(index=='2-3'){ Router.push('./commodity') }
-    else if(index=='2-4'){ Router.push('./vessel') }
-    else if(index=='2-5'){ Router.push('./vendor') }
-    else if(index=='2-6'){ Router.push('./charges') }
-    else if(index=='3-1'){ Router.push('./accounts') }
-    else if(index=='4-1'){ Router.push('./seJob') }
+    if(index=='1-1'){ Router.push('/home') }
+    else if(index=='2-1'){ Router.push('/employees') }
+    else if(index=='2-2'){ Router.push('/client') }
+    else if(index=='2-3'){ Router.push('/commodity') }
+    else if(index=='2-4'){ Router.push('/vessel') }
+    else if(index=='2-5'){ Router.push('/vendor') }
+    else if(index=='2-6'){ Router.push('/charges') }
+    else if(index=='3-1'){ Router.push('/accounts/chartOfAccount') }
+    else if(index=='3-2'){ Router.push('/accounts/accountActivity') }
+    else if(index=='3-3'){ Router.push('/accounts/invoiceAndBills') }
+    else if(index=='3-4'){ Router.push('/accounts/paymentReceipt') }
+    else if(index=='4-1'){ Router.push('/seJob') }
+    else if(index=='5-1'){ Router.push('/reports/jobBalancing') }
   };
 
   const removeTab = (index) => {
@@ -179,7 +228,7 @@ const MainLayout = ({children}) => {
       setToggleState(0)
     }
     if(tempTabs.length==0){
-      Router.push('./')
+      Router.push('/')
     }
   };
 
@@ -198,8 +247,8 @@ const MainLayout = ({children}) => {
       }
       <Layout className="site-layout">
       <Header className="site-layout-background" style={{padding:0}}>
-      {collapsed && <span className="menu-toggler"><AiOutlineRight onClick={() => setCollapsed(!collapsed)} /></span>}
-      {!collapsed && <span className="menu-toggler"><AiOutlineLeft onClick={() => setCollapsed(!collapsed)} /></span>}
+      {collapsed && <span className="menu-toggler" onClick={() => setCollapsed(!collapsed)}><AiOutlineRight /></span>}
+      {!collapsed && <span className="menu-toggler" onClick={() => setCollapsed(!collapsed)} ><AiOutlineLeft /></span>}
       <Select
         style={{
           width: 155, opacity:0.7

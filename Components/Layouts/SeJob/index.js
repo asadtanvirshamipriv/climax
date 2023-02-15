@@ -31,10 +31,16 @@ const SeJob = ({fieldsData, jobsData}) => {
   <div className='base-page-layout'>
     <Row>
       <Col><h5>Sea Export Job</h5></Col>
-      <Col><button className='btn-custom right' onClick={()=>dispatch({type:'create'})}>Create</button></Col>
+      <Col>
+        <button className='btn-custom right' 
+          onClick={()=>dispatch({type:'create'})}
+        >
+          Create
+        </button>
+      </Col>
     </Row>
     <hr className='my-2' />
-    <div className='table-sm-1 mt-3' style={{maxHeight:500, overflowY:'auto'}}>
+    <div className='mt-3' style={{maxHeight:500, overflowY:'auto'}}>
       <Table className='tableFixHead'>
       <thead>
         <tr>
@@ -54,17 +60,24 @@ const SeJob = ({fieldsData, jobsData}) => {
       <tr key={index} className='f'>
         <td>{index + 1}</td>
         <td>
-          <span className='blue-txt fw-5'>{x.Client.name}</span>
-          <br/>Nomination: {x.nomination}
-          <br/>Freight Type: {x.freightType}
-        </td>
-        <td>Vessel: {getVessel(x.vessel)}<br/>POL: {x.pol}<br/>POD: {x.pod}</td>
-        <td>Cost Center: <span className='blue-txt fw-5'>{x.costCenter}</span></td>
-        <td>
-          Container No. {x.container}<br/>
-          Weight: {x.weight}
+          <span className='blue-txt fw-7'>{x.jobNo}</span>
+          <br/>Nomination: <span className='grey-txt'>{x.nomination}</span>
+          <br/>Freight Type: <span className='grey-txt'>{x.freightType}</span>
         </td>
         <td>
+          Vessel: <span className='grey-txt'>{getVessel(x.vessel)}</span><br/>
+          POL: <span className='grey-txt'>{x.pol}</span><br/>
+          POD: <span className='grey-txt'>{x.pod}</span>
+        </td>
+        <td>
+          Cost Center: <span className='blue-txt fw-5'>{x.costCenter}</span>
+        </td>
+        <td>
+          Container: <span className='grey-txt'>{x.container}</span><br/>
+          Weight: <span className='grey-txt'>{x.weight}</span>
+        </td>
+        <td>
+          Party:<span className='blue-txt fw-5'> {x.Client.name}</span><br/>
           Transportion: <span className='blue-txt fw-5'>{x.transportCheck!=''?'Yes':'No'}</span>
           <br/>
           Custom Clearance: <span className='blue-txt fw-5'>{x.customCheck!=''?'Yes':'No'}</span>

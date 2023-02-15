@@ -1,15 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Row, Col, Table } from 'react-bootstrap';
-import { Tag } from "antd";
-import { PrinterOutlined } from "@ant-design/icons";
 import ReactToPrint from 'react-to-print';
+import moment from "moment";
 
 const InvoiceCharges = ({data}) => {
 
     let inputRef = useRef(null);
 
-    const [records, setRecords] = useState([])
-    const [invoice, setInvoice] = useState({})
+    const [records, setRecords] = useState([]);
+    const [invoice, setInvoice] = useState({});
 
     useEffect(()=>{
         if(Object.keys(data).length>0){
@@ -23,7 +22,6 @@ const InvoiceCharges = ({data}) => {
         data.forEach((x)=>{
             result = result + parseFloat(x.local_amount)
         });
-
         return result.toFixed(2);
     }
 
@@ -65,7 +63,7 @@ const InvoiceCharges = ({data}) => {
         <Col>
             <div>
                 <span className='inv-label'>Created:</span>
-                {/* <span className='inv-value'>{" "}{invoice.createdAt.slice(0, 10)}</span> */}
+                <span className='inv-value'>{" "}{ moment(invoice.createdAt).format("DD / MMM / YY")}</span>
             </div>
         </Col>
     </Row>
@@ -145,7 +143,7 @@ const InvoiceCharges = ({data}) => {
             <div>Tel: 9221 34395444-55-66   Fax: 9221 34385001</div>
             <div>Email: info@seanetpk.com   Web: www.seanetpk.com</div>
             <div>NTN # 8271203-5</div>
-        </div>
+    </div>
         <div className='charges-box my-5'>
             <p className='text-center'><strong>{invoice.type}</strong></p>
             <Table className='' bordered>
@@ -178,13 +176,13 @@ const InvoiceCharges = ({data}) => {
             </Table>
             <hr/>
             <Row>
-            <Col md={12} className="text-center p-5">
-            <div className='' style={{float:'right', borderBottom:"1px solid silver"}}>
-                <span className='inv-label mx-2'>Total Amount:</span>
-                <span className='inv-value charges-box p-2'>{" "}{calculateTotal(records)}</span>
-            </div>
-            </Col>
-        </Row>
+                <Col md={12} className="text-center p-5">
+                <div className='' style={{float:'right', borderBottom:"1px solid silver"}}>
+                    <span className='inv-label mx-2'>Total Amount:</span>
+                    <span className='inv-value charges-box p-2'>{" "}{calculateTotal(records)}</span>
+                </div>
+                </Col>
+            </Row>
         </div>
     </div>
     </div>

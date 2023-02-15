@@ -53,7 +53,7 @@ const initialState = {
     selectedRecord:{}
 };
 
-const Accounts = ({accountsData}) => {
+const ChartOFAccount = ({accountsData}) => {
 
     const [ state, dispatch ] = useReducer(recordsReducer, initialState);
     const { records, visible } = state;
@@ -173,4 +173,4 @@ return (
     </div>
   )
 }
-export default Accounts
+export default ChartOFAccount

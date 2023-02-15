@@ -67,11 +67,9 @@ const CreateOrEdit = ({state, dispatch, baseValues}) => {
         await axios.post(process.env.NEXT_PUBLIC_CLIMAX_POST_CREATE_SEAJOB,{
             data
         }).then((x)=>{
-          console.log(x.data)
             if(x.data.status=='success'){
                 let tempRecords = [...state.records];
                 tempRecords.unshift(x.data.result);
-                console.log(x.data.result)
                 dispatch({type:'toggle', fieldName:'records', payload:tempRecords});
                 dispatch({type:'modalOff'});
                 reset(baseValues)
@@ -85,7 +83,6 @@ const CreateOrEdit = ({state, dispatch, baseValues}) => {
   };
 
   const onEdit = async(data) => {
-    console.log(state.reciveableCharges)
     data.equipments = state.equipments;
     data.customAgentId = data.customCheck.length>0?data.customAgentId:null;
     data.transporterId = data.transportCheck.length>0?data.transporterId:null;
@@ -132,8 +129,8 @@ const CreateOrEdit = ({state, dispatch, baseValues}) => {
         <Charges state={state} dispatch={dispatch} />
       </Tabs.TabPane>
       }
-      {state.edit &&
-      <Tabs.TabPane tab="Invoice" key="5">
+      {(state.edit && state.selectedInvoice!='') &&
+      <Tabs.TabPane tab="Invoice / Bills" key="5">
         <Invoice state={state} dispatch={dispatch} />
       </Tabs.TabPane>
       }

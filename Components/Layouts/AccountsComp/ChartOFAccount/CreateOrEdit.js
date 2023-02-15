@@ -1,5 +1,5 @@
-import { Row, Col, Spinner } from 'react-bootstrap';
-import React,{ useState, useEffect } from "react";
+import { Row, Col } from 'react-bootstrap';
+import React from "react";
 import { Form, Input, Checkbox, Switch, Select, notification } from 'antd';
 import axios from 'axios';
 import { useSelector } from 'react-redux';

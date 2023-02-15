@@ -20,10 +20,10 @@ const Employees = ({}) => {
   }, [])
 
   const getEmployees = async() => {
+    console.log("Function Hit")
     await axios.get(process.env.NEXT_PUBLIC_CLIMAX_GET_ALL_EMPLOYEES).then((x)=>{
       if(x.data.status=='success'){
         setEmployeeList(x.data.result);
-        console.log(x.data.result)
       }
     })
   }
@@ -68,7 +68,7 @@ const Employees = ({}) => {
         </MediumModal>
       </Col>
       <Col md={12}>
-        <div className='table-sm-1 mt-3' style={{maxHeight:500, overflowY:'auto'}}>
+      <div className='' style={{maxHeight:500, overflowY:'auto'}}>
         <Table className='tableFixHead'>
         <thead>
           <tr>

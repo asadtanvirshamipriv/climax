@@ -234,7 +234,7 @@ const CreateOrEdit = ({state, dispatch, baseValues}) => {
                 <SelectComp register={register} name='authorizedById' control={control} label='Authorized By:'
                     options={state.Representatives[0].records} />
             </Col>
-            <div style={{height:276}}></div>
+            <div style={{height:246}}></div>
         </Row>
         </Tabs.TabPane>
         <Tabs.TabPane tab="Account Info" key="3">
@@ -252,7 +252,7 @@ const CreateOrEdit = ({state, dispatch, baseValues}) => {
                         {id:'AED', name:'AED'},
                         {id:'AUD', name:'AUD'}
                 ]}/>
-            </Col><div style={{height:376}}></div>
+            </Col><div style={{height:370}}></div>
         </Row>
         </Tabs.TabPane>
       </Tabs>

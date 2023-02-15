@@ -15,7 +15,7 @@ const SelectSearchComp = (props) => {
         });
 
         return(
-            <Select disabled={props.disabled} style={{minWidth:props.width||200}} 
+            <Select disabled={props.disabled} style={{minWidth:props.width||200}}
                 showSearch
                 optionFilterProp="children"
                 filterOption={(input, option) =>
