@@ -52,6 +52,7 @@ const initialState = {
   gainLossAmount:0.0,
   taxAmount:0.0,
   isPerc:false,
+  accountsLoader:false,
   taxPerc:0.0,
   finalTax:0.0,
   indexes:[],
@@ -62,29 +63,30 @@ const initialState = {
 
   totalrecieving:0.00,
 
-  transactionCreation:{
-    date:"",
-    transaction:"",
-    drawn:"",
-    recievable:{
-        exists:false,
-        credit:"",
-        debit:"",
-        amount:""
-    },
-    salesTax:{
-        exists:false,
-        credit:"",
-        debit:"",
-        amount:""
-    },
-    bankCharges:{
-        exists:false,
-        credit:"",
-        debit:"",
-        amount:""
-    },
-}
+  transactionCreation:[]
+//   {
+//     date:"",
+//     transaction:"",
+//     drawn:"",
+//     recievable:{
+//         exists:false,
+//         credit:"",
+//         debit:"",
+//         amount:""
+//     },
+//     salesTax:{
+//         exists:false,
+//         credit:"",
+//         debit:"",
+//         amount:""
+//     },
+//     bankCharges:{
+//         exists:false,
+//         credit:"",
+//         debit:"",
+//         amount:""
+//     },
+// }
 };
 
 const getCompanyName = (id) => {

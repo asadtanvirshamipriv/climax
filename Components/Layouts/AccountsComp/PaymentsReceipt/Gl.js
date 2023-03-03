@@ -1,4 +1,4 @@
-import { Row, Col } from 'react-bootstrap';
+import { Row, Col, Table } from 'react-bootstrap';
 import React, { useEffect } from 'react';
 import { Modal } from 'antd';
 import moment from 'moment';
@@ -13,15 +13,66 @@ const Gl = ({state, dispatch}) => {
     console.log(state.transactionCreation);
   }, [state])
 
+  const getTotal = (type) => {
+    let result = 0.00;
+    state.transactionCreation.forEach((x)=>{
+      if(type==x.tran.type){
+        result = result + x.tran.amount
+      }
+    })
+    return result;
+  }
+
   return (
     <>
     <Modal title={`Transaction General Journal`} open={state.glVisible} 
         onOk={()=>set('glVisible', false)}
         onCancel={()=>set('glVisible', false)}
         footer={false} maskClosable={false}
-        width={'80%'}
+        width={'60%'}
     >
-        <div style={{minHeight:300}}>
+    <div style={{minHeight:400}}>
+      <div className='table-sm-1 mt-3' style={{maxHeight:400, overflowY:'auto'}}>
+        <Table className='tableFixHead' bordered>
+          <thead>
+              <tr>
+                  <th className='text-center' style={{width:250}}>Particular</th>
+                  <th className='text-center' style={{width:25}}>Debit</th>
+                  <th className='text-center' style={{width:25}}>Credit</th>
+              </tr>
+          </thead>
+          <tbody>
+          {state.transactionCreation.map((x, index) => {
+          return (
+              <tr key={index}>
+                  <td>{x.particular}</td>
+                  <td className='text-end'>{x.tran.type!="credit"?<><span className='gl-curr-rep'>Rs.{" "}</span>{commas(x.tran.amount)}</>:''}</td>
+                  <td className='text-end'>{x.tran.type=="credit"?<><span className='gl-curr-rep'>Rs.{" "}</span>{commas(x.tran.amount)}</>:''}</td>
+              </tr>
+              )
+          })}
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>Balance</td>
+                <td className='text-end'><span className='gl-curr-rep'>Rs.{" "}</span>{commas(getTotal('debit'))}</td>
+                <td className='text-end'><span className='gl-curr-rep'>Rs.{" "}</span>{commas(getTotal('credit'))}</td>
+            </tr>
+          </tbody>
+        </Table>
+      </div>
+    </div>
+    </Modal>
+    </>
+  )
+}
+
+export default Gl
+
+/*
         <Row style={{borderRight:'1px solid grey', borderTop:'1px solid grey'}}>
             <Col md={2} className="gl-col-lines text-center"><h6>Date</h6></Col>
             <Col md={6} className="gl-col-lines text-center"><h6>Particulars</h6></Col>
@@ -29,7 +80,6 @@ const Gl = ({state, dispatch}) => {
             <Col md={2} className="gl-col-lines text-center"><h6>Credit</h6></Col>
             {state.transactionCreation.recievable.exists &&
             <>
-              {/* Main Recivable Entry */}
               <>
                 <Col md={2} className="gl-col-lines">
                   <span>{moment(state.date).format("DD-MMM-YYYY")}</span>
@@ -72,7 +122,6 @@ const Gl = ({state, dispatch}) => {
                 </Col>
               </>
 
-              {/* Tax Entry */}
               {state.transactionCreation.salesTax.exists &&
               <>
                 <Col md={2} className="gl-col-lines">
@@ -117,7 +166,6 @@ const Gl = ({state, dispatch}) => {
               </>
               }
 
-              {/* Bank Charges Entry */}
               {state.transactionCreation.bankCharges.exists &&
               <>
                 <Col md={2} className="gl-col-lines">
@@ -158,10 +206,4 @@ const Gl = ({state, dispatch}) => {
             </>
             }
         </Row>
-    </div>
-    </Modal>
-    </>
-  )
-}
-
-export default Gl
+*/

@@ -82,31 +82,36 @@ const BillComp = ({selectedParty, payType}) => {
     }
 
     const submitPrices = () => {
+        let tempDate = moment(state.date).format("DD-MM-YYYY");
+        let transTwo = []
 
-        let transaction = {
-            date:`${moment(state.date).format("DD-MM-YYYY")}`,
-            transaction:`On a/c of ${state.onAccount}`,
-            drawn:`${state.drawnAt}`,
-            recievable:{
-                exists: ((Object.keys(state.payAccountRecord).length==0) || (state.totalrecieving==0))?false:true,
-                credit:selectedParty,
-                debit:state.payAccountRecord,
-                amount:state.totalrecieving
-            },
-            salesTax:{
-                exists:((Object.keys(state.taxAccountRecord).length==0) || (state.finalTax==0) || (state.finalTax==null))?false:true,
-                credit:state.payAccountRecord,
-                debit:state.taxAccountRecord,
-                amount:state.finalTax
-            },
-            bankCharges:{
-                exists:((Object.keys(state.bankChargesAccountRecord).length==0) || (state.bankCharges==0) || (state.bankCharges==null))?false:true,
-                credit:state.payAccountRecord,
-                debit:state.bankChargesAccountRecord,
-                amount:state.bankCharges
-            }
+        if((Object.keys(state.payAccountRecord).length!=0) && (state.totalrecieving!=0)){
+            transTwo.push({particular:selectedParty.name, tran:{type:payType=="Recievable"?'credit':'debit', amount:state.totalrecieving}})
+            transTwo.push({particular:state.payAccountRecord.title, 
+                tran:{type:state.payAccountRecord.Parent_Account.Account[payType=="Recievable"?'inc':'dec'], amount:state.totalrecieving}
+            })
         }
-        set('transactionCreation', transaction);
+
+        if((Object.keys(state.taxAccountRecord).length!=0) && (state.finalTax!=0) && (state.finalTax!=null) && (state.totalrecieving!=0)){
+            transTwo.push({particular:state.taxAccountRecord.title, 
+                tran:{type:state.taxAccountRecord.Parent_Account.Account[payType=="Recievable"?'inc':'dec'], amount:state.finalTax}
+            })
+            transTwo.push({particular:state.payAccountRecord.title, 
+                tran:{type:state.payAccountRecord.Parent_Account.Account[payType=="Recievable"?'dec':'inc'], amount:state.finalTax}
+            })
+        }
+
+        if((Object.keys(state.bankChargesAccountRecord).length!=0) && (state.bankCharges!=0) && (state.bankCharges!=null) && (state.totalrecieving!=0)){
+            transTwo.push({particular:state.bankChargesAccountRecord.title, 
+                tran:{type:state.bankChargesAccountRecord.Parent_Account.Account[payType=="Recievable"?'inc':'dec'], amount:state.bankCharges}
+            })
+            transTwo.push({particular:state.payAccountRecord.title, 
+                tran:{type:state.payAccountRecord.Parent_Account.Account[payType=="Recievable"?'dec':'inc'], amount:state.bankCharges}
+            })
+        }
+        console.log(transTwo);
+
+        set('transactionCreation', transTwo);
         set('glVisible', true);
     }
 
@@ -180,11 +185,13 @@ const BillComp = ({selectedParty, payType}) => {
                         <div className="grey-txt fs-14">Tax Account #</div>
                         <div className="custom-select-input-small" 
                             onClick={async()=>{
+                                set('accountsLoader', true);
                                 set('variable', 'taxAccountRecord');
                                 set('visible', true);
 
                                 let resutlVal = await getAccounts('Adjust', companyId);
                                 set('accounts', resutlVal);
+                                set('accountsLoader', false);
                             }}
                         >{
                             Object.keys(state.taxAccountRecord).length==0?

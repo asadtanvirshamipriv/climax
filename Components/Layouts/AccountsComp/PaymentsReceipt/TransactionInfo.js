@@ -57,9 +57,11 @@ const TransactionInfo = ({state, dispatch, payType}) => {
             <div className="grey-txt fs-14">{payType=="Recievable"?"Recieving":"Paying"} Account #</div>
             <div className="custom-select-input-small" 
                 onClick={async()=>{
+                    set('accountsLoader', true);
                     set('variable', 'payAccountRecord');
                     set('visible', true);
                     let resutlVal = await getAccounts(state.transaction,companyId, 'accounts');
+                    set('accountsLoader', false);
                     set('accounts', resutlVal);
                 }}
             >
@@ -104,11 +106,13 @@ const TransactionInfo = ({state, dispatch, payType}) => {
             <div className="grey-txt fs-14">Bank Charges Account</div>
             <div className="custom-select-input-small" 
                 onClick={async()=>{
+                    set('accountsLoader', true);
                     set('variable', 'bankChargesAccountRecord');
                     set('visible', true);
 
                     let resutlVal = await getAccounts('Adjust', companyId);
                     set('accounts', resutlVal);
+                    set('accountsLoader', false);
                 }}
             >
             {
