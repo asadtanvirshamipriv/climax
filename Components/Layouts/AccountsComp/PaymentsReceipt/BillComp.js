@@ -82,17 +82,6 @@ const BillComp = ({selectedParty, payType}) => {
     }
 
     const submitPrices = () => {
-        // console.log(payType);
-        // console.log(moment(state.date).format("DD-MM-YYYY"));
-        // console.log(state.transaction);
-        // state.transaction=="Bank"?console.log(state.checkNo):null;
-        // console.log(state.payAccountRecord);
-        // console.log(state.taxAccountRecord.title);
-        // console.log(state.bankChargesAccountRecord.title);
-        // console.log(state.drawnAt);
-        // console.log(state.bankCharges);
-        // console.log(state.totalrecieving);
-        // console.log(state.invoices);
 
         let transaction = {
             date:`${moment(state.date).format("DD-MM-YYYY")}`,
@@ -105,17 +94,17 @@ const BillComp = ({selectedParty, payType}) => {
                 amount:state.totalrecieving
             },
             salesTax:{
-                exists:((Object.keys(state.taxAccountRecord).length==0) || (state.finalTax==0))?false:true,
+                exists:((Object.keys(state.taxAccountRecord).length==0) || (state.finalTax==0) || (state.finalTax==null))?false:true,
                 credit:state.payAccountRecord,
                 debit:state.taxAccountRecord,
                 amount:state.finalTax
             },
             bankCharges:{
-                exists:((Object.keys(state.bankChargesAccountRecord).length==0) || (state.bankCharges==0))?false:true,
+                exists:((Object.keys(state.bankChargesAccountRecord).length==0) || (state.bankCharges==0) || (state.bankCharges==null))?false:true,
                 credit:state.payAccountRecord,
                 debit:state.bankChargesAccountRecord,
                 amount:state.bankCharges
-            },
+            }
         }
         set('transactionCreation', transaction);
         set('glVisible', true);

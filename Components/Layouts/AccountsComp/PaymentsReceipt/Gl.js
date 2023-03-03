@@ -2,11 +2,12 @@ import { Row, Col } from 'react-bootstrap';
 import React, { useEffect } from 'react';
 import { Modal } from 'antd';
 import moment from 'moment';
+import { CheckCircleOutlined, StopOutlined } from "@ant-design/icons"
 
 const Gl = ({state, dispatch}) => {
 
   const set = (a, b) => { dispatch({type:'set', var:a, pay:b}) }
-  const commas = (a) => a.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ", ")
+  const commas = (a) =>  { console.log(a); return a.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ", ")}
 
   useEffect(() => {
     console.log(state.transactionCreation);
@@ -34,11 +35,25 @@ const Gl = ({state, dispatch}) => {
                   <span>{moment(state.date).format("DD-MMM-YYYY")}</span>
                 </Col>
                 <Col md={6} className="gl-col-lines py-2">
-                  <h6 className='mx-5'>
+                  <h6 className='mx-1'>
                     {state.transactionCreation.recievable.debit.title}
+                    {state.transactionCreation.recievable.debit.Parent_Account.Account.inc=="credit" &&
+                    <span className='acc-rec-warn'>
+                      {" ("}{state.transactionCreation.recievable.debit.Parent_Account.Account.title} 
+                      {" "}A/c Credits on Increase{" "}
+                      <StopOutlined style={{position:'relative', bottom:2}} /> {")"}
+                    </span>
+                    }
+                    {state.transactionCreation.recievable.debit.Parent_Account.Account.inc=="debit" &&
+                    <span className='acc-rec-succ'>
+                      {" ("}{state.transactionCreation.recievable.debit.Parent_Account.Account.title} 
+                      {" "}A/c Debits on Increase{" "}
+                      <CheckCircleOutlined style={{position:'relative', bottom:2}} /> {")"}
+                    </span>
+                    }
                   </h6>
                   <hr/>
-                  <h6 className='text-end mx-5'>
+                  <h6 className='text-end mx-1'>
                     {state.transactionCreation.recievable.credit.name} {"("}A/c{")"}
                   </h6>
                 </Col>
@@ -56,6 +71,7 @@ const Gl = ({state, dispatch}) => {
                   </h6>
                 </Col>
               </>
+
               {/* Tax Entry */}
               {state.transactionCreation.salesTax.exists &&
               <>
@@ -63,11 +79,25 @@ const Gl = ({state, dispatch}) => {
                   <span>{moment(state.date).format("DD-MMM-YYYY")}</span>
                   </Col>
                 <Col md={6} className="gl-col-lines py-2">
-                  <h6 className='mx-5'>
+                  <h6 className='mx-1'>
                     {state.transactionCreation.salesTax.debit.title}
+                    {state.transactionCreation.salesTax.debit.Parent_Account.Account.inc=="credit" &&
+                    <span className='acc-rec-warn'>
+                      {" ("}{state.transactionCreation.salesTax.debit.Parent_Account.Account.title} 
+                      {" "}A/c Credits on Increase{" "}
+                      <StopOutlined style={{position:'relative', bottom:2}} /> {")"}
+                    </span>
+                    }
+                    {state.transactionCreation.salesTax.debit.Parent_Account.Account.inc=="debit" &&
+                    <span className='acc-rec-succ'>
+                      {" ("}{state.transactionCreation.salesTax.debit.Parent_Account.Account.title} 
+                      {" "}A/c Debits on Increase{" "}
+                      <CheckCircleOutlined style={{position:'relative', bottom:2}} /> {")"}
+                    </span>
+                    }
                   </h6>
                   <hr/>
-                  <h6 className='text-end mx-5'>
+                  <h6 className='text-end mx-1'>
                     {state.transactionCreation.salesTax.credit.title} 
                   </h6>
                 </Col>
@@ -86,6 +116,7 @@ const Gl = ({state, dispatch}) => {
                 </Col>
               </>
               }
+
               {/* Bank Charges Entry */}
               {state.transactionCreation.bankCharges.exists &&
               <>
@@ -93,11 +124,18 @@ const Gl = ({state, dispatch}) => {
                   <span>{moment(state.date).format("DD-MMM-YYYY")}</span>
                   </Col>
                 <Col md={6} className="gl-col-lines py-2">
-                  <h6 className='mx-5'>
+                  <h6 className='mx-1'>
                     {state.transactionCreation.bankCharges.debit.title}
+                    {state.transactionCreation.bankCharges.debit.Parent_Account.Account.inc=="debit" &&
+                    <span className='acc-rec-succ'>
+                      {" ("}{state.transactionCreation.bankCharges.debit.Parent_Account.Account.title} 
+                      {" "}A/c Debits on Increase{" "}
+                      <CheckCircleOutlined style={{position:'relative', bottom:2}} /> {")"}
+                    </span>
+                    }
                   </h6>
                   <hr/>
-                  <h6 className='text-end mx-5'>
+                  <h6 className='text-end mx-1'>
                     {state.transactionCreation.bankCharges.credit.title} 
                   </h6>
                 </Col>
@@ -116,6 +154,7 @@ const Gl = ({state, dispatch}) => {
                 </Col>
               </>
               }
+
             </>
             }
         </Row>
