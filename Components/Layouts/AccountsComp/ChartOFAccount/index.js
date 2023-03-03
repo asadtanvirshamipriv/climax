@@ -57,8 +57,8 @@ const ChartOFAccount = ({accountsData}) => {
 
     const [ state, dispatch ] = useReducer(recordsReducer, initialState);
     const { records, visible } = state;
-    useEffect(() => { getAccounts(accountsData) }, [])
-    
+    useEffect(() => { getAccounts(accountsData) }, []);
+
     async function getAccounts(data){
         let tempState = [];
         let tempStateTwo = [];
@@ -74,7 +74,6 @@ const ChartOFAccount = ({accountsData}) => {
                 }
                 tempStateTwo.push(y)
             })
-
         });
         dispatch({ type: 'toggle', fieldName: 'records', payload: tempState })
         dispatch({ type: 'toggle', fieldName: 'parentRecords', payload: tempStateTwo })

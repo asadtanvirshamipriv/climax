@@ -34,7 +34,7 @@ const CreateOrEdit = ({state, dispatch, baseValues}) => {
         reset(tempState);
     }
     if(!state.edit){ reset(baseValues) }
-}, [state.selectedRecord])
+  }, [state.selectedRecord])
 
   const onSubmit = async(data) => {
     dispatch({type:'toggle', fieldName:'load', payload:true});
@@ -84,11 +84,6 @@ const CreateOrEdit = ({state, dispatch, baseValues}) => {
         })
     }, 3000);
   };
-
-  useEffect(() => {
-    console.log(taxApply)
-  }, [taxApply])
-  
 
   const onError = (errors) => console.log(errors);
 

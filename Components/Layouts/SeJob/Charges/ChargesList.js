@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { Row, Col, Table, Spinner } from 'react-bootstrap';
 import { CloseCircleOutlined, RightCircleOutlined } from '@ant-design/icons';
-import { Select, Input, Modal, Tag } from 'antd';
+import { Row, Col, Table, Spinner } from 'react-bootstrap';
 import PopConfirm from '../../../Shared/PopConfirm';
+import React, { useEffect, useState } from 'react';
+import { Select, Input, Modal, Tag } from 'antd';
 import PartySearch from './PartySearch';
 import axios from 'axios';
 
 const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
 
-    const [load, setLoad] = useState(false)
+    const [load, setLoad] = useState(false);
+
     function calculate (i, amount, discount, taxApply, tax_rate, exRate, qty){
         let tempChargeList = [...chargeType];
         tempChargeList[i].amount = amount;
@@ -33,6 +34,21 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
         tempChargeList[i].tax_amount = parseFloat(tempChargeList[i].tax_amount).toFixed(2);
         tempChargeList[i].net_amount = parseFloat(tempChargeList[i].net_amount).toFixed(2);
         dispatch({type:'toggle', fieldName:state.chargesTab=='1'?'reciveableCharges':'paybleCharges', payload:tempChargeList});
+    }
+
+    const getCurrencyInfo = (heads) => {
+        let currencyOne = heads[0].currency;
+        let currencyTwo = '';
+        let returnValue = '';
+        heads.forEach((x, i) => {
+            currencyTwo = x.currency;
+            if(i>0 && currencyOne!=currencyTwo){
+                returnValue = "Multi";
+            } else {
+                returnValue = x.currency;
+            }
+        })
+        return returnValue;
     }
 
     async function makeInvoice(){
@@ -74,17 +90,19 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
                     addCharges.push(y)
                 }
             })
-            invoices[i].charges=addCharges
+            invoices[i].charges=addCharges;
+            invoices[i].currency = getCurrencyInfo(addCharges)
+            console.log(invoices[i])
         });
 
         await axios.post(process.env.NEXT_PUBLIC_CLIMAX_SAVE_HEADS, {invoices:invoices, deleteList:state.deleteList})
-        .then((x)=>{
+        .then(() => {
             getHeads();
             dispatch({type:'toggle', fieldName:'deleteList', payload:[]});
         });
     }
 
-    useEffect(() => {  getHeads() }, [state.selectedRecord])
+    useEffect(()=> { getHeads() }, [state.selectedRecord])
 
     const getHeads = async() => {
         setLoad(true);
@@ -238,13 +256,14 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
         <td style={{padding:3, minWidth:150}}> {/* charge selection */}
             <Select className='table-dropdown' showSearch value={x.charge}
                 onChange={(e)=>{
+                    console.log(e);
                     let tempChargeList = [...chargeType];
                     state.fields.chargeList.forEach((y, i) => {
                         if(y.code==e){
                             tempChargeList[index].charge=e;
                             tempChargeList[index].particular=y.name;
                             tempChargeList[index].basis=y.calculationType;
-                            tempChargeList[index].currency=y.currency;
+                            //tempChargeList[index].currency=y.currency;
                             dispatch({type:'toggle', fieldName:state.chargesTab=='1'?'reciveableCharges':'paybleCharges', payload:tempChargeList});
                         }
                     })
@@ -313,7 +332,26 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
                 onChange={(e)=> calculate(index, x.amount, x.discount, x.tax_apply, "No", x.ex_rate, e.target.value)} 
             />
         </td> {/* QTY */}
-        <td>{x.currency}</td>
+        {/* <td>{x.currency}</td> */}
+        <td style={{padding:3, minWidth:50}}> {/* DG */}
+            <Select
+                className='table-dropdown'
+                value={x.currency}
+                //disabled={x.id!=null}
+                onChange={(e)=>{
+                    let tempChargeList = [...chargeType];
+                    tempChargeList[index].currency = e
+                    dispatch({type:'toggle', fieldName:state.chargesTab=='1'?'reciveableCharges':'paybleCharges', payload:tempChargeList});
+                }}
+                options={[
+                    {label:'PKR', value:'PKR'},
+                    {label:'USD', value:'USD'},
+                    {label:'EUR', value:'EUR'},
+                    {label:'GBP', value:'GBP'},
+                    {label:'AED', value:'AED'},
+                ]}
+            />
+        </td>
         <td style={{padding:3, minWidth:50}}> {/* Amount */}
             <Input style={{height:30, minWidth:90}} value={x.amount} placeholder="Amounts" 
                 onChange={(e)=> calculate(index, e.target.value, x.discount, x.tax_apply, "No", x.ex_rate, x.qty)} 

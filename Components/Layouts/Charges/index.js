@@ -77,7 +77,7 @@ const Charges = ({chargeData}) => {
                     onChange={(e)=>dispatch({type:'toggle', fieldName:'search', payload:e.target.value})} 
                 />
                 </Col>
-            <Col md={3}><button className='btn-custom right' onClick={()=>dispatch({type:'create'})}>Charges</button></Col>
+            <Col md={3}><button className='btn-custom right' onClick={()=>dispatch({type:'create'})}>Create</button></Col>
         </Row>
         </Col>
     </Row>

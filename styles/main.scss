@@ -122,6 +122,14 @@
   border: none;
   cursor: pointer;
 }
+.btn-custom-disabled{
+  background-color: rgb(126, 173, 181)!important;
+  color: white;
+  padding: 5px 20px 5px 20px;
+  border-radius: 15px;
+  border: none;
+  cursor:not-allowed
+}
 .div-btn-custom{
   background-color: rgb(6, 150, 172)!important;
   color: white;
@@ -315,4 +323,38 @@
   display: table-cell;
   text-align: center;
   vertical-align: middle;
+}
+
+.custom-select-input{
+  border:1px solid rgb(213, 213, 213);
+  padding:4px 10px;
+  border-radius: 2px;
+  cursor:pointer
+}
+.custom-select-input:hover{
+  transition-duration: 150ms;
+  border:1px solid rgb(110, 195, 255);
+}
+
+.custom-select-input-small{
+  border:1px solid rgb(213, 213, 213);
+  padding:0px 10px;
+  font-size: 14px;
+  border-radius: 2px;
+  cursor:pointer
+}
+.custom-select-input-small:hover{
+  transition-duration: 150ms;
+  border:1px solid rgb(110, 195, 255);
+}
+
+.gl-col-lines{
+  border-left: 1px solid grey;
+  border-bottom: 1px solid grey;
+  padding-top: 5px;
+}
+
+.gl-curr-rep{
+  color: rgb(156, 156, 156);
+  font-size: 80%;
 }

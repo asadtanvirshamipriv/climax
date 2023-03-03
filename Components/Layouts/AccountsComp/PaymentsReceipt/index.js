@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { Row, Col } from 'react-bootstrap';
-import { Input, List, Radio, Modal } from 'antd';
+import { Input, List, Radio, Modal, Select } from 'antd';
 import { SearchOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import axios from 'axios';
 import BillComp from './BillComp';
+import AgentBillComp from './AgentBillComp';
 
 const PaymentsReceipt = () => {
 
     const [visible, setVisible] = useState(false);
-    const [search, setSearch] = useState("");
+    const [search, setSearch] = useState("client");
     const [partytype, setPartyType] = useState("client");
     const [payType, setPayType] = useState("Recievable");
+    const [invoiceCurrency, setInvoiceCurrency] = useState("USD");
     const [partyOptions, setPartyOptions] = useState([]);
     const [selectedParty, setSelectedParty] = useState({id:'', name:''});
 
@@ -42,27 +44,37 @@ const PaymentsReceipt = () => {
         )
     }
 
+    const basestyle = {borderBottom:'1px solid silver', paddingBottom:5, marginBottom:10}
+
   return (
     <div className='base-page-layout'>
         <Row>
-            <Col md={12} xs={12}>
-                <h4 className='fw-7'>Payments / Receipts</h4>
-            </Col>
-            <Col style={{maxWidth:200}}>
-                <div>Type</div>
+            <Col md={12} xs={12}><h4 className='fw-7'>Payments / Receipts</h4></Col>
+            <Col style={{maxWidth:100}}>
+                <div style={basestyle}>Type</div>
                 <Radio.Group className='mt-1' 
                     value={partytype}
                     onChange={(e)=>{
                         setPartyType(e.target.value);
+                        console.log(e.target.value);
+                        if(e.target.value=="vendor"){
+                            setPayType("Payble");
+                        }else if(e.target.value=="client"){
+                            setPayType("Recievable");
+                        }else if(e.target.value=="agent"){
+                            setPayType("Payble");
+                        }
                         setSearch("");
                     }} 
                 >
                     <Radio value={"client"}>Client</Radio>
                     <Radio value={"vendor"}>Vendor</Radio>
+                    <Radio value={"agent"}>Agent</Radio>
                 </Radio.Group>
             </Col>
+            <Col style={{maxWidth:30}}></Col>
             <Col style={{maxWidth:250}}>
-                <div>Payment</div>
+                <div style={basestyle}>Payment</div>
                 <Radio.Group className='mt-1' 
                     value={payType}
                     onChange={(e)=>{
@@ -73,9 +85,27 @@ const PaymentsReceipt = () => {
                     <Radio value={"Payble"}>Payble</Radio>
                     <Radio value={"Recievable"}>Recievable</Radio>
                 </Radio.Group>
+
+                <div className='mt-3' style={basestyle}>On Account</div>
+                <Select size='small'
+                    disabled={partytype!="agent"?true:false}
+                    defaultValue={invoiceCurrency}
+                    onChange={(e)=> setInvoiceCurrency(e)}
+                    style={{
+                        width:'100%',
+                    }}
+                    options={[
+                        { value:'USD', label:'USD' },
+                        { value:'PKR', label:'PKR' },
+                        { value:'GBP', label:'GBP' },
+                        { value:'EUR', label:'EUR' },
+                        { value:'Multi', label:'Multi' },
+                    ]}
+                />
             </Col>
+            <Col style={{maxWidth:30}}></Col>
             <Col style={{maxWidth:400}}>
-                <div>Search</div>
+                <div style={basestyle}>Search</div>
                 <Input style={{ width: 400 }} placeholder="Search" 
                     suffix={search.length>2?<CloseCircleOutlined onClick={()=>setSearch("")} />:<SearchOutlined/>} 
                     value={search} onChange={(e)=>setSearch(e.target.value)}
@@ -86,17 +116,18 @@ const PaymentsReceipt = () => {
                     </div>
                 }
             </Col>
-            <Col md={12}>
-                <hr/>
-            </Col>
+            <Col md={12}><hr/></Col>
         </Row>
-        <Modal title={`${selectedParty.name}'s Invoices/Bills`} open={visible} 
+        <Modal 
+            open={visible} 
+            width={'100%'}
             onOk={()=>setVisible(false)} 
             onCancel={()=>setVisible(false)}
             footer={false} maskClosable={false}
-            width={'100%'}
+            title={`${selectedParty.name}'s Invoices/Bills`}
         >
-            <BillComp selectedParty={selectedParty} payType={payType} />
+            {(selectedParty.id!=''&& partytype!="agent") && <BillComp selectedParty={selectedParty} payType={payType} />}
+            {(selectedParty.id!=''&& partytype=="agent") && <AgentBillComp selectedParty={selectedParty} payType={payType} invoiceCurrency={invoiceCurrency} />}
         </Modal>
     </div>
   )

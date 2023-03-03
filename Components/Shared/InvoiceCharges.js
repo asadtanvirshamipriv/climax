@@ -36,31 +36,37 @@ const InvoiceCharges = ({data}) => {
         />
     </div>
     <Row className='py-3'>
-        <Col>
+        <Col md={3} className="mb-3">
             <div>
                 <span className='inv-label'>Invoice No#:</span>
                 <span className='inv-value'>{" "}{invoice.invoice_No}</span>
             </div>
         </Col>
-        <Col>
+        <Col md={3} className="mb-3">
             <div>
                 <span className='inv-label'>Party Name:</span>
                 <span className='inv-value'>{" "}{invoice.party_Name}</span>
             </div>
         </Col>
-        <Col>
+        <Col md={3} className="mb-3">
             <div>
                 <span className='inv-label'>Pay Type:</span>
                 <span className='inv-value'>{" "}{invoice.payType}</span>
             </div>
         </Col>
-        <Col>
+        <Col md={3} className="mb-3">
+            <div>
+                <span className='inv-label'>Currency:</span>
+                <span className='inv-value'>{" "}{invoice.currency}</span>
+            </div>
+        </Col>
+        <Col md={3} className="mb-3">
             <div>
                 <span className='inv-label'>Invoie/Bill:</span>
                 <span className='inv-value'>{" "}{invoice.type}</span>
             </div>
         </Col>
-        <Col>
+        <Col md={3} className="mb-3">
             <div>
                 <span className='inv-label'>Created:</span>
                 <span className='inv-value'>{" "}{ moment(invoice.createdAt).format("DD / MMM / YY")}</span>
