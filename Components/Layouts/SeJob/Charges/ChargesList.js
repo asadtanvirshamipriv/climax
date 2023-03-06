@@ -161,13 +161,13 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
                     let tempState = [...chargeType];
                     tempState.push({
                         id:null, description:'', basis:'', pp_cc:'', type:state.chargesTab=='1'?'Recievable':"Payble",
-                        ex_rate: 1, local_amount: 0,  size_type:'', dg_type:'', qty:1, currency:'', amount:0,
+                        ex_rate: 1, local_amount: 0,  size_type:'', dg_type:state.selectedRecord.dg=="Mix"?"DG":state.selectedRecord.dg, qty:1, currency:'', amount:0,
                         check: false, bill_invoice: '', charge: '', particular: '',
                         discount:0, tax_apply:'No', tax_amount:0, net_amount:0,
                         status:'', approved_by:'', approval_date:'',
                         invoiceType:"", //  state.chargesTab=='1'?"Job Invoice":"",
                         name: "",
-                        partyId:""
+                        partyId:"", sep:false
                     });
                     dispatch({type:'toggle', fieldName:state.chargesTab=='1'?"reciveableCharges":"paybleCharges", payload:tempState});
                 }}
@@ -187,13 +187,12 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
       <Table className='tableFixHead' bordered>
       <thead>
         <tr className='table-heading-center'>
-          <th>...</th>
-          <th></th>
           <th>Sr.</th>
+          <th></th>
+          <th>Select</th>
           <th>Bill/Invoice</th>
           <th>Charge</th>
           <th>Particular</th>
-          <th>Description</th>
           <th>Basis</th>
           <th>PP/CC</th>
           <th>SizeType</th>
@@ -217,8 +216,9 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
       {chargeType.map((x, index) => {
       return (
       <tr key={index} className='f table-row-center-singleLine'>
-        <td>
-            <CloseCircleOutlined className='cross-icon'
+        <td>{index + 1}</td>
+        <td className='text-center'>
+            <CloseCircleOutlined className='cross-icon' style={{position:'relative', bottom:3}}
                 onClick={() => {
                     PopConfirm("Confirmation", "Are You Sure To Remove This Charge?",
                     () => {
@@ -232,7 +232,7 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
                 }}
             />
         </td>
-        <td>
+        <td className='text-center'>
             <input type="checkbox" style={{cursor:'pointer'}}
                 checked={x.check}
                 onChange={()=>{
@@ -242,7 +242,6 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
                 }}
             />
         </td>
-        <td>{index + 1}</td>
         <td className='text-center'>{/* Invoice Number */}
             {x.invoice_id!=null &&
             <Tag color="geekblue" style={{fontSize:15, cursor:"pointer"}}
@@ -253,7 +252,7 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
             >{x.invoice_id}</Tag>
             }
         </td>
-        <td style={{padding:3, minWidth:150}}> {/* charge selection */}
+        <td style={{padding:3, minWidth:100}}> {/* charge selection */}
             <Select className='table-dropdown' showSearch value={x.charge}
                 onChange={(e)=>{
                     console.log(e);
@@ -275,7 +274,6 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
             />
         </td>
         <td>{x.particular}</td>
-        <td></td> {/* Description */}
         <td>{x.basis.slice(0, 8)} {/* Basis */}</td>
         <td style={{padding:3, minWidth:50}}> {/* PP?CC */}
             <Select

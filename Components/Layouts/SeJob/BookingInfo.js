@@ -45,13 +45,13 @@ const BookingInfo = ({register, control, errors, state, useWatch, dispatch}) => 
         </div>
       </Col>
       <Col md={3} className='py-1'>
-        <SelectComp register={register} name='jobType' control={control} label='Job Type' 
+        <SelectComp register={register} name='jobType' control={control} label='Job Type' width={200}
           options={[  
             {id:'Direct', name:'Direct'},
         ]}/>
       </Col>
       <Col md={3} className='py-1'>
-        <SelectComp register={register} name='jobKind' control={control} label='Job Kind' 
+        <SelectComp register={register} name='jobKind' control={control} label='Job Kind' width={200}
           options={[  
             {id:'Current', name:'Current'},
           ]}/>
@@ -65,27 +65,35 @@ const BookingInfo = ({register, control, errors, state, useWatch, dispatch}) => 
           {errors.registerDate && <div className='error-line'>Required*</div>}
       </Col>
       <Col md={3} className='py-1'>
-        <SelectComp register={register} name='costCenter' control={control} label='Cost Center' 
+        <SelectComp register={register} name='costCenter' control={control} label='Cost Center' width={200}
           options={[  
             {id:'FSD', name:'FSD'},
             {id:'KHI', name:'KHI'}
           ]} />
       </Col>
-      <Col md={3} className='py-1'>
-        <SelectComp register={register} name='subType' control={control} label='Sub Type' 
+      <Col md={2} className='py-1'>
+        <SelectComp register={register} name='subType' control={control} label='Sub Type' width={150}
           options={[  
             {id:'FCL', name:'FCL'},
         ]} />
       </Col>
-      <Col md={3} className='py-1'>
-        <SelectComp register={register} name='freightType' control={control} label='Freight Type' 
+      <Col md={2} className='py-1'>
+        <SelectComp register={register} name='dg' control={control} label='DG' width={100}
+          options={[  
+            {id:'DG', name:'DG'},
+            {id:'non-DG', name:'non-DG'},
+            {id:'Mix', name:'Mix'},
+        ]} />
+      </Col>
+      <Col md={2} className='py-1'>
+        <SelectComp register={register} name='freightType' control={control} label='Freight Type' width={150}
           options={[  
             {id:'Prepaid', name:'Prepaid'},
             {id:'Collect', name:'Collect'},
         ]} />
       </Col>
-      <Col md={3} className='py-1'>
-        <SelectComp register={register} name='nomination' control={control} label='Nomination' 
+      <Col md={2} className='py-1'>
+        <SelectComp register={register} name='nomination' control={control} label='Nomination' width={200}
           options={[  
             {id:'Free Hand', name:'Free Hand'},
         ]} />
@@ -126,10 +134,10 @@ const BookingInfo = ({register, control, errors, state, useWatch, dispatch}) => 
       <Col md={3}>
         <SelectSearchComp register={register} name='salesRepresentatorId' control={control} label='Sales Representator' 
           options={state.fields.sr} />
-        <SelectSearchComp register={register} name='localVendorId' control={control} label='Local Vendor' 
-          options={state.fields.vendor.localVendor} />
         <SelectSearchComp register={register} name='overseasAgentId' control={control} label='Overseas Agent' 
           options={state.fields.vendor.overseasAgent} />
+        <SelectSearchComp register={register} name='localVendorId' control={control} label='Local Vendor' 
+          options={state.fields.vendor.localVendor} />
         <div className='px-2 pb-2 mt-3' style={{border:'1px solid silver'}}>
         <SelectSearchComp register={register} name='carrier' control={control} label='SLine/Carrier'
           options={carriesrs} />

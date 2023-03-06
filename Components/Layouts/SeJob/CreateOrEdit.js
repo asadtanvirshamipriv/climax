@@ -26,29 +26,31 @@ const CreateOrEdit = ({state, dispatch, baseValues}) => {
       tempState = { ...tempState,
         customCheck: tempState.customCheck.split(", "),
         transportCheck: tempState.transportCheck.split(", "),
-        eta: moment(tempState.eta),
-        polDate: moment(tempState.polDate),
-        podDate: moment(tempState.podDate),
-        aesDate: moment(tempState.aesDate),
-        aesTime: moment(tempState.aesTime),
-        eRcDate: moment(tempState.eRcDate),
-        eRcTime: moment(tempState.eRcTime),
-        eRlDate: moment(tempState.eRlDate),
-        eRlTime: moment(tempState.eRlTime),
-        jobDate: moment(tempState.jobDate),
-        shipDate:moment(tempState.shipDate),
-        doorMove:moment(tempState.doorMove),
-        cutOffDate: moment(tempState.cutOffDate),
-        cutOffTime:moment(tempState.cutOffTime),
-        siCutOffDate: moment(tempState.siCutOffDate),
-        siCutOffTime:moment(tempState.siCutOffTime),
-        vgmCutOffDate: moment(tempState.vgmCutOffDate),
-        vgmCutOffTime: moment(tempState.vgmCutOffTime)
+        eta: tempState.eta==""?"":moment(tempState.eta),
+        polDate: tempState.polDate==""?"":moment(tempState.polDate),
+        podDate: tempState.podDate==""?"":moment(tempState.podDate),
+        aesDate: tempState.aesDate==""?"":moment(tempState.aesDate),
+        aesTime: tempState.aesTime==""?"":moment(tempState.aesTime),
+        eRcDate: tempState.eRcDate==""?"":moment(tempState.eRcDate),
+        eRcTime: tempState.eRcTime==""?"":moment(tempState.eRcTime),
+        eRlDate: tempState.eRlDate==""?"":moment(tempState.eRlDate),
+        eRlTime: tempState.eRlTime==""?"":moment(tempState.eRlTime),
+        jobDate: tempState.jobDate==""?"":moment(tempState.jobDate),
+        shipDate:tempState.shipDate==""?"":moment(tempState.shipDate),
+        doorMove:tempState.doorMove==""?"":moment(tempState.doorMove),
+        cutOffDate:tempState.cutOffDate==""?"":moment(tempState.cutOffDate),
+        cutOffTime:tempState.cutOffTime==""?"":moment(tempState.cutOffTime),
+        siCutOffDate:tempState.siCutOffDate==""?"":moment(tempState.siCutOffDate),
+        siCutOffTime:tempState.siCutOffTime==""?"":moment(tempState.siCutOffTime),
+        vgmCutOffDate:tempState.vgmCutOffDate==""?"":moment(tempState.vgmCutOffDate),
+        vgmCutOffTime:tempState.vgmCutOffTime==""?"":moment(tempState.vgmCutOffTime)
       }
       if(tempState.SE_Equipments.length>0){
+        let tempEquips = tempState.SE_Equipments;
+        tempEquips.push({id:'', size:'', qty:'', dg:tempState.dg=="Mix"?"DG":tempState.dg, gross:'', teu:''})
         dispatch({type:'toggle', fieldName:'equipments', payload:tempState.SE_Equipments});
       }else{
-        dispatch({type:'toggle', fieldName:'equipments', payload:[{id:'', size:'', qty:'', dg:'', gross:'', teu:''}]});
+        dispatch({type:'toggle', fieldName:'equipments', payload:[{id:'', size:'', qty:'', dg:tempState.dg=="Mix"?"DG":tempState.dg, gross:'', teu:''}]});
       }
       dispatch({type:'toggle', fieldName:'oldRecord', payload:tempState});
       reset(tempState);
@@ -60,6 +62,16 @@ const CreateOrEdit = ({state, dispatch, baseValues}) => {
     data.equipments = state.equipments
     data.customAgentId = data.customCheck.length>0?data.customAgentId:null;
     data.transporterId = data.transportCheck.length>0?data.transporterId:null;
+
+    data.ClientId = data.ClientId!=""?data.ClientId:null;
+    data.shipperId = data.shipperId!=""?data.shipperId:null;
+    data.consigneeId = data.consigneeId!=""?data.consigneeId:null;
+    data.overseasAgentId = data.overseasAgentId!=""?data.overseasAgentId:null;
+    data.salesRepresentatorId = data.salesRepresentatorId!=""?data.salesRepresentatorId:null;
+    data.forwarderId = data.forwarderId!=""?data.forwarderId:null;
+    data.localVendorId = data.localVendorId!=""?data.localVendorId:null;
+    data.commodityId = data.commodityId!=""?data.commodityId:null;
+
     let loginId = Cookies.get('loginId');
     data.createdById = loginId;
     dispatch({type:'toggle', fieldName:'load', payload:true});
@@ -73,7 +85,7 @@ const CreateOrEdit = ({state, dispatch, baseValues}) => {
                 dispatch({type:'toggle', fieldName:'records', payload:tempRecords});
                 dispatch({type:'modalOff'});
                 reset(baseValues)
-                openNotification('Success', `Job For ${x.data.result.Client.name} Created!`, 'green')
+                openNotification('Success', `Job Created!`, 'green')
             }else{
                 openNotification('Error', `An Error occured Please Try Again!`, 'red')
             }
@@ -98,7 +110,7 @@ const CreateOrEdit = ({state, dispatch, baseValues}) => {
                 dispatch({type:'toggle', fieldName:'records', payload:tempRecords});
                 dispatch({type:'modalOff'});
                 reset(baseValues)
-                openNotification('Success', `Job For ${x.data.result.Client.name} Updated!`, 'green')
+                openNotification('Success', `Job Updated!`, 'green')
             }else{
                 openNotification('Error', `An Error occured Please Try Again!`, 'red')
             }
@@ -119,7 +131,7 @@ const CreateOrEdit = ({state, dispatch, baseValues}) => {
         <BookingInfo control={control} register={register} errors={errors} state={state} useWatch={useWatch} dispatch={dispatch} />
       </Tabs.TabPane>
       <Tabs.TabPane tab="Equipment" key="2">
-        <EquipmentInfo state={state} dispatch={dispatch} />
+        <EquipmentInfo control={control} register={register} errors={errors} state={state} dispatch={dispatch} useWatch={useWatch} />
       </Tabs.TabPane>
       <Tabs.TabPane tab="Routing" key="3">
         <Routing control={control} register={register} errors={errors} state={state} useWatch={useWatch} />
@@ -138,9 +150,9 @@ const CreateOrEdit = ({state, dispatch, baseValues}) => {
       {(state.tabState!="4" && state.tabState!="5") &&
       <>
       <button type="submit" disabled={state.load?true:false} className='btn-custom mt-3'>
-        {state.load?<Spinner animation="border" size='sm' className='mx-3' />:'Submit'}
+        {state.load?<Spinner animation="border" size='sm' className='mx-3' />:'Save Job'}
       </button>
-      <span className='btn-custom mx-5'
+      {/* <span className='btn-custom mx-5'
         onClick={()=>reset({
         "id": "",
         "vessel": 4,
@@ -194,7 +206,7 @@ const CreateOrEdit = ({state, dispatch, baseValues}) => {
         "siCutOffTime": moment("2022-12-30T02:07:00.704Z"),
         "vgmCutOffDate": moment("2022-12-30T09:29:33.425Z"),
         "vgmCutOffTime": moment("2022-12-29T19:04:00.800Z"),
-      })}>reset</span>
+      })}>reset</span> */}
       </>
       }
     </form>

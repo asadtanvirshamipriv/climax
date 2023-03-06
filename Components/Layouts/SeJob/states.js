@@ -61,6 +61,7 @@ const baseValues = {
   jobType:'',
   jobKind:'',
   subType:'',
+  dg:'',
   shipDate:'',
   freightType:'',
   nomination:'',

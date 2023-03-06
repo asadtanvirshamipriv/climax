@@ -17,6 +17,7 @@ const SeJob = ({fieldsData, jobsData}) => {
     fieldsData.result.chargeList=tempChargeList
     dispatch({type:'toggle', fieldName:'fields', payload:fieldsData.result})
     dispatch({type:'toggle', fieldName:'records', payload:jobsData.result})
+    console.log(jobsData.result)
   }, [])
 
   const getVessel = (id) => {
@@ -50,14 +51,13 @@ const SeJob = ({fieldsData, jobsData}) => {
           <th>Company Info</th>
           <th>Container Info</th>
           <th>Other Info</th>
-          <th>Modify</th>
         </tr>
       </thead>
       <tbody>
       {
       state.records.map((x, index) => {
       return (
-      <tr key={index} className='f'>
+      <tr key={index} className='f row-hov' onClick={()=>dispatch({type:'edit', payload:x})} >
         <td>{index + 1}</td>
         <td>
           <span className='blue-txt fw-7'>{x.jobNo}</span>
@@ -77,17 +77,10 @@ const SeJob = ({fieldsData, jobsData}) => {
           Weight: <span className='grey-txt'>{x.weight}</span>
         </td>
         <td>
-          Party:<span className='blue-txt fw-5'> {x.Client.name}</span><br/>
+          Party:<span className='blue-txt fw-5'> {x.Client===null?"":x.Client.name}</span><br/>
           Transportion: <span className='blue-txt fw-5'>{x.transportCheck!=''?'Yes':'No'}</span>
           <br/>
           Custom Clearance: <span className='blue-txt fw-5'>{x.customCheck!=''?'Yes':'No'}</span>
-        </td>
-        <td>
-          <span>
-            <EditOutlined className='modify-edit' onClick={()=>{
-              dispatch({type:'edit', payload:x})
-            }} />
-          </span>
         </td>
       </tr>
         )
@@ -96,7 +89,7 @@ const SeJob = ({fieldsData, jobsData}) => {
       </Table>
     </div>
     <Modal
-      open={visible}
+      open={visible} maskClosable={false}
       onOk={()=>dispatch({ type: 'modalOff' })} onCancel={()=>dispatch({ type: 'modalOff' })}
       width={1000} footer={false} centered={true}
     >

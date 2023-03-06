@@ -24,7 +24,7 @@ const EquipmentInfo = ({state, dispatch}) => {
           {state.equipments.map((x, i) => {
             return(
               <tr className='f' key={i} onClick={()=>{
-                if(i==state.equipments.length-1 && (x.size!=''&&x.qty!=''&&x.dg!='')){
+                if(i==state.equipments.length-1 && (x.size!='')){
                   let tempState = [...state.equipments];
                   tempState.push({size:'', qty:'', dg:'', gross:'', teu:''});
                   dispatch({type:'toggle', fieldName:'equipments', payload:tempState});

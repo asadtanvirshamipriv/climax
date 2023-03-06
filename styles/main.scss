@@ -370,3 +370,14 @@
   font-weight: 100;
   font-size: 80%;
 }
+
+.row-hov{
+  transition-duration: 300ms;
+  background-color: white;
+  cursor: pointer;
+}
+.row-hov:hover{
+  transition-duration: 300ms;
+  background-color: rgb(208, 236, 239);
+  cursor: pointer;
+}
