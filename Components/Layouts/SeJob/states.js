@@ -57,6 +57,7 @@ const baseValues = {
   id:'',
   jobNo:'',
   costCenter:'',
+  shipStatus:'',
   jobDate:'',
   jobType:'',
   jobKind:'',

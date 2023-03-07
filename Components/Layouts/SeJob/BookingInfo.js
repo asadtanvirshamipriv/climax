@@ -26,13 +26,15 @@ const BookingInfo = ({register, control, errors, state, useWatch, dispatch}) => 
   function getWeight(){
     let weight = 0.0;
     let teu = 0;
+    let qty = 0;
     state.equipments.forEach((x) => {
       if(x.gross!=''&&x.teu!=''){
         weight = weight + parseFloat(x.gross.replace(/,/g, ''));
         teu = teu + parseInt(x.teu);
+        qty = qty + parseInt(x.qty);
       }
     });
-    return {weight, teu}
+    return {weight, teu, qty}
   }
 
   return (
@@ -44,16 +46,20 @@ const BookingInfo = ({register, control, errors, state, useWatch, dispatch}) => 
           {state.edit?(state.selectedRecord.jobNo):<span style={{color:'white'}}>.</span>}
         </div>
       </Col>
-      <Col md={3} className='py-1'>
-        <SelectComp register={register} name='jobType' control={control} label='Job Type' width={200}
+      <Col md={2} className='py-1'>
+        <SelectComp register={register} name='jobType' control={control} label='Job Type' width={150}
           options={[  
             {id:'Direct', name:'Direct'},
+            {id:'Coloaded', name:'Coloaded'},
+            {id:'Cross Trade', name:'Cross Trade'},
+            {id:'Liner Agency', name:'Liner Agency'},
         ]}/>
       </Col>
-      <Col md={3} className='py-1'>
-        <SelectComp register={register} name='jobKind' control={control} label='Job Kind' width={200}
+      <Col md={2} className='py-1'>
+        <SelectComp register={register} name='jobKind' control={control} label='Job Kind' width={150}
           options={[  
             {id:'Current', name:'Current'},
+            {id:'Opening', name:'Opening'},
           ]}/>
       </Col>
       <Col md={2} className='py-1'>     
@@ -64,21 +70,32 @@ const BookingInfo = ({register, control, errors, state, useWatch, dispatch}) => 
           <DateComp register={register} name='shipDate' control={control} label='Ship Date' />
           {errors.registerDate && <div className='error-line'>Required*</div>}
       </Col>
-      <Col md={3} className='py-1'>
-        <SelectComp register={register} name='costCenter' control={control} label='Cost Center' width={200}
+      <Col md={1}></Col>
+      <Col md={2} className='py-1'>
+        <SelectComp register={register} name='costCenter' control={control} label='Cost Center' width={140}
           options={[  
             {id:'FSD', name:'FSD'},
             {id:'KHI', name:'KHI'}
           ]} />
       </Col>
       <Col md={2} className='py-1'>
-        <SelectComp register={register} name='subType' control={control} label='Sub Type' width={150}
+        <SelectComp register={register} name='shipStatus' control={control} label='Ship Status:' width={150}
+          options={[  
+            {id:'Hold', name:'Hold'},
+            {id:'Booked', name:'Booked'},
+            {id:'Delivered', name:'Delivered'},
+            {id:'Shipped', name:'Shipped'},
+            {id:'Closed', name:'Closed'}
+          ]} />
+      </Col>
+      <Col md={1} className='py-1'>
+        <SelectComp register={register} name='subType' control={control} label='Sub Type' width={50}
           options={[  
             {id:'FCL', name:'FCL'},
         ]} />
       </Col>
       <Col md={2} className='py-1'>
-        <SelectComp register={register} name='dg' control={control} label='DG' width={100}
+        <SelectComp register={register} name='dg' control={control} label='DG' width={68}
           options={[  
             {id:'DG', name:'DG'},
             {id:'non-DG', name:'non-DG'},
@@ -93,9 +110,11 @@ const BookingInfo = ({register, control, errors, state, useWatch, dispatch}) => 
         ]} />
       </Col>
       <Col md={2} className='py-1'>
-        <SelectComp register={register} name='nomination' control={control} label='Nomination' width={200}
+        <SelectComp register={register} name='nomination' control={control} label='Nomination' width={120}
           options={[  
             {id:'Free Hand', name:'Free Hand'},
+            {id:'Nominated', name:'Nominated'},
+            {id:'B2B', name:'B2B'},
         ]} />
       </Col>
     </Row>
@@ -174,7 +193,7 @@ const BookingInfo = ({register, control, errors, state, useWatch, dispatch}) => 
           <Row>
             <Col md={6} className='mt-2'>
             <div>Weight</div>
-              <InputNumber value={getWeight().weight} disabled />
+              <InputNumber value={getWeight().weight} disabled style={{ color:'black'}} />
               {/* <InputNumComp register={register} name='weight' control={control} 
                 label='Weight' step={'0.01'}
               /> */}
@@ -185,9 +204,11 @@ const BookingInfo = ({register, control, errors, state, useWatch, dispatch}) => 
               />
             </Col>
             <Col md={12} className='mt-2'>
-              <InputNumComp register={register} name='container' control={control} 
+            <div>Container</div>
+            <InputNumber value={getWeight().qty} disabled style={{minWidth:200, color:'black'}} />
+              {/* <InputNumComp register={register} name='container' control={control} 
                 label='Container' width={200}
-              />
+              /> */}
             </Col>
             <Col md={6} className='mt-2'>
               <InputNumComp register={register} name='shpVol' control={control} 
@@ -196,7 +217,7 @@ const BookingInfo = ({register, control, errors, state, useWatch, dispatch}) => 
             </Col>
             <Col md={6} className='mt-2'>
               <div>TEU</div>
-              <InputNumber value={getWeight().teu} disabled />
+              <InputNumber value={getWeight().teu} disabled style={{ color:'black'}} />
               {/* <InputNumComp register={register} name='teu' control={control} 
                 label='TEU'
               /> */}

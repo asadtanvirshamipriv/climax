@@ -85,29 +85,26 @@ const BillComp = ({selectedParty, payType}) => {
         let tempDate = moment(state.date).format("DD-MM-YYYY");
         let transTwo = [];
         let removing = 0;
-        if(state.finalTax && state.finalTax!=0){
-            removing = state.finalTax;
-        }
-        if(state.bankCharges && state.bankCharges!=0){
-            removing = removing + state.bankCharges;
-        }
 
         if((Object.keys(state.payAccountRecord).length!=0) && (state.totalrecieving!=0)){ // <- Checks if The Recieving Account is Selected
-            transTwo.push({particular:state.payAccountRecord.title,  // | Checks the account type to make Debit or Credit
-                tran:{type:state.payAccountRecord.Parent_Account.Account[payType=="Recievable"?'inc':'dec'], amount:state.totalrecieving-removing}
-            })
             if((Object.keys(state.taxAccountRecord).length!=0) && (state.finalTax!=0) && (state.finalTax!=null) && (state.totalrecieving!=0)){
+                removing = state.finalTax;
+                console.log(removing)
                 transTwo.push({particular:state.taxAccountRecord.title, 
                     tran:{type:state.taxAccountRecord.Parent_Account.Account[payType=="Recievable"?'inc':'dec'], amount:state.finalTax}
                 })
             }
-    
             if((Object.keys(state.bankChargesAccountRecord).length!=0) && (state.bankCharges!=0) && (state.bankCharges!=null) && (state.totalrecieving!=0)){
+                removing = removing + state.bankCharges;
+                console.log(removing)
                 transTwo.push({particular:state.bankChargesAccountRecord.title, 
                     tran:{type:state.bankChargesAccountRecord.Parent_Account.Account[payType=="Recievable"?'inc':'dec'], amount:state.bankCharges}
                 })
             }
             transTwo.push({particular:selectedParty.name, tran:{type:payType=="Recievable"?'credit':'debit', amount:state.totalrecieving}})
+            transTwo.unshift({particular:state.payAccountRecord.title,  // | Checks the account type to make Debit or Credit
+                tran:{type:state.payAccountRecord.Parent_Account.Account[payType=="Recievable"?'inc':'dec'], amount:state.totalrecieving-removing}
+            })
         }
 
         set('transactionCreation', transTwo);
