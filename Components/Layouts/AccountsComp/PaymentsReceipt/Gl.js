@@ -7,11 +7,8 @@ import { CheckCircleOutlined, StopOutlined } from "@ant-design/icons"
 const Gl = ({state, dispatch}) => {
 
   const set = (a, b) => { dispatch({type:'set', var:a, pay:b}) }
-  const commas = (a) =>  { console.log(a); return a.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ", ")}
+  const commas = (a) =>  { return a.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ", ")}
 
-  useEffect(() => {
-    console.log(state.transactionCreation);
-  }, [state])
 
   const getTotal = (type) => {
     let result = 0.00;

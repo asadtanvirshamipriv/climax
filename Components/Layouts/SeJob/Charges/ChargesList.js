@@ -52,49 +52,56 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
     }
 
     async function makeInvoice(){
+        setLoad(true);
         let charges = [];
         state.paybleCharges.forEach((x)=>{ charges.push(x) })
         state.reciveableCharges.forEach((x)=>{ charges.push(x) })
         let invoices = [];
-
         charges.forEach((x) => {
             if(invoices.length==0){
                 invoices.push({
-                    id:null, party_Id:x.partyId, party_Name:x.name,
-                    type:x.invoiceType, status:0, operation:"SE",
+                    id:null,
+                    party_Id:x.partyId,
+                    party_Name:x.name,
+                    type:x.invoiceType,
+                    status:0,
+                    operation:"SE",
                     payType:x.type,
-                    SEJobId:state.selectedRecord.id
+                    SEJobId:state.selectedRecord.id,
+                    sep:x.sep
                 });
             } else {
                 let exist = false
                 invoices.forEach((y, i)=>{
-                    if(y.party_Id==x.partyId && y.type==x.invoiceType){
+                    if(y.party_Id==x.partyId && y.type==x.invoiceType && x.sep==false){
                         exist = true
                     }
                     if(i==invoices.length-1 && exist==false){
                         invoices.push({
-                            id:null, party_Id:x.partyId, party_Name:x.name,
-                            type:x.invoiceType, status:0, operation:"SE",
+                            id:null,
+                            party_Id:x.partyId,
+                            party_Name:x.name,
+                            type:x.invoiceType,
+                            status:0,
+                            operation:"SE",
                             payType:x.type,
-                            SEJobId:state.selectedRecord.id
+                            SEJobId:state.selectedRecord.id,
+                            sep:x.sep
                         })
                     }
                 })
             }
         });
-
         invoices.forEach((x, i)=>{
             let addCharges = [];
             charges.forEach((y, j)=>{
-                if(y.partyId==x.party_Id && x.type==y.invoiceType){
+                if(y.partyId==x.party_Id && x.type==y.invoiceType && x.sep==y.sep){
                     addCharges.push(y)
                 }
             })
             invoices[i].charges=addCharges;
             invoices[i].currency = getCurrencyInfo(addCharges)
-            console.log(invoices[i])
         });
-
         await axios.post(process.env.NEXT_PUBLIC_CLIMAX_SAVE_HEADS, {invoices:invoices, deleteList:state.deleteList})
         .then(() => {
             getHeads();
@@ -105,7 +112,7 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
     useEffect(()=> { getHeads() }, [state.selectedRecord])
 
     const getHeads = async() => {
-        setLoad(true);
+        !load?setLoad(true):null;
         await axios.get(process.env.NEXT_PUBLIC_CLIMAX_GET_HEADS,{
             headers:{"id": `${state.selectedRecord.id}`}
         }).then((x)=>{
@@ -114,7 +121,7 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
                 x.data.result.forEach((x)=>{
                     if(x.payType!='Payble'){
                         x.Charge_Heads.forEach((y)=>{
-                            tempCharge.push(y);
+                            tempCharge.push({...y, sep:false});
                         })
                     }
                 })
@@ -123,7 +130,7 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
                 x.data.result.forEach((x)=>{
                     if(x.payType=='Payble'){
                         x.Charge_Heads.forEach((y)=>{
-                            tempCharge.push(y);
+                            tempCharge.push({...y, sep:false});
                         })
                     }
                 })
@@ -134,6 +141,7 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
     }
 
     const ApproveCharges = async() => {
+        setLoad(true);
         let chargesList = [];
         chargesList.push(...state.paybleCharges)
         chargesList.push(...state.reciveableCharges)
@@ -190,6 +198,7 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
           <th>Sr.</th>
           <th></th>
           <th>Select</th>
+          <th>Exc</th>
           <th>Bill/Invoice</th>
           <th>Charge</th>
           <th>Particular</th>
@@ -234,10 +243,20 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
         </td>
         <td className='text-center'>
             <input type="checkbox" style={{cursor:'pointer'}}
-                checked={x.check}
+                checked={x.check} disabled={x.id==null?true:false}
                 onChange={()=>{
                     let tempState = [...chargeType];
                     tempState[index].check=!tempState[index].check;
+                    dispatch({type:'toggle', fieldName:state.chargesTab=='1'?'reciveableCharges':'paybleCharges', payload:tempState});
+                }}
+            />
+        </td>
+        <td className='px-3 text-center'>
+            <input type="checkbox" style={{cursor:'pointer'}}
+                checked={x.sep} disabled={x.id!=null?true:(index==0 || chargeType[index-1].id==null)?true:false}
+                onChange={()=>{
+                    let tempState = [...chargeType];
+                    tempState[index].sep=!tempState[index].sep;
                     dispatch({type:'toggle', fieldName:state.chargesTab=='1'?'reciveableCharges':'paybleCharges', payload:tempState});
                 }}
             />
@@ -395,7 +414,7 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
       </Table>
       }
       {load &&
-        <div style={{textAlign:"center", paddingTop:'30%'}}>
+        <div style={{textAlign:"center", paddingTop:'5%', paddingBottom:"5%"}}>
             <Spinner />
         </div>
       }
