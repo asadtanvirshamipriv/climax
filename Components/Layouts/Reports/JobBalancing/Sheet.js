@@ -3,7 +3,7 @@ import { Table } from 'react-bootstrap';
 import { getNetInvoicesAmount } from '../../../../functions/amountCalculations';
 import moment from "moment";
 
-const Sheet = ({data}) => {
+const Sheet = ({data, payType}) => {
 
     const [records, setRecords] = useState([]);
 
@@ -12,12 +12,52 @@ const Sheet = ({data}) => {
       data.forEach((x, i) => {
         if(x.Invoices.length>1){
             x.Invoices.forEach((y, j) => {
-                tempData.push({ ...x, Invoices:y });
+                console.log(y)
+                if(y.Charge_Heads.length>0){
+                    let pay = y.payType=="Payble"?getNetInvoicesAmount(y.Charge_Heads).localAmount:""
+                    let rec = y.payType!="Payble"?getNetInvoicesAmount(y.Charge_Heads).localAmount:""
+                    tempData.push({ 
+                        ...x, Invoices:y,
+                        receivable:rec,
+                        payble:pay,
+                        balance:y.payType!="Payble"?rec-y.recieved:pay-y.paid
+                    });
+                }
             })
-        } else { tempData.push({...x, Invoices:x.Invoices[0]}); }
+        } else {
+            if(x.Invoices[0].Charge_Heads.length>0){
+                let pay = x.Invoices[0].payType=="Payble"?getNetInvoicesAmount(x.Invoices[0].Charge_Heads).localAmount:""
+                let rec = x.Invoices[0].payType!="Payble"?getNetInvoicesAmount(x.Invoices[0].Charge_Heads).localAmount:""
+                tempData.push({
+                    ...x, 
+                    Invoices:x.Invoices[0],
+                    receivable:rec,
+                    payble:pay,
+                    balance:x.Invoices[0].payType!="Payble"?rec-x.Invoices[0].recieved:pay-x.Invoices[0].paid
+                }); 
+            }
+        }
       });
       setRecords(tempData);
     }, [data])
+
+    const getTotal=(values, type)=>{
+        let result = 0.00;
+        values.forEach((x)=>{
+            if(type=="Recievable"){
+                result=result+parseFloat(x.receivable)
+            }else if(type=="Recieved"){
+                result=result+parseFloat(x.Invoices.recieved)
+            }else if(type=="balance"){
+                result=result+parseFloat(x.balance)
+            }else if(type=="Payble"){
+                result=result+parseFloat(x.payble)
+            }else if(type=="Payble"){
+                result=result+parseFloat(x.Invoices.paid)
+            }
+        })
+        return `${result.toFixed(2)}`
+    }
 
   return (
     <div>
@@ -35,10 +75,10 @@ const Sheet = ({data}) => {
                 <th>Container</th>
                 <th>Weight</th>
                 <th>Vol</th>
-                <th>Receivable</th>
-                <th>Payble</th>
-                <th>Received</th>
-                <th>paid</th>
+                {payType=="Recievable" &&<th>Recievable</th>}
+                {payType!="Recievable" &&<th>Payble</th>}
+                {payType=="Recievable" &&<th>Received</th>}
+                {payType!="Recievable" &&<th>paid</th>}
                 <th>Balance</th>
             </tr>
         </thead>
@@ -66,13 +106,30 @@ const Sheet = ({data}) => {
                 </td>
                 <td>{x.weight}</td>
                 <td>{x.vol}</td>
-                <td>{x.Invoices.payType!="Payble"?getNetInvoicesAmount(x.Invoices.Charge_Heads).localAmount:""}</td>
-                <td>{x.Invoices.payType=="Payble"?getNetInvoicesAmount(x.Invoices.Charge_Heads).localAmount:""}</td>
-                <td></td>
-                <td></td>
-                <td></td>
+                {payType=="Recievable" &&<td>{x.receivable.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ", ")}</td>}
+                {payType!="Recievable" &&<td>{x.payble.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ", ")}</td>}
+                {payType=="Recievable" &&<td>{x.Invoices.payType!="Payble"?x.Invoices.recieved.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ", "):""}</td>}
+                {payType!="Recievable" &&<td>{x.Invoices.payType=="Payble"?x.Invoices.paid.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ", "):""}</td>}
+                <td>{x.balance.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ", ")}</td>
             </tr>
         )})}
+        <tr className='f fs-12 text-center'>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>Total</td>
+                {payType=="Recievable" &&<td>{getTotal(records, "Recievable")-getTotal(records, "Recieved")}</td>}
+                {payType!="Recievable" &&<td>{getTotal(records, "Payble")}</td>}
+                {payType=="Recievable" &&<td>{getTotal(records, "Recieved")}</td>}
+                {payType!="Recievable" &&<td>{getTotal(records, "Paid")}</td>}
+                <td>{getTotal(records, "balance").toString().replace(/\B(?=(\d{3})+(?!\d))/g, ", ")}</td>
+            </tr>
         </tbody>
         </Table>
         </div>

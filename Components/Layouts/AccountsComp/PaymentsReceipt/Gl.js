@@ -1,14 +1,16 @@
-import { Row, Col, Table } from 'react-bootstrap';
+import { Row, Col, Table, Spinner } from 'react-bootstrap';
 import React, { useEffect } from 'react';
 import { Modal } from 'antd';
 import moment from 'moment';
-import { CheckCircleOutlined, StopOutlined } from "@ant-design/icons"
+import axios from 'axios';
+import { delay } from '../../../../functions/delay';
+import { getNetInvoicesAmount } from '../../../../functions/amountCalculations';
+import openNotification from '../../../Shared/Notification';
 
-const Gl = ({state, dispatch}) => {
+const Gl = ({state, dispatch, selectedParty, payType}) => {
 
   const set = (a, b) => { dispatch({type:'set', var:a, pay:b}) }
   const commas = (a) =>  { return a.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ", ")}
-
 
   const getTotal = (type) => {
     let result = 0.00;
@@ -20,6 +22,53 @@ const Gl = ({state, dispatch}) => {
     return result;
   }
 
+  const handleSubmit = async() => {
+    set("transLoad", true)
+    let tempInvoices = [];
+   
+    state.invoices.forEach((x, i) => {
+      if(x.receiving>0 && payType=="Recievable"){
+        tempInvoices.push({
+          id:x.id,
+          recieved:parseFloat(x.recieved) + parseFloat(x.receiving),
+          status:parseFloat(x.recieved) + parseFloat(x.receiving)<x.inVbalance?"3":"2"
+        })
+      }else if(x.receiving>0 && payType!="Recievable"){
+        tempInvoices.push({
+          id:x.id,
+          paid:parseFloat(x.paid) + parseFloat(x.receiving),
+          status:parseFloat(x.paid) + parseFloat(x.receiving)<x.inVbalance?"3":"2"
+        })
+      }
+    })
+    await delay(1000);
+    await axios.post(process.env.NEXT_PUBLIC_CLIMAX_POST_CREATE_INVOICE_TRANSACTION,tempInvoices).then(async(x)=>{
+      console.log(x.data);
+      await getInvoices(selectedParty.id);
+      set("glVisible", false);
+      openNotification("Success", "Transaction Updated!", "green")
+      tempInvoices = [];
+    })
+    set("transLoad", false);
+
+  }
+
+  const getInvoices = async(id) => {
+    set('load', true);
+    await axios.get(process.env.NEXT_PUBLIC_CLIMAX_GET_INVOICE_BY_PARTY_ID, {headers:{id:id, pay:payType}}).then(async(x)=> {
+        console.log(x.data.result);
+        let temp = x.data.result;
+        temp = temp.map(y=>({
+            ...y,
+            check:false,
+            receiving:0.00,
+            inVbalance:getNetInvoicesAmount(y.Charge_Heads).localAmount
+        }));
+        set('invoices', temp);
+        set('load', false);
+    })
+  }
+
   return (
     <>
     <Modal title={`Transaction General Journal`} open={state.glVisible} 
@@ -28,12 +77,13 @@ const Gl = ({state, dispatch}) => {
         footer={false} maskClosable={false}
         width={'60%'}
     >
-    <div style={{minHeight:400}}>
-      <div className='table-sm-1 mt-3' style={{maxHeight:400, overflowY:'auto'}}>
+    <div style={{minHeight:250}}>
+      <h3 className='grey-txt'>Proceed With Following Transaction Against?</h3>
+      <div className='table-sm-1 mt-3' style={{maxHeight:250, overflowY:'auto'}}>
         <Table className='tableFixHead' bordered>
           <thead>
               <tr>
-                  <th className='text-center' style={{width:250}}>Particular</th>
+                  <th className='' style={{width:250}}>Particular</th>
                   <th className='text-center' style={{width:25}}>Debit</th>
                   <th className='text-center' style={{width:25}}>Credit</th>
               </tr>
@@ -62,145 +112,12 @@ const Gl = ({state, dispatch}) => {
         </Table>
       </div>
     </div>
+    {state.transactionCreation.length>0 && <button className='btn-custom' disabled={state.transLoad?true:false} onClick={handleSubmit}>
+      {state.transLoad? <Spinner size='sm' className='mx-5' />:"Approve & Save"}
+    </button>}
     </Modal>
     </>
   )
 }
 
-export default Gl
-
-/*
-        <Row style={{borderRight:'1px solid grey', borderTop:'1px solid grey'}}>
-            <Col md={2} className="gl-col-lines text-center"><h6>Date</h6></Col>
-            <Col md={6} className="gl-col-lines text-center"><h6>Particulars</h6></Col>
-            <Col md={2} className="gl-col-lines text-center"><h6>Debit</h6></Col>
-            <Col md={2} className="gl-col-lines text-center"><h6>Credit</h6></Col>
-            {state.transactionCreation.recievable.exists &&
-            <>
-              <>
-                <Col md={2} className="gl-col-lines">
-                  <span>{moment(state.date).format("DD-MMM-YYYY")}</span>
-                </Col>
-                <Col md={6} className="gl-col-lines py-2">
-                  <h6 className='mx-1'>
-                    {state.transactionCreation.recievable.debit.title}
-                    {state.transactionCreation.recievable.debit.Parent_Account.Account.inc=="credit" &&
-                    <span className='acc-rec-warn'>
-                      {" ("}{state.transactionCreation.recievable.debit.Parent_Account.Account.title} 
-                      {" "}A/c Credits on Increase{" "}
-                      <StopOutlined style={{position:'relative', bottom:2}} /> {")"}
-                    </span>
-                    }
-                    {state.transactionCreation.recievable.debit.Parent_Account.Account.inc=="debit" &&
-                    <span className='acc-rec-succ'>
-                      {" ("}{state.transactionCreation.recievable.debit.Parent_Account.Account.title} 
-                      {" "}A/c Debits on Increase{" "}
-                      <CheckCircleOutlined style={{position:'relative', bottom:2}} /> {")"}
-                    </span>
-                    }
-                  </h6>
-                  <hr/>
-                  <h6 className='text-end mx-1'>
-                    {state.transactionCreation.recievable.credit.name} {"("}A/c{")"}
-                  </h6>
-                </Col>
-                <Col md={2} className="gl-col-lines text-end py-2">
-                  <h6>
-                    <span className='gl-curr-rep'>Rs.{" "}</span>{commas(state.transactionCreation.recievable.amount)}
-                  </h6>
-                  <hr/>
-                </Col>
-                <Col md={2} className="gl-col-lines text-end py-1">
-                  <br/>
-                  <hr/>
-                  <h6>
-                  <span className='gl-curr-rep'>Rs.{" "}</span>{commas(state.transactionCreation.recievable.amount)}
-                  </h6>
-                </Col>
-              </>
-
-              {state.transactionCreation.salesTax.exists &&
-              <>
-                <Col md={2} className="gl-col-lines">
-                  <span>{moment(state.date).format("DD-MMM-YYYY")}</span>
-                  </Col>
-                <Col md={6} className="gl-col-lines py-2">
-                  <h6 className='mx-1'>
-                    {state.transactionCreation.salesTax.debit.title}
-                    {state.transactionCreation.salesTax.debit.Parent_Account.Account.inc=="credit" &&
-                    <span className='acc-rec-warn'>
-                      {" ("}{state.transactionCreation.salesTax.debit.Parent_Account.Account.title} 
-                      {" "}A/c Credits on Increase{" "}
-                      <StopOutlined style={{position:'relative', bottom:2}} /> {")"}
-                    </span>
-                    }
-                    {state.transactionCreation.salesTax.debit.Parent_Account.Account.inc=="debit" &&
-                    <span className='acc-rec-succ'>
-                      {" ("}{state.transactionCreation.salesTax.debit.Parent_Account.Account.title} 
-                      {" "}A/c Debits on Increase{" "}
-                      <CheckCircleOutlined style={{position:'relative', bottom:2}} /> {")"}
-                    </span>
-                    }
-                  </h6>
-                  <hr/>
-                  <h6 className='text-end mx-1'>
-                    {state.transactionCreation.salesTax.credit.title} 
-                  </h6>
-                </Col>
-                <Col md={2} className="gl-col-lines text-end py-2">
-                  <h6>
-                  <span className='gl-curr-rep'>Rs.{" "}</span>{commas(state.transactionCreation.salesTax.amount)}
-                  </h6>
-                  <hr/>
-                </Col>
-                <Col md={2} className="gl-col-lines text-end py-1">
-                  <br/>
-                  <hr/>
-                  <h6>
-                  <span className='gl-curr-rep'>Rs.{" "}</span>{commas(state.transactionCreation.salesTax.amount)}
-                  </h6>
-                </Col>
-              </>
-              }
-
-              {state.transactionCreation.bankCharges.exists &&
-              <>
-                <Col md={2} className="gl-col-lines">
-                  <span>{moment(state.date).format("DD-MMM-YYYY")}</span>
-                  </Col>
-                <Col md={6} className="gl-col-lines py-2">
-                  <h6 className='mx-1'>
-                    {state.transactionCreation.bankCharges.debit.title}
-                    {state.transactionCreation.bankCharges.debit.Parent_Account.Account.inc=="debit" &&
-                    <span className='acc-rec-succ'>
-                      {" ("}{state.transactionCreation.bankCharges.debit.Parent_Account.Account.title} 
-                      {" "}A/c Debits on Increase{" "}
-                      <CheckCircleOutlined style={{position:'relative', bottom:2}} /> {")"}
-                    </span>
-                    }
-                  </h6>
-                  <hr/>
-                  <h6 className='text-end mx-1'>
-                    {state.transactionCreation.bankCharges.credit.title} 
-                  </h6>
-                </Col>
-                <Col md={2} className="gl-col-lines text-end py-2">
-                  <h6>
-                  <span className='gl-curr-rep'>Rs.{" "}</span>{commas(state.transactionCreation.bankCharges.amount)}
-                  </h6>
-                  <hr/>
-                </Col>
-                <Col md={2} className="gl-col-lines text-end py-1">
-                  <br/>
-                  <hr/>
-                  <h6>
-                  <span className='gl-curr-rep'>Rs.{" "}</span>{commas(state.transactionCreation.bankCharges.amount)}
-                  </h6>
-                </Col>
-              </>
-              }
-
-            </>
-            }
-        </Row>
-*/
+export default Gl;

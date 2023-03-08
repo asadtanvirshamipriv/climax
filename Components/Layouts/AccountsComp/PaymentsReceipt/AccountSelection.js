@@ -43,7 +43,7 @@ const AccountSelection = ({state, dispatch}) => {
                         <td>{index + 1}</td>
                         <td>{x.title} ~ {getCompanyName(x.Parent_Account.CompanyId)}</td>
                         <td>{x.Parent_Account.title}</td>
-                        <td>{x.Parent_Account.Account.title}</td>
+                        {/* <td>{x.Parent_Account.Account.title}</td> */}
                     </tr>
                     )
                 })}

@@ -63,7 +63,8 @@ const initialState = {
 
   totalrecieving:0.00,
 
-  transactionCreation:[]
+  transactionCreation:[],
+  transLoad:false
 //   {
 //     date:"",
 //     transaction:"",

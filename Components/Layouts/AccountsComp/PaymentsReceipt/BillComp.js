@@ -33,6 +33,7 @@ const BillComp = ({selectedParty, payType}) => {
     const getInvoices = async(id) => {
         set('load', true);
         await axios.get(process.env.NEXT_PUBLIC_CLIMAX_GET_INVOICE_BY_PARTY_ID, {headers:{id:id, pay:payType}}).then(async(x)=> {
+            console.log(x.data.result);
             let temp = x.data.result;
             temp = temp.map(y=>({
                 ...y,
@@ -47,7 +48,6 @@ const BillComp = ({selectedParty, payType}) => {
 
     const resetAll = () => {
         let tempList = [...state.invoices];
-
         tempList = tempList.map(x=>({
             ...x,
             check:false,
@@ -85,18 +85,15 @@ const BillComp = ({selectedParty, payType}) => {
         let tempDate = moment(state.date).format("DD-MM-YYYY");
         let transTwo = [];
         let removing = 0;
-
         if((Object.keys(state.payAccountRecord).length!=0) && (state.totalrecieving!=0)){ // <- Checks if The Recieving Account is Selected
             if((Object.keys(state.taxAccountRecord).length!=0) && (state.finalTax!=0) && (state.finalTax!=null) && (state.totalrecieving!=0)){
                 removing = state.finalTax;
-                console.log(removing)
                 transTwo.push({particular:state.taxAccountRecord.title, 
                     tran:{type:state.taxAccountRecord.Parent_Account.Account[payType=="Recievable"?'inc':'dec'], amount:state.finalTax}
                 })
             }
             if((Object.keys(state.bankChargesAccountRecord).length!=0) && (state.bankCharges!=0) && (state.bankCharges!=null) && (state.totalrecieving!=0)){
                 removing = removing + state.bankCharges;
-                console.log(removing)
                 transTwo.push({particular:state.bankChargesAccountRecord.title, 
                     tran:{type:state.bankChargesAccountRecord.Parent_Account.Account[payType=="Recievable"?'inc':'dec'], amount:state.bankCharges}
                 })
@@ -106,7 +103,6 @@ const BillComp = ({selectedParty, payType}) => {
                 tran:{type:state.payAccountRecord.Parent_Account.Account[payType=="Recievable"?'inc':'dec'], amount:state.totalrecieving-removing}
             })
         }
-
         set('transactionCreation', transTwo);
         set('glVisible', true);
     }
@@ -235,6 +231,7 @@ const BillComp = ({selectedParty, payType}) => {
                             <td style={{width:100}}>PKR</td>
                             <td>{x.inVbalance.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ", ")}</td>
                             <td style={{padding:3, width:150}}>
+                                {/* receiving variable works for both paying and recieving amounts */}
                                 <InputNumber style={{height:30, width:140}} value={x.receiving} min="0" max={`${x.inVbalance}`} stringMode  disabled={state.autoOn}
                                     onChange={(e)=>{
                                         let tempState = [...state.invoices];
@@ -244,14 +241,17 @@ const BillComp = ({selectedParty, payType}) => {
                                 />
                             </td>
                             <td>
-                                {( parseFloat(x.inVbalance)-parseFloat(x.recieved==null?0:x.recieved)-parseFloat(x.receiving==null?0:x.receiving)).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ", ") }
+                            {payType=="Recievable"?
+                            (parseFloat(x.inVbalance)-parseFloat(x.recieved==null?0:x.recieved)-parseFloat(x.receiving==null?0:x.receiving)).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g,", "):
+                            (parseFloat(x.inVbalance)-parseFloat(x.paid==null?0:x.paid)-parseFloat(x.receiving==null?0:x.receiving)).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g,", ")
+                            }
                             </td>
                             <td style={{ width:50}} className='px-3 py-2'>
                                 <input type='checkbox' style={{cursor:'pointer'}} checked={x.check} disabled={state.autoOn}
                                     onChange={()=>{
                                         let tempState = [...state.invoices];
                                         tempState[index].check = !tempState[index].check;
-                                        tempState[index].receiving = tempState[index].check?x.inVbalance:0.00
+                                        payType=="Recievable"?(tempState[index].receiving = tempState[index].check?(x.inVbalance-x.recieved):0.00):(tempState[index].receiving = tempState[index].check?(x.inVbalance-x.paid):0.00)
                                         set('invoices', tempState);
                                     }}
                                 />
@@ -267,18 +267,18 @@ const BillComp = ({selectedParty, payType}) => {
             <div className=''>
                 Total Receiving Amount:{" "}
                 <div style={{padding:3, border:'1px solid silver', minWidth:100, display:'inline-block', textAlign:'right'}}>
-                    {state.totalrecieving.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ", ")}
+                    {state.totalrecieving.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ", ")}
                 </div>
             </div>
             <div className='text-end'>
-                <button onClick={submitPrices}  className='btn-custom'>Save</button>
+                <button onClick={submitPrices} className='btn-custom'>Save</button>
             </div>
         </div>
         }
     </>
     }
     {state.load && <div className='text-center' ><Spinner /></div>}
-    {state.glVisible && <Gl state={state} dispatch={dispatch} />}
+    {state.glVisible && <Gl state={state} dispatch={dispatch} selectedParty={selectedParty} payType={payType} />}
     </>
   )
 }

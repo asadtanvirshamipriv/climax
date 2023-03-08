@@ -110,7 +110,7 @@ const TransactionInfo = ({state, dispatch, payType}) => {
                     set('variable', 'bankChargesAccountRecord');
                     set('visible', true);
 
-                    let resutlVal = await getAccounts('Adjust', companyId);
+                    let resutlVal = await getAccounts('Charges', companyId);
                     set('accounts', resutlVal);
                     set('accountsLoader', false);
                 }}
