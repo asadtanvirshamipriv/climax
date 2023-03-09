@@ -46,8 +46,8 @@ const CreateOrEdit = ({state, dispatch, baseValues}) => {
                 data
             }).then((x)=>{
                 console.log(x.data)
-                if(x.data.status=='exists'){
-                    openNotification('Error', `Same Code Already Exists!`, 'red')
+                if(x.data.status!='success'){
+                    openNotification('Error', `Error Occured Try Again!`, 'red')
                 }else{
                     openNotification('Success', `Commodity Created!`, 'green');
                     let tempRecord = [...state.records];
@@ -100,14 +100,14 @@ const CreateOrEdit = ({state, dispatch, baseValues}) => {
                 <InputComp  register={register} name='hs' control={control} label='HS Code' />
             </Col>
             <Col md={7} className='py-1'>
-                <SelectComp register={register} name='cargoType' control={control} label='Cargo Type'
+                <SelectComp register={register} name='cargoType' control={control} label='Cargo Type' width={220}
                     options={[
                         {id:"GL", name:"GL"},
                         {id:"CAR", name:"CAR"}
                     ]} />
             </Col>
             <Col md={7} className='py-1'>
-                <SelectComp register={register} name='commodityGroup' control={control} label='Commodity Group'
+                <SelectComp register={register} name='commodityGroup' control={control} label='Commodity Group' width={220}
                     options={[
                         {id:"Live Stock", name:"Live Stock"},
                         {id:"Raw Material", name:"Raw Material"}
@@ -118,13 +118,14 @@ const CreateOrEdit = ({state, dispatch, baseValues}) => {
             <Col md={12} className="my-2">Hazmat Details</Col>
             <hr/>
             <Col md={12} className='py-1'>     
-                <CheckGroupComp register={register} name='isHazmat' control={control} label='Hazmat Product?'
+                <CheckGroupComp register={register} name='isHazmat' control={control} label='Hazmat Product?' 
                     options={[
                         {label:"Yes", value:"hazmat"}
                     ]} />
             </Col>
             <Col md={3} className='py-1'>
                 <SelectComp register={register} name='packageGroup' disabled={isHazmat[0]=="hazmat"?false:true} control={control} label='Packaging Group'
+                    width={220}
                     options={[
                         {id:"GRP 1", name:"GRP 1"},
                         {id:"GRP 2", name:"GRP 2"},
@@ -137,6 +138,7 @@ const CreateOrEdit = ({state, dispatch, baseValues}) => {
             <Col md={6}></Col>
             <Col md={3} className='py-1'>
                 <SelectComp register={register} name='hazmatClass' disabled={isHazmat[0]=="hazmat"?false:true} control={control} label='Hazmat Class'
+                    width={220}
                     options={[
                         {id:"Class 1", name:"Class 1"},
                         {id:"Class 2", name:"Class 2"},
