@@ -1,14 +1,12 @@
-import React from 'react';
-import { Radio, Select, Input, DatePicker, InputNumber } from 'antd';
+import React,{useEffect} from 'react';
 import { Row, Col } from 'react-bootstrap';
-import { useSelector } from 'react-redux';
 import AccountSelection from './AccountSelection';
 import { getCompanyName, getAccounts } from './states';
+import { Radio, Select, Input, DatePicker, InputNumber } from 'antd';
 
-const TransactionInfo = ({state, dispatch, payType}) => {
+const TransactionInfo = ({state, dispatch, payType, companyId}) => {
 
-    const set = (a, b) => { dispatch({type:'set', var:a, pay:b}) }
-    const companyId = useSelector((state) => state.company.value);
+  const set = (a, b) => dispatch({ type:'set', var:a, pay:b });
 
   return (
     <>
@@ -24,12 +22,10 @@ const TransactionInfo = ({state, dispatch, payType}) => {
                 <Radio value={"Adjust"}>Adjust</Radio>
             </Radio.Group>
         </Col>
-
         <Col md={3} className="">
             <div className='grey-txt fs-14'>Date</div>
             <DatePicker size='small' onChange={(e)=>set('date', e)} value={state.date} />
         </Col>
-
         <Col md={4} className="">
             <div className='grey-txt fs-14'>Sub Type</div>
             <Select size='small'
@@ -47,12 +43,10 @@ const TransactionInfo = ({state, dispatch, payType}) => {
                 ]}
             />
         </Col>
-
         <Col md={3} className="mt-3">
             <div className='grey-txt fs-14'>Cheque / Tran #</div>
             <Input size='small' value={state.checkNo} disabled={state.transaction=="Cash"?true:false} onChange={(e)=>set('checkNo',e.target.value)} />
         </Col>
-
         <Col className="mt-3" md={4}>
             <div className="grey-txt fs-14">{payType=="Recievable"?"Recieving":"Paying"} Account #</div>
             <div className="custom-select-input-small" 
@@ -72,7 +66,6 @@ const TransactionInfo = ({state, dispatch, payType}) => {
             }
             </div>
         </Col>
-
         <Col md={4} className="mt-3">
             <div className='grey-txt fs-14'>On Account</div>
             <Select size='small' 
@@ -89,19 +82,15 @@ const TransactionInfo = ({state, dispatch, payType}) => {
                 ]}
             />
         </Col>
-
         <Col md={8} className="mt-0">
             <div className='grey-txt fs-14'>Drawn At</div>
             <Input size='small'  value={state.drawnAt} onChange={(e)=>set('drawnAt',e.target.value)} />
         </Col>
-
         <Col md={3} className=""></Col>
-
         <Col md={3} className="mt-3">
             <div className='grey-txt fs-14'>Bank Charges</div>
             <InputNumber size='small' style={{width:'90%'}} value={state.bankCharges} min="0.0" onChange={(e)=>set('bankCharges', e)} />
         </Col>
-
         <Col className="mt-3" md={6}>
             <div className="grey-txt fs-14">Bank Charges Account</div>
             <div className="custom-select-input-small" 
@@ -122,9 +111,8 @@ const TransactionInfo = ({state, dispatch, payType}) => {
             }
             </div>
         </Col>
-
     </Row>
-    {state.visible && <AccountSelection state={state} dispatch={dispatch} />}
+    {state.visible && <AccountSelection state={state} dispatch={dispatch} companyId={companyId} />}
     </>
   )
 }

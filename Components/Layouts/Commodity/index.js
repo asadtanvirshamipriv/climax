@@ -60,6 +60,7 @@ const initialState = {
 };
 
 const Commodity = ({CommodityData}) => {
+  
   const [ state, dispatch ] = useReducer(recordsReducer, initialState);
   const { records, visible } = state;
 

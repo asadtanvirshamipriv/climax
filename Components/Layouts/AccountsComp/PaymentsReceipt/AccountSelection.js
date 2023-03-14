@@ -4,11 +4,9 @@ import { Modal } from 'antd';
 import { getCompanyName } from './states';
 import Spinner from 'react-bootstrap/Spinner';
 
-const AccountSelection = ({state, dispatch}) => {
+const AccountSelection = ({state, dispatch, companyId}) => {
 
   const set = (a, b) => { dispatch({type:'set', var:a, pay:b}) }
-
-    console.log(state.accounts)
 
   return (
     <>
@@ -43,7 +41,7 @@ const AccountSelection = ({state, dispatch}) => {
                         <td>{index + 1}</td>
                         <td>{x.title} ~ {getCompanyName(x.Parent_Account.CompanyId)}</td>
                         <td>{x.Parent_Account.title}</td>
-                        {/* <td>{x.Parent_Account.Account.title}</td> */}
+                        <td>{x.Parent_Account.Account.title}</td>
                     </tr>
                     )
                 })}

@@ -12,9 +12,8 @@ import TransactionInfo from './TransactionInfo';
 import AccountSelection from './AccountSelection';
 import Gl from './Gl';
 
-const BillComp = ({selectedParty, payType}) => {
+const BillComp = ({selectedParty, payType, companyId}) => {
 
-    const companyId = useSelector((state) => state.company.value);
     const set = (a, b) => dispatch({type:'set', var:a, pay:b});
 
     const [ state, dispatch ] = useReducer(recordsReducer, initialState);
@@ -33,11 +32,12 @@ const BillComp = ({selectedParty, payType}) => {
     const getInvoices = async(id) => {
         set('load', true);
         await axios.get(process.env.NEXT_PUBLIC_CLIMAX_GET_INVOICE_BY_PARTY_ID, {headers:{id:id, pay:payType}}).then(async(x)=> {
-            console.log(x.data.result);
             let temp = x.data.result;
             temp = temp.map(y=>({
                 ...y,
                 check:false,
+                jobId:y.SE_Job==null?'Old Job':y.SE_Job.jobNo,
+                jobSubType:y.SE_Job==null?'Old':y.SE_Job.subType,
                 receiving:0.00,
                 inVbalance:getNetInvoicesAmount(y.Charge_Heads).localAmount
             }));
@@ -58,7 +58,7 @@ const BillComp = ({selectedParty, payType}) => {
     }
 
     const autoKnocking = async() => {
-        let val = resetAll()
+        let val = resetAll();
         if(state.auto=='0'||state.auto==null){
             openNotification('Alert', 'Please Enter A Number', 'orange');
         } else {
@@ -81,29 +81,100 @@ const BillComp = ({selectedParty, payType}) => {
         }
     }
 
-    const submitPrices = () => {
+    const submitPrices = async() => {
         let tempDate = moment(state.date).format("DD-MM-YYYY");
+        let transOne = [];
         let transTwo = [];
         let removing = 0;
+        let tempInvoices = [];
+        let leftOverAmount = 0.0;
+        let ExpenseAccounts = await getAccounts('Selling Expense', companyId);
+        let IncomeAccounts = await getAccounts('Income', companyId);
+        await state.invoices.forEach((x, i) => { // Checks If Remaining Invoice Amount is less than One Or Not
+          if(x.receiving>0 && payType=="Recievable"){
+            tempInvoices.unshift(x);
+            if(x.inVbalance-x.receiving<1 && x.inVbalance-x.receiving>0){
+                tempInvoices[0].status=2;
+                leftOverAmount=x.inVbalance-x.receiving
+                transOne.push({particular:x.SE_Job==null?{title:"OLD JOB EXPENSE"}:x.SE_Job.subType=="FCL"?ExpenseAccounts[0]:ExpenseAccounts[1],
+                    tran:{type:"debit", amount:leftOverAmount}
+                })
+            }
+          }else if(x.receiving>0 && payType!="Recievable"){
+            tempInvoices.unshift(x);
+            if(x.inVbalance-x.receiving<1 && x.inVbalance-x.receiving>0){
+                tempInvoices[0].status=2;
+                leftOverAmount=x.inVbalance-x.receiving
+                transOne.push({particular:x.SE_Job==null?{title:"OLD JOB INCOME"}:x.SE_Job.subType=="FCL"?IncomeAccounts[0]:IncomeAccounts[1],
+                    tran:{type:"credit", amount:leftOverAmount}
+                })
+            }
+          }
+        })
+
+        //Create Account Transactions
         if((Object.keys(state.payAccountRecord).length!=0) && (state.totalrecieving!=0)){ // <- Checks if The Recieving Account is Selected
             if((Object.keys(state.taxAccountRecord).length!=0) && (state.finalTax!=0) && (state.finalTax!=null) && (state.totalrecieving!=0)){
                 removing = state.finalTax;
-                transTwo.push({particular:state.taxAccountRecord.title, 
-                    tran:{type:state.taxAccountRecord.Parent_Account.Account[payType=="Recievable"?'inc':'dec'], amount:state.finalTax}
+                transTwo.push({
+                    particular:state.taxAccountRecord,
+                    tran:{
+                        type:state.taxAccountRecord.Parent_Account.Account[payType=="Recievable"?'inc':'dec'],
+                        amount:state.finalTax
+                    }
                 })
             }
             if((Object.keys(state.bankChargesAccountRecord).length!=0) && (state.bankCharges!=0) && (state.bankCharges!=null) && (state.totalrecieving!=0)){
                 removing = removing + state.bankCharges;
-                transTwo.push({particular:state.bankChargesAccountRecord.title, 
-                    tran:{type:state.bankChargesAccountRecord.Parent_Account.Account[payType=="Recievable"?'inc':'dec'], amount:state.bankCharges}
+                transTwo.push({
+                    particular:state.bankChargesAccountRecord,
+                    tran:{
+                        type:state.bankChargesAccountRecord.Parent_Account.Account[payType=="Recievable"?'inc':'dec'],
+                        amount:state.bankCharges
+                    }
                 })
             }
-            transTwo.push({particular:selectedParty.name, tran:{type:payType=="Recievable"?'credit':'debit', amount:state.totalrecieving}})
-            transTwo.unshift({particular:state.payAccountRecord.title,  // | Checks the account type to make Debit or Credit
-                tran:{type:state.payAccountRecord.Parent_Account.Account[payType=="Recievable"?'inc':'dec'], amount:state.totalrecieving-removing}
+            transTwo.push({particular:{id:selectedParty.id, title:selectedParty.name}, tran:{type:payType=="Recievable"?'credit':'debit', amount:state.totalrecieving}})
+
+            transTwo.push({
+                particular:state.payAccountRecord,  
+                tran:{ 
+                    type:state.payAccountRecord.Parent_Account.Account[payType=="Recievable"?'inc':'dec'],// <-Checks the account type to make Debit or Credit
+                    amount:state.totalrecieving-removing
+                }
+            })
+
+            const getLeftovers = (x) =>{
+                return (x.inVbalance - x.receiving)
+            }
+
+            transOne.unshift({particular:{id:selectedParty.id, title:selectedParty.name}, tran:{type:payType!="Recievable"?'credit':'debit', amount:state.totalrecieving}})
+            tempInvoices.forEach((x)=>{
+                if(payType=="Recievable"){
+                    transOne.push({
+                        particular:x.jobSubType=="LCL"?IncomeAccounts[1]:x.jobSubType=="FCL"?IncomeAccounts[0]:{title:"OLD JOB INCOME"},  
+                        tran:{ 
+                            type:IncomeAccounts[0].Parent_Account.Account[payType=="Recievable"?'inc':'dec'],// <-Checks the account type to make Debit or Credit
+                            amount:parseFloat(x.receiving) + getLeftovers(x)
+                        }
+                    })
+                }else{
+                    transOne.push({
+                        particular:x.jobSubType=="LCL"?ExpenseAccounts[1]:x.jobSubType=="FCL"?ExpenseAccounts[0]:{title:"OLD JOB EXPENSE"},  
+                        tran:{ 
+                            type:ExpenseAccounts[0].Parent_Account.Account[payType!="Recievable"?'inc':'dec'],// <-Checks the account type to make Debit or Credit
+                            amount:parseFloat(x.receiving) + getLeftovers(x)
+                        }
+                    })
+                }
             })
         }
+
+        console.log(tempInvoices);
+        console.log(transOne);
+        set('removing', removing);
         set('transactionCreation', transTwo);
+        set('activityCreation', transOne);
         set('glVisible', true);
     }
 
@@ -112,7 +183,7 @@ const BillComp = ({selectedParty, payType}) => {
     <div>
         <Row>
             <Col md={7}>
-                <TransactionInfo state={state} dispatch={dispatch} payType={payType} />
+                <TransactionInfo state={state} dispatch={dispatch} payType={payType} companyId={companyId} />
             </Col>
             <Col md={5} className="">
                 <div className="mb-2 " 
@@ -181,7 +252,7 @@ const BillComp = ({selectedParty, payType}) => {
                                 set('variable', 'taxAccountRecord');
                                 set('visible', true);
 
-                                let resutlVal = await getAccounts('Adjust', companyId);
+                                let resutlVal = await getAccounts('Taxes', companyId);
                                 set('accounts', resutlVal);
                                 set('accountsLoader', false);
                             }}
@@ -211,6 +282,7 @@ const BillComp = ({selectedParty, payType}) => {
                     <th>Inv/Bill #</th>
                     <th>HBL</th>
                     <th>MBL</th>
+                    <th>Type</th>
                     <th>Currency</th>
                     <th>{payType=="Recievable"? 'Inv':'Bill Amount'} Bal</th>
                     <th>{payType=="Recievable"? 'Receiving Amount':'Paying Amount'}</th>
@@ -224,10 +296,11 @@ const BillComp = ({selectedParty, payType}) => {
                     return (
                         <tr key={index} className='f fs-12'>
                             <td style={{width:30}}>{index + 1}</td>
-                            <td style={{width:100}}>{x.SE_Job.jobNo}</td>
+                            <td style={{width:100}} className="text-center">{x.jobId}</td>
                             <td style={{width:100}}>{x.invoice_No}</td>
                             <td>HBL</td>
                             <td>MBL</td>
+                            <td style={{width:50}}>{x.jobSubType}</td>
                             <td style={{width:100}}>PKR</td>
                             <td>{x.inVbalance.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ", ")}</td>
                             <td style={{padding:3, width:150}}>
@@ -271,14 +344,14 @@ const BillComp = ({selectedParty, payType}) => {
                 </div>
             </div>
             <div className='text-end'>
-                <button onClick={submitPrices} className='btn-custom'>Save</button>
+                <button onClick={submitPrices} className='btn-custom'>Make Transaction</button>
             </div>
         </div>
         }
     </>
     }
     {state.load && <div className='text-center' ><Spinner /></div>}
-    {state.glVisible && <Gl state={state} dispatch={dispatch} selectedParty={selectedParty} payType={payType} />}
+    {state.glVisible && <Gl state={state} dispatch={dispatch} selectedParty={selectedParty} payType={payType} companyId={companyId} />}
     </>
   )
 }

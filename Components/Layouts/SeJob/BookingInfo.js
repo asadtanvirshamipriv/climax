@@ -92,6 +92,7 @@ const BookingInfo = ({register, control, errors, state, useWatch, dispatch}) => 
         <SelectComp register={register} name='subType' control={control} label='Sub Type' width={50}
           options={[  
             {id:'FCL', name:'FCL'},
+            {id:'LCL', name:'LCL'},
         ]} />
       </Col>
       <Col md={2} className='py-1'>

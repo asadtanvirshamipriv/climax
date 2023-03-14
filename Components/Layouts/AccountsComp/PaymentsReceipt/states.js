@@ -21,6 +21,7 @@ function recordsReducer(state, action){
       default: return state 
     }
 };
+
 const initialState = {
 
   records: [],
@@ -64,30 +65,8 @@ const initialState = {
   totalrecieving:0.00,
 
   transactionCreation:[],
+  activityCreation:[],
   transLoad:false
-//   {
-//     date:"",
-//     transaction:"",
-//     drawn:"",
-//     recievable:{
-//         exists:false,
-//         credit:"",
-//         debit:"",
-//         amount:""
-//     },
-//     salesTax:{
-//         exists:false,
-//         credit:"",
-//         debit:"",
-//         amount:""
-//     },
-//     bankCharges:{
-//         exists:false,
-//         credit:"",
-//         debit:"",
-//         amount:""
-//     },
-// }
 };
 
 const getCompanyName = (id) => {

@@ -141,11 +141,11 @@ return (
                         <div key={z.id} className='mx-4 parent'>
                             <div className='child icon'><RightOutlined /></div>
                             <div className='child title'>{z.title}</div>
-                            <div className='child edit-icon' onClick={()=>{
+                            {z.editable==1&&<div className='child edit-icon' onClick={()=>{
                                 dispatch({ type: 'toggle', fieldName: 'selectedRecord', payload: z })
                                 dispatch({ type: 'toggle', fieldName: 'isParent', payload: false })
                                 dispatch({ type: 'edit'})
-                                }}><EditOutlined /></div>
+                                }}><EditOutlined /></div>}
                         </div>
                         )
                     })

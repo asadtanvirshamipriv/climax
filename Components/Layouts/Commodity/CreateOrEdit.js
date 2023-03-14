@@ -11,7 +11,6 @@ import moment from 'moment';
 import * as yup from "yup";
 import axios from 'axios';
 
-
 const CreateOrEdit = ({state, dispatch, baseValues}) => {
 
     const SignupSchema = yup.object().shape({
@@ -60,7 +59,7 @@ const CreateOrEdit = ({state, dispatch, baseValues}) => {
             })
          }, 3000);
     };
-    
+
     const onEdit = async(data) => {
         console.log('edit')
         dispatch({type:'toggle', fieldName:'load', payload:true});

@@ -5,6 +5,7 @@ import { SearchOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import axios from 'axios';
 import BillComp from './BillComp';
 import AgentBillComp from './AgentBillComp';
+import { useSelector } from 'react-redux';
 
 const PaymentsReceipt = () => {
 
@@ -15,6 +16,7 @@ const PaymentsReceipt = () => {
     const [invoiceCurrency, setInvoiceCurrency] = useState("USD");
     const [partyOptions, setPartyOptions] = useState([]);
     const [selectedParty, setSelectedParty] = useState({id:'', name:''});
+    const companyId = useSelector((state) => state.company.value);
 
     useEffect(() => { searchParties() }, [search]);
 
@@ -126,8 +128,8 @@ const PaymentsReceipt = () => {
             footer={false} maskClosable={false}
             title={`${selectedParty.name}'s Invoices/Bills`}
         >
-            {(selectedParty.id!=''&& partytype!="agent") && <BillComp selectedParty={selectedParty} payType={payType} />}
-            {(selectedParty.id!=''&& partytype=="agent") && <AgentBillComp selectedParty={selectedParty} payType={payType} invoiceCurrency={invoiceCurrency} />}
+            {(selectedParty.id!=''&& partytype!="agent") && <BillComp selectedParty={selectedParty} payType={payType} companyId={companyId} />}
+            {(selectedParty.id!=''&& partytype=="agent") && <AgentBillComp selectedParty={selectedParty} payType={payType} invoiceCurrency={invoiceCurrency} companyId={companyId} />}
         </Modal>
     </div>
   )
