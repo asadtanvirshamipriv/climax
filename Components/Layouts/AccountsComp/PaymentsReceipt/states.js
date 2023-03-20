@@ -57,6 +57,7 @@ const initialState = {
   taxPerc:0.0,
   finalTax:0.0,
   indexes:[],
+  partyAccountRecord:{},
   payAccountRecord:{},
   taxAccountRecord:{},
   bankChargesAccountRecord:{},
@@ -83,6 +84,18 @@ const getAccounts = async(trans, companyId) => {
 }
 
 const totalRecieveCalc = (vals) => {
+
+    let total = 0.00;
+    vals.forEach((x)=>{
+      if(x.receiving>0){
+        total = total+ parseFloat(x.receiving)
+      }
+    });
+
+    return total;
+}
+
+const getInvoices = (vals) => {
 
     let total = 0.00;
     vals.forEach((x)=>{

@@ -119,6 +119,15 @@ const CreateOrEdit = ({state, dispatch, baseValues}) => {
     }, 3000);
   };
 
+  useEffect(() => {
+    //console.log("Changed");
+    console.log(state.tabState)
+    if(state.tabState!="5"){
+      dispatch({type:'toggle', fieldName:'selectedInvoice', payload:""})
+    }
+  }, [state.tabState])
+  
+
   const onError = (errors) => console.log(errors);
 
   return(

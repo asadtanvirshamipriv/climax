@@ -58,6 +58,7 @@ const AgentBillComp = ({selectedParty, payType, invoiceCurrency}) => {
                 headers:{id:id, pay:payType, invoiceCurrency:invoiceCurrency}
             }).then(async(x)=>{
             let temp = [];
+            console.log(x.data.result)
             x.data.result.forEach((y)=>{
                 if(y.Charge_Heads.length!=0){
                     temp.push({
@@ -65,8 +66,8 @@ const AgentBillComp = ({selectedParty, payType, invoiceCurrency}) => {
                         check:false,
                         receiving:0.00,
                         ex_rate:y.Charge_Heads[0].ex_rate,
-                        currency:getCurrencyInfo(y.Charge_Heads),
-                        inVbalance:getNetInvoicesAmount(y.Charge_Heads).netAmount
+                        currency:y.currency,//getCurrencyInfo(y.Charge_Heads),
+                        inVbalance:y.total + parseFloat(y.roundOff)//getNetInvoicesAmount(y.Charge_Heads).netAmount
                     })
                 }
             });

@@ -97,11 +97,6 @@ const MainLayout = ({children}) => {
           key: '3-1',
           children: `Content of Tab Pane 2`,
         }),
-        getItem('Account Activity', '3-2',<></>, null, {
-          label: `Account Activity`,
-          key: '3-2',
-          children: `Content of Tab Pane 2`,
-        }),
         getItem('Invoice / Bills', '3-3',<></>, null, {
           label: `Invoice / Bills`,
           key: '3-3',
@@ -128,6 +123,11 @@ const MainLayout = ({children}) => {
         getItem('Job Balancing', '5-1',<></>, null, {
           label: `Job Balancing`,
           key: '5-1',
+          children: `Content of Tab Pane 2`,
+        }),
+        getItem('Account Activity', '5-2',<></>, null, {
+          label: `Account Activity`,
+          key: '5-2',
           children: `Content of Tab Pane 2`,
         }),
       ]
@@ -161,10 +161,10 @@ const MainLayout = ({children}) => {
     vessel:false,
     seJob:false,
     charges:false,
-    accountActivity:false,
-    jobBalancing:false,
     invoiceBills:false,
     paymentReceipt:false,
+    jobBalancing:false,
+    accountActivity:false,
   });
 
   useEffect(()=>{alterTabs()}, [tabs])
@@ -189,11 +189,11 @@ const MainLayout = ({children}) => {
         else if(tabs.key=='2-5'){ tempTabActive.vendor=true }
         else if(tabs.key=='2-6'){ tempTabActive.charges=true }
         else if(tabs.key=='3-1'){ tempTabActive.accounts=true }
-        else if(tabs.key=='3-2'){ tempTabActive.accountActivity=true }
         else if(tabs.key=='3-3'){ tempTabActive.invoiceBills=true }
         else if(tabs.key=='3-4'){ tempTabActive.paymentReceipt=true }
         else if(tabs.key=='4-1'){ tempTabActive.seJob=true }
         else if(tabs.key=='5-1'){ tempTabActive.jobBalancing=true }
+        else if(tabs.key=='5-2'){ tempTabActive.accountActivity=true }
 
         setTabItems(tempTabs);
         setTabActive(tempTabActive)
@@ -216,6 +216,7 @@ const MainLayout = ({children}) => {
     else if(index=='3-4'){ Router.push('/accounts/paymentReceipt') }
     else if(index=='4-1'){ Router.push('/seJob') }
     else if(index=='5-1'){ Router.push('/reports/jobBalancing') }
+    else if(index=='5-2'){ Router.push('/reports/accountActivity') }
   };
 
   const removeTab = (index) => {

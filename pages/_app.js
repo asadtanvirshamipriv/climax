@@ -18,8 +18,8 @@ function MyApp({ Component, pageProps:{ session, ...pageProps }, }) {
   Router.events.on("routeChangeComplete", () => { setLoading(false)});
 
   return (
-      <> 
-      { router.pathname !='/login' && 
+    <>
+      { router.pathname !='/login' &&
           <Provider store={store}>
           <MainLayout>
               { loading && <Loader/> }
@@ -30,7 +30,7 @@ function MyApp({ Component, pageProps:{ session, ...pageProps }, }) {
       { router.pathname =='/login' &&
         <Component {...pageProps} />
       }
-      </>
+    </>
   )
 }
 

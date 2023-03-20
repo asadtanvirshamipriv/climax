@@ -12,7 +12,7 @@ import TransactionInfo from './TransactionInfo';
 import AccountSelection from './AccountSelection';
 import Gl from './Gl';
 
-const BillComp = ({selectedParty, payType, companyId}) => {
+const BillComp = ({partytype, selectedParty, payType, companyId}) => {
 
     const set = (a, b) => dispatch({type:'set', var:a, pay:b});
 
@@ -30,18 +30,28 @@ const BillComp = ({selectedParty, payType, companyId}) => {
     } }, [state.totalrecieving, state.taxPerc, state.taxAmount]);
 
     const getInvoices = async(id) => {
+        set('invoices', []);
         set('load', true);
-        await axios.get(process.env.NEXT_PUBLIC_CLIMAX_GET_INVOICE_BY_PARTY_ID, {headers:{id:id, pay:payType}}).then(async(x)=> {
+        await axios.get(process.env.NEXT_PUBLIC_CLIMAX_GET_INVOICE_BY_PARTY_ID, {headers:{id:id, pay:payType, party:partytype, companyId:companyId}}).then(async(x)=> {
             let temp = x.data.result;
-            temp = temp.map(y=>({
-                ...y,
-                check:false,
-                jobId:y.SE_Job==null?'Old Job':y.SE_Job.jobNo,
-                jobSubType:y.SE_Job==null?'Old':y.SE_Job.subType,
-                receiving:0.00,
-                inVbalance:getNetInvoicesAmount(y.Charge_Heads).localAmount
-            }));
-            set('invoices', temp);
+            let accountData = {};
+            if(x.data.status=="success" && x.data.account!=null){
+                x.data.account.forEach((z)=>{
+                    if(z.Child_Account!=null){
+                        accountData = z;
+                    }
+                })
+                temp = temp.map(y=>({
+                    ...y,
+                    check:false,
+                    jobId:y.SE_Job==null?'Old Job':y.SE_Job.jobNo,
+                    jobSubType:y.SE_Job==null?'Old':y.SE_Job.subType,
+                    receiving:0.00,
+                    inVbalance:(parseFloat(y.total) + parseFloat(y.roundOff)).toFixed(2)//getNetInvoicesAmount(y.Charge_Heads).localAmount
+                }));
+                set('invoices', temp);
+            }
+            set('partyAccountRecord', accountData.Child_Account);
             set('load', false);
         })
     }
@@ -83,35 +93,8 @@ const BillComp = ({selectedParty, payType, companyId}) => {
 
     const submitPrices = async() => {
         let tempDate = moment(state.date).format("DD-MM-YYYY");
-        let transOne = [];
         let transTwo = [];
         let removing = 0;
-        let tempInvoices = [];
-        let leftOverAmount = 0.0;
-        let ExpenseAccounts = await getAccounts('Selling Expense', companyId);
-        let IncomeAccounts = await getAccounts('Income', companyId);
-        await state.invoices.forEach((x, i) => { // Checks If Remaining Invoice Amount is less than One Or Not
-          if(x.receiving>0 && payType=="Recievable"){
-            tempInvoices.unshift(x);
-            if(x.inVbalance-x.receiving<1 && x.inVbalance-x.receiving>0){
-                tempInvoices[0].status=2;
-                leftOverAmount=x.inVbalance-x.receiving
-                transOne.push({particular:x.SE_Job==null?{title:"OLD JOB EXPENSE"}:x.SE_Job.subType=="FCL"?ExpenseAccounts[0]:ExpenseAccounts[1],
-                    tran:{type:"debit", amount:leftOverAmount}
-                })
-            }
-          }else if(x.receiving>0 && payType!="Recievable"){
-            tempInvoices.unshift(x);
-            if(x.inVbalance-x.receiving<1 && x.inVbalance-x.receiving>0){
-                tempInvoices[0].status=2;
-                leftOverAmount=x.inVbalance-x.receiving
-                transOne.push({particular:x.SE_Job==null?{title:"OLD JOB INCOME"}:x.SE_Job.subType=="FCL"?IncomeAccounts[0]:IncomeAccounts[1],
-                    tran:{type:"credit", amount:leftOverAmount}
-                })
-            }
-          }
-        })
-
         //Create Account Transactions
         if((Object.keys(state.payAccountRecord).length!=0) && (state.totalrecieving!=0)){ // <- Checks if The Recieving Account is Selected
             if((Object.keys(state.taxAccountRecord).length!=0) && (state.finalTax!=0) && (state.finalTax!=null) && (state.totalrecieving!=0)){
@@ -134,7 +117,14 @@ const BillComp = ({selectedParty, payType, companyId}) => {
                     }
                 })
             }
-            transTwo.push({particular:{id:selectedParty.id, title:selectedParty.name}, tran:{type:payType=="Recievable"?'credit':'debit', amount:state.totalrecieving}})
+            transTwo.push({
+                particular:state.partyAccountRecord,
+                tran:{
+                    //type:state.partyAccountRecord.Parent_Account.Account[payType=="Recievable"?'dec':'inc'],
+                    type:payType=="Recievable"?'credit':'debit',
+                    amount:state.totalrecieving
+                }
+            })
 
             transTwo.push({
                 particular:state.payAccountRecord,  
@@ -143,38 +133,10 @@ const BillComp = ({selectedParty, payType, companyId}) => {
                     amount:state.totalrecieving-removing
                 }
             })
-
-            const getLeftovers = (x) =>{
-                return (x.inVbalance - x.receiving)
-            }
-
-            transOne.unshift({particular:{id:selectedParty.id, title:selectedParty.name}, tran:{type:payType!="Recievable"?'credit':'debit', amount:state.totalrecieving}})
-            tempInvoices.forEach((x)=>{
-                if(payType=="Recievable"){
-                    transOne.push({
-                        particular:x.jobSubType=="LCL"?IncomeAccounts[1]:x.jobSubType=="FCL"?IncomeAccounts[0]:{title:"OLD JOB INCOME"},  
-                        tran:{ 
-                            type:IncomeAccounts[0].Parent_Account.Account[payType=="Recievable"?'inc':'dec'],// <-Checks the account type to make Debit or Credit
-                            amount:parseFloat(x.receiving) + getLeftovers(x)
-                        }
-                    })
-                }else{
-                    transOne.push({
-                        particular:x.jobSubType=="LCL"?ExpenseAccounts[1]:x.jobSubType=="FCL"?ExpenseAccounts[0]:{title:"OLD JOB EXPENSE"},  
-                        tran:{ 
-                            type:ExpenseAccounts[0].Parent_Account.Account[payType!="Recievable"?'inc':'dec'],// <-Checks the account type to make Debit or Credit
-                            amount:parseFloat(x.receiving) + getLeftovers(x)
-                        }
-                    })
-                }
-            })
         }
-
-        console.log(tempInvoices);
-        console.log(transOne);
+        console.log(transTwo);
         set('removing', removing);
         set('transactionCreation', transTwo);
-        set('activityCreation', transOne);
         set('glVisible', true);
     }
 
@@ -273,69 +235,69 @@ const BillComp = ({selectedParty, payType, companyId}) => {
         {state.invoices.length>0 &&
         <div>
         <div style={{minHeight:250}}>
-            <div className='table-sm-1 mt-3' style={{maxHeight:300, overflowY:'auto'}}>
-            <Table className='tableFixHead' bordered>
-                <thead>
-                    <tr className='fs-12'>
-                    <th>Sr.</th>
-                    <th>Job #</th>
-                    <th>Inv/Bill #</th>
-                    <th>HBL</th>
-                    <th>MBL</th>
-                    <th>Type</th>
-                    <th>Currency</th>
-                    <th>{payType=="Recievable"? 'Inv':'Bill Amount'} Bal</th>
-                    <th>{payType=="Recievable"? 'Receiving Amount':'Paying Amount'}</th>
-                    <th>Balance</th>
-                    <th>Select</th>
-                    <th>Container</th>
+        <div className='table-sm-1 mt-3' style={{maxHeight:300, overflowY:'auto'}}>
+        <Table className='tableFixHead' bordered>
+            <thead>
+                <tr className='fs-12'>
+                <th>Sr.</th>
+                <th>Job #</th>
+                <th>Inv/Bill #</th>
+                <th>HBL</th>
+                <th>MBL</th>
+                <th>Type</th>
+                <th>Currency</th>
+                <th>{payType=="Recievable"? 'Inv':'Bill Amount'} Bal</th>
+                <th>{payType=="Recievable"? 'Receiving Amount':'Paying Amount'}</th>
+                <th>Balance</th>
+                <th>Select</th>
+                <th>Container</th>
+                </tr>
+            </thead>
+            <tbody>
+            {state.invoices.map((x, index) => {
+                return (
+                    <tr key={index} className='f fs-12'>
+                        <td style={{width:30}}>{index + 1}</td>
+                        <td style={{width:100}} className="text-center">{x.jobId}</td>
+                        <td style={{width:100}}>{x.invoice_No}</td>
+                        <td>HBL</td>
+                        <td>MBL</td>
+                        <td style={{width:50}}>{x.jobSubType}</td>
+                        <td style={{width:100}}>PKR</td>
+                        <td>{x.inVbalance.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ", ")}</td>
+                        <td style={{padding:3, width:150}}>
+                            {/* receiving variable works for both paying and recieving amounts */}
+                            <InputNumber style={{height:30, width:140}} value={x.receiving} min="0" max={`${x.inVbalance}`} stringMode  disabled={state.autoOn}
+                                onChange={(e)=>{
+                                    let tempState = [...state.invoices];
+                                    tempState[index].receiving = e;
+                                    set('invoices', tempState);
+                                }}
+                            />
+                        </td>
+                        <td>
+                        {payType=="Recievable"?
+                        (parseFloat(x.inVbalance)-parseFloat(x.recieved==null?0:x.recieved)-parseFloat(x.receiving==null?0:x.receiving)).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g,", "):
+                        (parseFloat(x.inVbalance)-parseFloat(x.paid==null?0:x.paid)-parseFloat(x.receiving==null?0:x.receiving)).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g,", ")
+                        }
+                        </td>
+                        <td style={{ width:50}} className='px-3 py-2'>
+                            <input type='checkbox' style={{cursor:'pointer'}} checked={x.check} disabled={state.autoOn}
+                                onChange={()=>{
+                                    let tempState = [...state.invoices];
+                                    tempState[index].check = !tempState[index].check;
+                                    payType=="Recievable"?(tempState[index].receiving = tempState[index].check?(x.inVbalance-x.recieved):0.00):(tempState[index].receiving = tempState[index].check?(x.inVbalance-x.paid):0.00)
+                                    set('invoices', tempState);
+                                }}
+                            />
+                        </td>
+                        <td></td>
                     </tr>
-                </thead>
-                <tbody>
-                {state.invoices.map((x, index) => {
-                    return (
-                        <tr key={index} className='f fs-12'>
-                            <td style={{width:30}}>{index + 1}</td>
-                            <td style={{width:100}} className="text-center">{x.jobId}</td>
-                            <td style={{width:100}}>{x.invoice_No}</td>
-                            <td>HBL</td>
-                            <td>MBL</td>
-                            <td style={{width:50}}>{x.jobSubType}</td>
-                            <td style={{width:100}}>PKR</td>
-                            <td>{x.inVbalance.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ", ")}</td>
-                            <td style={{padding:3, width:150}}>
-                                {/* receiving variable works for both paying and recieving amounts */}
-                                <InputNumber style={{height:30, width:140}} value={x.receiving} min="0" max={`${x.inVbalance}`} stringMode  disabled={state.autoOn}
-                                    onChange={(e)=>{
-                                        let tempState = [...state.invoices];
-                                        tempState[index].receiving = e;
-                                        set('invoices', tempState);
-                                    }}
-                                />
-                            </td>
-                            <td>
-                            {payType=="Recievable"?
-                            (parseFloat(x.inVbalance)-parseFloat(x.recieved==null?0:x.recieved)-parseFloat(x.receiving==null?0:x.receiving)).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g,", "):
-                            (parseFloat(x.inVbalance)-parseFloat(x.paid==null?0:x.paid)-parseFloat(x.receiving==null?0:x.receiving)).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g,", ")
-                            }
-                            </td>
-                            <td style={{ width:50}} className='px-3 py-2'>
-                                <input type='checkbox' style={{cursor:'pointer'}} checked={x.check} disabled={state.autoOn}
-                                    onChange={()=>{
-                                        let tempState = [...state.invoices];
-                                        tempState[index].check = !tempState[index].check;
-                                        payType=="Recievable"?(tempState[index].receiving = tempState[index].check?(x.inVbalance-x.recieved):0.00):(tempState[index].receiving = tempState[index].check?(x.inVbalance-x.paid):0.00)
-                                        set('invoices', tempState);
-                                    }}
-                                />
-                            </td>
-                            <td></td>
-                        </tr>
-                    )
-                })}
-                </tbody>
-            </Table>
-            </div>
+                )
+            })}
+            </tbody>
+        </Table>
+        </div>
         </div>
             <div className=''>
                 Total Receiving Amount:{" "}

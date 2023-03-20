@@ -6,6 +6,7 @@ import axios from 'axios';
 import BillComp from './BillComp';
 import AgentBillComp from './AgentBillComp';
 import { useSelector } from 'react-redux';
+import Router from "next/router";
 
 const PaymentsReceipt = () => {
 
@@ -35,6 +36,7 @@ const PaymentsReceipt = () => {
                     <List.Item key={item.id} 
                         className='searched-item' 
                         onClick={()=>{
+                            setSelectedParty({id:"", name:""});
                             setSelectedParty({id:item.id, name:item.name});
                             setVisible(true);
                         }}
@@ -124,11 +126,11 @@ const PaymentsReceipt = () => {
             open={visible} 
             width={'100%'}
             onOk={()=>setVisible(false)} 
-            onCancel={()=>setVisible(false)}
+            onCancel={()=>{ setVisible(false); setSelectedParty({id:'', name:''}); }}
             footer={false} maskClosable={false}
             title={`${selectedParty.name}'s Invoices/Bills`}
         >
-            {(selectedParty.id!=''&& partytype!="agent") && <BillComp selectedParty={selectedParty} payType={payType} companyId={companyId} />}
+            {(selectedParty.id!=''&& partytype!="agent") && <BillComp partytype={partytype} selectedParty={selectedParty} payType={payType} companyId={companyId} />}
             {(selectedParty.id!=''&& partytype=="agent") && <AgentBillComp selectedParty={selectedParty} payType={payType} invoiceCurrency={invoiceCurrency} companyId={companyId} />}
         </Modal>
     </div>

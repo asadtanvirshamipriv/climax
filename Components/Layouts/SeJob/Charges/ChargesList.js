@@ -51,6 +51,14 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
         return returnValue;
     }
 
+    const calculateTotal = (data) => {
+        let result = 0;
+        data.forEach((x)=>{
+            result = result + parseFloat(x.local_amount)
+        });
+        return result.toFixed(2);
+    }
+
     async function makeInvoice(){
         setLoad(true);
         let charges = [];
@@ -101,7 +109,9 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
             })
             invoices[i].charges=addCharges;
             invoices[i].currency = getCurrencyInfo(addCharges)
+            invoices[i].total = calculateTotal(addCharges)
         });
+        console.log(invoices);
         await axios.post(process.env.NEXT_PUBLIC_CLIMAX_SAVE_HEADS, {invoices:invoices, deleteList:state.deleteList})
         .then(() => {
             getHeads();

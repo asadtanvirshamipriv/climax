@@ -2,6 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Row, Col, Table } from 'react-bootstrap';
 import ReactToPrint from 'react-to-print';
 import moment from "moment";
+import axios from 'axios';
+import openNotification from '../Shared/Notification';
+import { Checkbox } from 'antd';
+import FullScreenLoader from './FullScreenLoader';
 
 const InvoiceCharges = ({data}) => {
 
@@ -9,6 +13,7 @@ const InvoiceCharges = ({data}) => {
 
     const [records, setRecords] = useState([]);
     const [invoice, setInvoice] = useState({});
+    const [load, setLoad] = useState(false);
 
     useEffect(()=>{
         if(Object.keys(data).length>0){
@@ -26,6 +31,8 @@ const InvoiceCharges = ({data}) => {
     }
 
   return (
+    <>
+    {load && <FullScreenLoader/>}
     <div className='invoice-styles'>
     {Object.keys(data).length>0 &&
     <>
@@ -72,6 +79,46 @@ const InvoiceCharges = ({data}) => {
                 <span className='inv-value'>{" "}{ moment(invoice.createdAt).format("DD / MMM / YY")}</span>
             </div>
         </Col>
+        <Col md={3} className="mb-3">
+            <div>
+                <span className='inv-label'>Round Off:</span>
+                <span className='inv-value mx-2'>
+                    <input className='cur' type={"checkbox"} checked={invoice.roundOff!="0"} 
+                    onChange={async()=>{
+                        setLoad(true);
+                        let tempInv = {...invoice};
+                        let before = parseFloat(calculateTotal(records))
+                        let after = parseFloat(parseInt(before))
+                        let remaining = before - after;
+                        if(invoice.roundOff=="0"){
+                            if(remaining<=0.5 && remaining>0){
+                                console.log("Less Than 0.5");
+                                tempInv.roundOff = `-${(1-remaining).toFixed(2)}`
+                            }else{
+                                tempInv.roundOff = `+${(1-remaining).toFixed(2)}`
+                            }
+                        }else{
+                            tempInv.roundOff = "0"
+                        }
+                        console.log(tempInv.roundOff)
+                        await axios.post(process.env.NEXT_PUBLIC_CLIMAX_POST_ROUNDOFF_INVOICE,{
+                            id:tempInv.id,
+                            total:tempInv.total,
+                            roundOff:tempInv.roundOff
+                        }).then((x)=>{
+                            if(x.data.status=="success"){
+                                openNotification("Success", "Invoice Successfully Rounded Off!", "green")
+                                setInvoice(tempInv)
+                            }else{
+                                openNotification("Ops", "An Error Occured!", "red")
+                            }
+                        })
+                        setLoad(false);
+                    }} 
+                    />
+                </span>
+            </div>
+        </Col>
     </Row>
     <div style={{minHeight:300}}>
         <div className='table-sm-1 mt-3' style={{maxHeight:300, overflowY:'auto'}}>
@@ -81,7 +128,6 @@ const InvoiceCharges = ({data}) => {
             <th>Sr.</th>
             <th>Charge</th>
             <th>Particular</th>
-            <th>Description</th>
             <th>Basis</th>
             <th>PP/CC</th>
             <th>SizeType</th>
@@ -90,21 +136,20 @@ const InvoiceCharges = ({data}) => {
             <th>Currency</th>
             <th>Amount</th>
             <th>Discount</th>
-            <th style={{minWidth:100}}>Tax Apply</th>
-            <th style={{minWidth:100}}>Tax Amount</th>
-            <th style={{minWidth:100}}>Net Amount</th>
+            <th>Tax</th>
+            <th>Tax</th>
+            <th>Net</th>
             <th>Ex.Rate</th>
-            <th style={{minWidth:110}}>Local Amount</th>  
+            <th>Total</th>  
             </tr>
         </thead>
-        <tbody>
+        <tbody style={{fontSize:13}}>
         {records.map((x, index) => {
         return (
         <tr key={index} className='f table-row-center-singleLine'>
             <td>{index + 1}</td>
             <td>{x.charge}</td>
             <td>{x.particular}</td>
-            <td></td>
             <td>{x.basis.slice(0, 8)}</td>
             <td>{x.pp_cc}</td>
             <td>{x.size_type}</td>
@@ -121,6 +166,26 @@ const InvoiceCharges = ({data}) => {
         </tr>
             )
         })}
+        {invoice.roundOff!="0" &&
+        <tr>
+            <td>{records.length+1}</td>
+            <td>ROFC</td>
+            <td>Round Off</td>
+            <td> - </td>
+            <td> - </td>
+            <td> - </td>
+            <td> - </td>
+            <td>1</td>
+            <td>PKR</td>
+            <td>{invoice.roundOff?.slice(1)}</td>
+            <td> 0 </td>
+            <td style={{textAlign:'center'}}>No</td>
+            <td>0.00</td>
+            <td>{invoice.roundOff?.slice(1)}</td>
+            <td>1.00</td>
+            <td>{invoice.roundOff}</td>
+        </tr>
+        }
         </tbody>
         </Table>
         </div>
@@ -128,10 +193,10 @@ const InvoiceCharges = ({data}) => {
     <hr/>
     <div>
         <Row>
-            <Col md={3} className="text-center py-3">
+            <Col md={3} className=" py-3">
             <div className=''>
                 <span className='inv-label mx-2'>Total Amount:</span>
-                <span className='inv-value charges-box p-2'>{" "}{calculateTotal(records)}</span>
+                <span className='inv-value charges-box p-2'>{" "}{(parseFloat(invoice.total) + parseFloat(invoice.roundOff)).toFixed(2)}</span>
             </div>
             </Col>
         </Row>
@@ -194,6 +259,7 @@ const InvoiceCharges = ({data}) => {
     </div>
     </div>
     </div>
+    </>
   )
 }
 
