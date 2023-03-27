@@ -112,6 +112,7 @@ const baseValues = {
   freightPaybleAt:'',
   polDate:'',
   podDate:'',
+  companyId:''
 };
 
 const initialState = {

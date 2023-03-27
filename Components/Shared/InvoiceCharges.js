@@ -7,7 +7,7 @@ import openNotification from '../Shared/Notification';
 import { Checkbox } from 'antd';
 import FullScreenLoader from './FullScreenLoader';
 
-const InvoiceCharges = ({data}) => {
+const InvoiceCharges = ({data, companyId}) => {
 
     let inputRef = useRef(null);
 
@@ -17,8 +17,8 @@ const InvoiceCharges = ({data}) => {
 
     useEffect(()=>{
         if(Object.keys(data).length>0){
-            setInvoice(data.resultOne)
-            setRecords(data.resultOne.Charge_Heads)
+            setInvoice(data.resultOne);
+            setRecords(data.resultOne.Charge_Heads);
         }
     },[data])
 
@@ -28,6 +28,63 @@ const InvoiceCharges = ({data}) => {
             result = result + parseFloat(x.local_amount)
         });
         return result.toFixed(2);
+    }
+
+    const getCurrencyInfoAdvanced = (id, heads) => {
+        let tempHeads = heads.filter((x)=> x.InvoiceId==id)
+        return tempHeads[0].ex_rate;
+    }
+
+    const approve = async() => {
+        let exp = {}, income = {}, party = {};
+        setLoad(true);
+        let tempInv = {...invoice};
+        await axios.get(process.env.NEXT_PUBLIC_CLIMAX_GET_ALL_SE_JOB_CHILDS,{
+            headers:{ title:JSON.stringify(["FCL FREIGHT INCOME", "FCL FREIGHT EXPENSE"]), companyid:companyId }
+        }).then((x)=>{
+            x.data.result.forEach((y)=>{
+                if(y.title.endsWith("INCOME")){ income = y
+                } else { exp = y }
+            })
+        });
+        await axios.get(process.env.NEXT_PUBLIC_CLIMAX_GET_ALL_SE_JOB_CLIENT_CHILDS,{
+            headers:{ title:"Accounts Recievable", companyid:companyId, clientid:tempInv.party_Id }
+        }).then((x)=>{
+            party = x.data.result
+        });
+
+        
+        console.log(exp, income, party);
+        if(invoice.approved=="0"){ tempInv.approved="1";
+        } else { tempInv.approved="0"; }
+
+        let vouchers = {};
+        let amount = calculateTotal(tempInv.Charge_Heads);
+        tempInv.total = amount;
+        console.log(tempInv);
+        vouchers = {
+            type:tempInv.payType=="Recievable"?"Job Recievable":"Job Payble",
+            vType:tempInv.payType=="Recievable"?"SI":"PI",
+            CompanyId:companyId,
+            amount:"",
+            currency:tempInv.type=="Job Bill"?"PKR":tempInv.type=="Job Invoice"?"PKR":tempInv.currency,
+            exRate:tempInv.type=="Job Bill"?"1":tempInv.type=="Job Invoice"?"1":getCurrencyInfoAdvanced(tempInv.id, tempInv.Charge_Heads),
+            chequeNo:"",
+            payTo:"",
+            costCenter:"KHI",
+            Voucher_Heads:[
+                {
+                    amount:parseFloat(amount) + parseFloat(tempInv.roundOff),
+                    type:tempInv.payType=="Recievable"?"Debit":"Credit",
+                    narration:"invoicesIds.toString()",
+                    VoucherId:null,
+                    ChildAccountId:party
+                }
+            ]
+        }
+        console.log(vouchers)
+        setInvoice(tempInv);
+        setLoad(false);
     }
 
   return (
@@ -90,31 +147,43 @@ const InvoiceCharges = ({data}) => {
                         let before = parseFloat(calculateTotal(records))
                         let after = parseFloat(parseInt(before))
                         let remaining = before - after;
-                        if(invoice.roundOff=="0"){
-                            if(remaining<=0.5 && remaining>0){
-                                console.log("Less Than 0.5");
-                                tempInv.roundOff = `-${(1-remaining).toFixed(2)}`
+                        console.log(remaining)
+                        if(remaining>0){
+                            if(invoice.roundOff=="0"){
+                                if(remaining<=0.5 && remaining>0){
+                                    tempInv.roundOff = `-${(remaining).toFixed(2)}`;
+                                    //console.log(tempInv.roundOff)
+                                }else{
+                                    tempInv.roundOff = `+${(1-remaining).toFixed(2)}`;
+                                }
                             }else{
-                                tempInv.roundOff = `+${(1-remaining).toFixed(2)}`
+                                tempInv.roundOff = "0"
                             }
-                        }else{
-                            tempInv.roundOff = "0"
+                            await axios.post(process.env.NEXT_PUBLIC_CLIMAX_POST_ROUNDOFF_INVOICE,{
+                                id:tempInv.id,
+                                total:tempInv.total,
+                                roundOff:tempInv.roundOff
+                            }).then((x)=>{
+                                if(x.data.status=="success"){
+                                    openNotification("Success", "Invoice Successfully Rounded Off!", "green")
+                                    setInvoice(tempInv)
+                                }else{
+                                    openNotification("Ops", "An Error Occured!", "red")
+                                }
+                            })
                         }
-                        console.log(tempInv.roundOff)
-                        await axios.post(process.env.NEXT_PUBLIC_CLIMAX_POST_ROUNDOFF_INVOICE,{
-                            id:tempInv.id,
-                            total:tempInv.total,
-                            roundOff:tempInv.roundOff
-                        }).then((x)=>{
-                            if(x.data.status=="success"){
-                                openNotification("Success", "Invoice Successfully Rounded Off!", "green")
-                                setInvoice(tempInv)
-                            }else{
-                                openNotification("Ops", "An Error Occured!", "red")
-                            }
-                        })
                         setLoad(false);
                     }} 
+                    />
+                </span>
+            </div>
+        </Col>
+        <Col md={3} className="mb-3">
+            <div>
+                <span className='inv-label'>Approved:</span>
+                <span className='inv-value mx-2'>
+                    <input className='cur' type={"checkbox"} checked={invoice.approved!="0"} 
+                        onChange={approve}
                     />
                 </span>
             </div>
@@ -125,21 +194,21 @@ const InvoiceCharges = ({data}) => {
         <Table className='tableFixHead' bordered>
         <thead>
             <tr className='table-heading-center'>
-            <th>Sr.</th>
+            <th></th>
             <th>Charge</th>
             <th>Particular</th>
             <th>Basis</th>
             <th>PP/CC</th>
-            <th>SizeType</th>
-            <th style={{minWidth:95}}>DG Type</th>
+            <th>Size</th>
+            <th style={{minWidth:60}}>DG</th>
             <th>Qty</th>
             <th>Currency</th>
             <th>Amount</th>
-            <th>Discount</th>
+            <th>Disc</th>
             <th>Tax</th>
             <th>Tax</th>
             <th>Net</th>
-            <th>Ex.Rate</th>
+            <th>Ex.</th>
             <th>Total</th>  
             </tr>
         </thead>
@@ -203,6 +272,7 @@ const InvoiceCharges = ({data}) => {
     </div>
     </>
     }
+    {/* Printing Component */}
     <div 
         style={{display:"none"}}
     >

@@ -43,6 +43,7 @@ const Charges = ({state, dispatch}) => {
   return (
     <>
     <div style={{minHeight:525, maxHeight:525}}>
+      <h6 style={{color:'red'}}>When Selecting heads for approval, make sure only those heads are available which has same clientId as the first Selected!</h6>
     <Tabs defaultActiveKey="1" onChange={(e)=> dispatch({type:'toggle', fieldName:'chargesTab',payload:e})}>
       <Tabs.TabPane tab="Recievable" key="1">
         {/* <RecivableCharges state={state} dispatch={dispatch} /> */}

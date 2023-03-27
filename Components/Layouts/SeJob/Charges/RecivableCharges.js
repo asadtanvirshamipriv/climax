@@ -103,7 +103,6 @@ const RecivableCharges = ({state, dispatch}) => {
                     let tempChargeList = [...state.reciveableCharges];
                     state.fields.chargeList.forEach((y, i)=>{
                         if(y.code==e){
-                            console.log(y)
                             tempChargeList[index].charge=e;
                             tempChargeList[index].particular=y.name;
                             tempChargeList[index].type=y.calculationType;
@@ -141,11 +140,8 @@ const RecivableCharges = ({state, dispatch}) => {
             <Select
                 value={x.size_type}
                 onChange={(e)=>{
-                    //e
-                    console.log(e)
                     let tempChargeList = [...state.reciveableCharges];
                     tempChargeList[index].size_type = e
-                    console.log(tempChargeList)
                     dispatch({type:'toggle', fieldName:'reciveableCharges', payload:tempChargeList});
                 }}
                 className='table-dropdown'
@@ -165,11 +161,8 @@ const RecivableCharges = ({state, dispatch}) => {
                 className='table-dropdown'
                 value={x.dg_type}
                 onChange={(e)=>{
-                    //e
-                    console.log(e)
                     let tempChargeList = [...state.reciveableCharges];
                     tempChargeList[index].dg_type = e
-                    console.log(tempChargeList)
                     dispatch({type:'toggle', fieldName:'reciveableCharges', payload:tempChargeList});
                 }}
                 options={[

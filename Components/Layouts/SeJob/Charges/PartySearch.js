@@ -53,6 +53,7 @@ const PartySearch = ({state, dispatch}) => {
                 }
                 temp[state.headIndex].name = x.name;
                 temp[state.headIndex].partyId = x.id;
+                temp[state.headIndex].partyType = partyType;
                 dispatch({type:'toggle', fieldName:'headIndex', payload:""});
                 dispatch({type:'toggle', fieldName:'headVisible', payload:false});
                 let tempOne = [...state.vendorParties];

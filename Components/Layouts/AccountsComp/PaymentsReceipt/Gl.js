@@ -105,7 +105,7 @@ const Gl = ({state, dispatch, selectedParty, payType, companyId}) => {
         onOk={()=>set('glVisible', false)}
         onCancel={()=>set('glVisible', false)}
         footer={false} maskClosable={false}
-        width={'70%'}
+        width={'60%'}
     >
     <div style={{minHeight:260}}>
       <h3 className='grey-txt'>Proceed With Following Transaction Against?</h3>

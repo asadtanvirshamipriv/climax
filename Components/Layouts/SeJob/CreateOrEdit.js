@@ -13,9 +13,11 @@ import EquipmentInfo from './EquipmentInfo';
 import Routing from './Routing';
 import Charges from './Charges/';
 import Invoice from './Invoice';
+import { useSelector } from 'react-redux';
 
 const CreateOrEdit = ({state, dispatch, baseValues}) => {
 
+  const companyId = useSelector((state) => state.company.value);
   const {register, control, handleSubmit, reset, formState:{errors} } = useForm({
     resolver:yupResolver(SignupSchema), defaultValues:state.values
   });
@@ -71,6 +73,7 @@ const CreateOrEdit = ({state, dispatch, baseValues}) => {
     data.forwarderId = data.forwarderId!=""?data.forwarderId:null;
     data.localVendorId = data.localVendorId!=""?data.localVendorId:null;
     data.commodityId = data.commodityId!=""?data.commodityId:null;
+    data.companyId = companyId
 
     let loginId = Cookies.get('loginId');
     data.createdById = loginId;
@@ -98,6 +101,7 @@ const CreateOrEdit = ({state, dispatch, baseValues}) => {
     data.equipments = state.equipments;
     data.customAgentId = data.customCheck.length>0?data.customAgentId:null;
     data.transporterId = data.transportCheck.length>0?data.transporterId:null;
+    data.companyId = companyId
     dispatch({type:'toggle', fieldName:'load', payload:true});
     setTimeout(async() => {
         await axios.post(process.env.NEXT_PUBLIC_CLIMAX_POST_EDIT_SEAJOB,{
@@ -120,14 +124,11 @@ const CreateOrEdit = ({state, dispatch, baseValues}) => {
   };
 
   useEffect(() => {
-    //console.log("Changed");
-    console.log(state.tabState)
     if(state.tabState!="5"){
       dispatch({type:'toggle', fieldName:'selectedInvoice', payload:""})
     }
   }, [state.tabState])
   
-
   const onError = (errors) => console.log(errors);
 
   return(
@@ -152,7 +153,7 @@ const CreateOrEdit = ({state, dispatch, baseValues}) => {
       }
       {(state.edit && state.selectedInvoice!='') &&
       <Tabs.TabPane tab="Invoice / Bills" key="5">
-        <Invoice state={state} dispatch={dispatch} />
+        <Invoice state={state} dispatch={dispatch} companyId={companyId} />
       </Tabs.TabPane>
       }
     </Tabs>

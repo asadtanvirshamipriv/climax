@@ -5,9 +5,12 @@ import React, { useEffect, useState } from 'react';
 import { Select, Input, Modal, Tag } from 'antd';
 import PartySearch from './PartySearch';
 import axios from 'axios';
+import { useSelector } from 'react-redux';
+
 
 const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
 
+    const companyId = useSelector((state) => state.company.value);
     const [load, setLoad] = useState(false);
 
     function calculate (i, amount, discount, taxApply, tax_rate, exRate, qty){
@@ -51,14 +54,6 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
         return returnValue;
     }
 
-    const calculateTotal = (data) => {
-        let result = 0;
-        data.forEach((x)=>{
-            result = result + parseFloat(x.local_amount)
-        });
-        return result.toFixed(2);
-    }
-
     async function makeInvoice(){
         setLoad(true);
         let charges = [];
@@ -76,7 +71,8 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
                     operation:"SE",
                     payType:x.type,
                     SEJobId:state.selectedRecord.id,
-                    sep:x.sep
+                    sep:x.sep,
+                    companyId:companyId
                 });
             } else {
                 let exist = false
@@ -94,7 +90,8 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
                             operation:"SE",
                             payType:x.type,
                             SEJobId:state.selectedRecord.id,
-                            sep:x.sep
+                            sep:x.sep,
+                            companyId:companyId
                         })
                     }
                 })
@@ -107,11 +104,14 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
                     addCharges.push(y)
                 }
             })
+            console.log(invoices[i])
+            console.log(addCharges)
             invoices[i].charges=addCharges;
             invoices[i].currency = getCurrencyInfo(addCharges)
-            invoices[i].total = calculateTotal(addCharges)
+            invoices[i].total = "0";
+            invoices[i].companyId = companyId;
         });
-        console.log(invoices);
+        //console.log(invoices)
         await axios.post(process.env.NEXT_PUBLIC_CLIMAX_SAVE_HEADS, {invoices:invoices, deleteList:state.deleteList})
         .then(() => {
             getHeads();
@@ -119,7 +119,13 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
         });
     }
 
-    useEffect(()=> { getHeads() }, [state.selectedRecord])
+    useEffect(()=> { getHeads() }, [state.selectedRecord]);
+
+    useEffect(()=> { console.log(state.reciveableCharges) }, [state.reciveableCharges]);
+
+    const getPartyType = (x) => {
+        console.log(x)
+    }
 
     const getHeads = async() => {
         !load?setLoad(true):null;
@@ -153,9 +159,10 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
     const ApproveCharges = async() => {
         setLoad(true);
         let chargesList = [];
-        chargesList.push(...state.paybleCharges)
-        chargesList.push(...state.reciveableCharges)
-        chargesList = chargesList.filter((x)=> x.check==true)
+        chargesList.push(...state.paybleCharges);
+        chargesList.push(...state.reciveableCharges);
+        chargesList = chargesList.filter((x)=> x.check==true);
+
         await axios.post(process.env.NEXT_PUBLIC_CLIMAX_APPROVE_HEADS,chargesList).then(async(x)=>{
             if(x.data.status=="success"){
                 await axios.post(process.env.NEXT_PUBLIC_CLIMAX_UPDATE_HEADS,
@@ -167,7 +174,8 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
                     }, 1000);
                 })
             }
-        })
+        });
+        //setLoad(false); // <-- This Has To Be Removed!
     }
 
   return (
@@ -284,7 +292,6 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
         <td style={{padding:3, minWidth:100}}> {/* charge selection */}
             <Select className='table-dropdown' showSearch value={x.charge}
                 onChange={(e)=>{
-                    console.log(e);
                     let tempChargeList = [...chargeType];
                     state.fields.chargeList.forEach((y, i) => {
                         if(y.code==e){
@@ -434,7 +441,7 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
             onCancel={()=>dispatch({type:'toggle', fieldName:'headVisible', payload:false})}
             width={900} footer={false} maskClosable={false}
             >
-            {state.headVisible && <PartySearch state={state} dispatch={dispatch} />}
+            {state.headVisible && <PartySearch state={state} dispatch={dispatch} getPartyType={getPartyType} />}
         </Modal>
       </div>
     </div>
