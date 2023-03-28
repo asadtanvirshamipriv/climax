@@ -48,20 +48,16 @@ const InvoiceCharges = ({data, companyId}) => {
             })
         });
         await axios.get(process.env.NEXT_PUBLIC_CLIMAX_GET_ALL_SE_JOB_CLIENT_CHILDS,{
-            headers:{ title:"Accounts Recievable", companyid:companyId, clientid:tempInv.party_Id }
+            headers:{ title:"Accounts Recievable", companyid:companyId, clientid:tempInv.party_Id, partytype:tempInv.partyType }
         }).then((x)=>{
             party = x.data.result
         });
-
-        
-        console.log(exp, income, party);
-        if(invoice.approved=="0"){ tempInv.approved="1";
-        } else { tempInv.approved="0"; }
+        //console.log(exp, income, party);
+        if(tempInv.approved=="0"){ tempInv.approved="1" } else { tempInv.approved="0" }
 
         let vouchers = {};
         let amount = calculateTotal(tempInv.Charge_Heads);
         tempInv.total = amount;
-        console.log(tempInv);
         vouchers = {
             type:tempInv.payType=="Recievable"?"Job Recievable":"Job Payble",
             vType:tempInv.payType=="Recievable"?"SI":"PI",
@@ -72,19 +68,145 @@ const InvoiceCharges = ({data, companyId}) => {
             chequeNo:"",
             payTo:"",
             costCenter:"KHI",
-            Voucher_Heads:[
-                {
-                    amount:parseFloat(amount) + parseFloat(tempInv.roundOff),
-                    type:tempInv.payType=="Recievable"?"Debit":"Credit",
-                    narration:"invoicesIds.toString()",
-                    VoucherId:null,
-                    ChildAccountId:party
-                }
-            ]
+            invoice_Voucher:"1",
+            invoice_Id:tempInv.id,
+            Voucher_Heads:[]
         }
-        console.log(vouchers)
+        let tempRoundOff = parseFloat(tempInv.roundOff);
+        if(tempRoundOff==0){
+            vouchers.Voucher_Heads.push({
+                amount:parseFloat(amount),
+                type:tempInv.payType=="Recievable"?"debit":"credit",
+                narration:"party",
+                VoucherId:null,
+                ChildAccountId:party.id
+            })
+            vouchers.Voucher_Heads.push({
+                amount:parseFloat(amount), //+ parseFloat(tempInv.roundOff),
+                type:tempInv.payType=="Recievable"?"credit":"debit",
+                narration:"",
+                VoucherId:null,
+                ChildAccountId:income.id
+            })
+        }else if(tempRoundOff>0 && tempInv.payType=="Recievable"){
+            vouchers.Voucher_Heads.push({
+                amount:parseFloat(amount) + parseFloat(tempRoundOff),
+                type:tempInv.payType=="Recievable"?"debit":"credit",
+                narration:"party",
+                VoucherId:null,
+                ChildAccountId:party.id
+            })
+            vouchers.Voucher_Heads.push({
+                amount:parseFloat(amount) + parseFloat(tempRoundOff),
+                type:"credit",
+                narration:"",
+                VoucherId:null,
+                ChildAccountId:income.id
+            })
+
+        }else if (tempRoundOff<0 && tempInv.payType=="Recievable"){
+            vouchers.Voucher_Heads.push({
+                amount:parseFloat(amount) - parseFloat(tempRoundOff)*-1,
+                type:tempInv.payType=="Recievable"?"debit":"credit",
+                narration:"party",
+                VoucherId:null,
+                ChildAccountId:party.id
+            })
+            vouchers.Voucher_Heads.push({
+                amount:parseFloat(amount),
+                type:"credit",
+                narration:"",
+                VoucherId:null,
+                ChildAccountId:income.id
+            })
+            vouchers.Voucher_Heads.push({
+                amount:parseFloat(tempRoundOff)*-1,
+                type:tempInv.payType=="Recievable"?"debit":"credit",
+                narration:"",
+                VoucherId:null,
+                ChildAccountId:exp.id
+            })
+
+        }else if (tempRoundOff>0 && tempInv.payType!="Recievable"){
+            vouchers.Voucher_Heads.push({
+                amount:parseFloat(amount)+ parseFloat(tempRoundOff),
+                type:"credit",
+                narration:"party",
+                VoucherId:null,
+                ChildAccountId:party
+            })
+            vouchers.Voucher_Heads.push({
+                amount:parseFloat(amount) + parseFloat(tempRoundOff),
+                type:"debit",
+                narration:"",
+                VoucherId:null,
+                ChildAccountId:exp.id
+            })
+
+
+        }else if(tempRoundOff<0 && tempInv.payType!="Recievable"){
+
+            vouchers.Voucher_Heads.push({
+                amount:(parseFloat(amount) - parseFloat(tempRoundOff)*-1).toFixed(2),
+                type:"credit",
+                narration:"party",
+                VoucherId:null,
+                ChildAccountId:party.id
+            })
+
+            vouchers.Voucher_Heads.push({
+                amount:(parseFloat(amount)).toFixed(2),
+                type:"debit",
+                narration:"",
+                VoucherId:null,
+                ChildAccountId:exp.id
+            })
+            vouchers.Voucher_Heads.push({
+                amount:(parseFloat(tempRoundOff)*-1).toFixed(2),
+                type:"credit",
+                narration:"",
+                VoucherId:null,
+                ChildAccountId:income.id
+            })
+        }
+
+        await axios.post(process.env.NEXT_PUBLIC_CLIMAX_POST_INVOICE_APPROVE_DISAPPROVE,{
+            id:tempInv.id,
+            total:tempInv.total,
+            roundOff:tempInv.roundOff,
+            approved:tempInv.approved
+        }).then(async(x)=>{
+            if(x.data.status=="success"){
+                openNotification("Success", "Invoice Successfully Approved!", "green")
+                setInvoice(tempInv);
+                if(tempInv.approved=="1"){
+                    await axios.post(process.env.NEXT_PUBLIC_CLIMAX_CREATE_VOUCHER, vouchers);
+                }else{
+                    await axios.post(process.env.NEXT_PUBLIC_CLIMAX_POST_DELETE_VOUCHER, {id:tempInv.id}).then((x)=>console.log(x.data))
+                }
+            }else{
+                openNotification("Ops", "An Error Occured!", "red")
+            }
+        })
+
+        //console.log(tempInv)
         setInvoice(tempInv);
         setLoad(false);
+    }
+
+    const checkApprovability = (x) => {
+        let result = false;
+        if(x.payType=="Recievable" && x.recieved=="0"){
+            result = false;
+        }else if(x.payType=="Recievable" && x.recieved!="0"){
+            result = true;
+        }else if(x.payType!="Recievable" && x.paid=="0"){
+            result = false;
+        }else if(x.payType!="Recievable" && x.paid!="0"){
+            result = true;
+        }
+
+        return result
     }
 
   return (
@@ -140,7 +262,7 @@ const InvoiceCharges = ({data, companyId}) => {
             <div>
                 <span className='inv-label'>Round Off:</span>
                 <span className='inv-value mx-2'>
-                    <input className='cur' type={"checkbox"} checked={invoice.roundOff!="0"} 
+                    <input className='cur' type={"checkbox"} disabled={invoice.approved=="1"?true:false} checked={invoice.roundOff!="0"} 
                     onChange={async()=>{
                         setLoad(true);
                         let tempInv = {...invoice};
@@ -162,7 +284,8 @@ const InvoiceCharges = ({data, companyId}) => {
                             await axios.post(process.env.NEXT_PUBLIC_CLIMAX_POST_ROUNDOFF_INVOICE,{
                                 id:tempInv.id,
                                 total:tempInv.total,
-                                roundOff:tempInv.roundOff
+                                roundOff:tempInv.roundOff,
+                                approved:tempInv.approved
                             }).then((x)=>{
                                 if(x.data.status=="success"){
                                     openNotification("Success", "Invoice Successfully Rounded Off!", "green")
@@ -183,6 +306,7 @@ const InvoiceCharges = ({data, companyId}) => {
                 <span className='inv-label'>Approved:</span>
                 <span className='inv-value mx-2'>
                     <input className='cur' type={"checkbox"} checked={invoice.approved!="0"} 
+                        disabled={checkApprovability(invoice)}
                         onChange={approve}
                     />
                 </span>
@@ -265,7 +389,10 @@ const InvoiceCharges = ({data, companyId}) => {
             <Col md={3} className=" py-3">
             <div className=''>
                 <span className='inv-label mx-2'>Total Amount:</span>
-                <span className='inv-value charges-box p-2'>{" "}{(parseFloat(invoice.total) + parseFloat(invoice.roundOff)).toFixed(2)}</span>
+                <span className='inv-value charges-box p-2'> 
+                    {" "}
+                    {invoice.approved=="1"? (parseFloat(invoice.total) + parseFloat(invoice.roundOff)).toFixed(2): "Not Approved" }
+                </span>
             </div>
             </Col>
         </Row>

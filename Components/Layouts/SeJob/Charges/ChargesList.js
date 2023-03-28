@@ -104,11 +104,8 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
                     addCharges.push(y)
                 }
             })
-            console.log(invoices[i])
-            console.log(addCharges)
             invoices[i].charges=addCharges;
             invoices[i].currency = getCurrencyInfo(addCharges)
-            invoices[i].total = "0";
             invoices[i].companyId = companyId;
         });
         //console.log(invoices)
@@ -121,10 +118,7 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
 
     useEffect(()=> { getHeads() }, [state.selectedRecord]);
 
-    useEffect(()=> { console.log(state.reciveableCharges) }, [state.reciveableCharges]);
-
     const getPartyType = (x) => {
-        console.log(x)
     }
 
     const getHeads = async() => {
