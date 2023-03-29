@@ -19,9 +19,25 @@
     background: rgba(128, 128, 128, 0.075);
     cursor: pointer;
     border-bottom: 1px solid rgba(0, 0, 0, 0.274);
+    border-left: 1px solid rgba(0, 0, 0, 0.274);
+    border-right: 1px solid rgba(0, 0, 0, 0.274);
     box-sizing: content-box;
     position: relative;
     outline: none;
+  }
+  .tabs::before {
+    content: "";
+    display: block;
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% + 2px);
+    height: 5px;
+    background: rgba(0, 0, 0, 0.274);
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+
   }
   .tabs:not(:last-child){
     border-right: 1px solid rgba(0, 0, 0, 0.274);
@@ -31,6 +47,8 @@
     transition-duration: 300ms;
     background: white;
     border-bottom: 1px solid transparent;
+    border-left:1px solid white;
+    border-right:1px solid white;
   }
   
   .active-tabs::before {
@@ -45,6 +63,7 @@
     background: rgb(6, 150, 172);
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
+
   }
   button {
     border: none;
@@ -79,17 +98,16 @@
 
   .clos-btn{
     color: black;
-    font-size: 10px;
+    font-size: 8px;
     position: relative;
     bottom: 3px;
     left: 4px;
+    padding: 3px;
   }
   .clos-btn:hover{
     transition-duration: 300ms;
     background-color: rgb(193, 37, 37);
     color: white;
-    font-size: 7px;
-    padding: 4px;
     border-radius: 25px;
   }
   .green-txt{

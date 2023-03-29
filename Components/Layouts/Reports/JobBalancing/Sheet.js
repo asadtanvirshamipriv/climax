@@ -10,39 +10,23 @@ const Sheet = ({data, payType}) => {
     useEffect(() => {
       let tempData = [];
       data.forEach((x, i) => {
-        if(x.Invoices.length>1){
-            x.Invoices.forEach((y, j) => {
-                console.log(y)
-                if(y.Charge_Heads.length>0){
-                    let pay = y.payType=="Payble"?getNetInvoicesAmount(y.Charge_Heads).localAmount:""
-                    let rec = y.payType!="Payble"?getNetInvoicesAmount(y.Charge_Heads).localAmount:""
-                    tempData.push({ 
-                        ...x, Invoices:y,
-                        receivable:rec,
-                        payble:pay,
-                        balance:y.payType!="Payble"?rec-y.recieved:pay-y.paid
-                    });
-                }
-            })
-        } else {
-            if(x.Invoices[0].Charge_Heads.length>0){
-                let pay = x.Invoices[0].payType=="Payble"?getNetInvoicesAmount(x.Invoices[0].Charge_Heads).localAmount:""
-                let rec = x.Invoices[0].payType!="Payble"?getNetInvoicesAmount(x.Invoices[0].Charge_Heads).localAmount:""
-                tempData.push({
-                    ...x, 
-                    Invoices:x.Invoices[0],
-                    receivable:rec,
-                    payble:pay,
-                    balance:x.Invoices[0].payType!="Payble"?rec-x.Invoices[0].recieved:pay-x.Invoices[0].paid
-                }); 
-            }
-        }
+        x.Invoices.forEach((y, j) => {
+            let pay = y.payType=="Payble"?(parseFloat(y.total) + parseFloat(y.roundOff)):""
+            let rec = y.payType!="Payble"?(parseFloat(y.total) + parseFloat(y.roundOff)):""
+            tempData.push({ 
+                ...x, Invoices:y,
+                receivable:rec,
+                payble:pay,
+                balance:y.payType!="Payble"?rec-y.recieved:pay-y.paid
+            });
+        })
       });
       setRecords(tempData);
     }, [data])
 
     const getTotal=(values, type)=>{
         let result = 0.00;
+        console.log(values)
         values.forEach((x)=>{
             if(type=="Recievable"){
                 result=result+parseFloat(x.receivable)
@@ -57,6 +41,15 @@ const Sheet = ({data, payType}) => {
             }
         })
         return `${result.toFixed(2)}`
+    }
+
+    const getAge = (date) => {
+        let date1 = new Date(date);
+        let date2 = new Date();
+
+        let difference = date2.getTime() - date1.getTime();
+
+        return parseInt(difference/86400000)
     }
 
   return (
@@ -80,6 +73,7 @@ const Sheet = ({data, payType}) => {
                 {payType=="Recievable" &&<th>Received</th>}
                 {payType!="Recievable" &&<th>paid</th>}
                 <th>Balance</th>
+                <th>Age</th>
             </tr>
         </thead>
         <tbody>
@@ -106,14 +100,15 @@ const Sheet = ({data, payType}) => {
                 </td>
                 <td>{x.weight}</td>
                 <td>{x.vol}</td>
-                {payType=="Recievable" &&<td>{x.receivable.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ", ")}</td>}
+                {payType=="Recievable" &&<td>{(parseFloat(x.Invoices.total) + parseFloat(x.Invoices.roundOff)).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ", ")}</td>}
                 {payType!="Recievable" &&<td>{x.payble.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ", ")}</td>}
-                {payType=="Recievable" &&<td>{x.Invoices.payType!="Payble"?x.Invoices.recieved.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ", "):""}</td>}
+                {payType=="Recievable" &&<td>{parseFloat(x.Invoices.recieved).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ", ")}</td>}
                 {payType!="Recievable" &&<td>{x.Invoices.payType=="Payble"?x.Invoices.paid.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ", "):""}</td>}
-                <td>{x.balance.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ", ")}</td>
+                <td>{x.balance.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ", ")}</td>
+                <td>{getAge(x.Invoices.createdAt)}</td>
             </tr>
         )})}
-        <tr className='f fs-12 text-center'>
+            <tr className='f fs-12 text-center'>
                 <td></td>
                 <td></td>
                 <td></td>
@@ -124,11 +119,12 @@ const Sheet = ({data, payType}) => {
                 <td></td>
                 <td></td>
                 <td>Total</td>
-                {payType=="Recievable" &&<td>{getTotal(records, "Recievable")-getTotal(records, "Recieved")}</td>}
+                {payType=="Recievable" &&<td>{getTotal(records, "Recievable")}</td>}
                 {payType!="Recievable" &&<td>{getTotal(records, "Payble")}</td>}
                 {payType=="Recievable" &&<td>{getTotal(records, "Recieved")}</td>}
                 {payType!="Recievable" &&<td>{getTotal(records, "Paid")}</td>}
                 <td>{getTotal(records, "balance").toString().replace(/\B(?=(\d{3})+(?!\d))/g, ", ")}</td>
+                <td></td>
             </tr>
         </tbody>
         </Table>
