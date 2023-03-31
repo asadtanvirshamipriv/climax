@@ -132,7 +132,7 @@ const InvoiceCharges = ({data, companyId}) => {
             type:"credit",
             narration:"party",
             VoucherId:null,
-            ChildAccountId:party
+            ChildAccountId:party.id
         })
         vouchers.Voucher_Heads.push({
             amount:parseFloat(amount) + parseFloat(tempRoundOff),
@@ -168,7 +168,6 @@ const InvoiceCharges = ({data, companyId}) => {
             ChildAccountId:income.id
         })
     }
-
     await axios.post(process.env.NEXT_PUBLIC_CLIMAX_POST_INVOICE_APPROVE_DISAPPROVE,{
         id:tempInv.id,
         total:tempInv.total,
@@ -187,8 +186,6 @@ const InvoiceCharges = ({data, companyId}) => {
             openNotification("Ops", "An Error Occured!", "red")
         }
     })
-
-    //console.log(tempInv)
     setInvoice(tempInv);
     setLoad(false);
   }
