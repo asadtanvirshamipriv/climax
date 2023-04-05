@@ -131,6 +131,8 @@ const CreateOrEdit = ({state, dispatch, baseValues}) => {
   
   const onError = (errors) => console.log(errors);
 
+  const subType = useWatch({control, name:"subType"});
+
   return(
   <div className='client-styles' style={{overflowY:'auto', overflowX:'hidden'}}>
     <h6>{state.edit?'Edit':'Create'}</h6>
@@ -140,9 +142,11 @@ const CreateOrEdit = ({state, dispatch, baseValues}) => {
       <Tabs.TabPane tab="Booking Info" key="1">
         <BookingInfo control={control} register={register} errors={errors} state={state} useWatch={useWatch} dispatch={dispatch} />
       </Tabs.TabPane>
+      {subType=="FCL" &&
       <Tabs.TabPane tab="Equipment" key="2">
         <EquipmentInfo control={control} register={register} errors={errors} state={state} dispatch={dispatch} useWatch={useWatch} />
       </Tabs.TabPane>
+      }
       <Tabs.TabPane tab="Routing" key="3">
         <Routing control={control} register={register} errors={errors} state={state} useWatch={useWatch} />
       </Tabs.TabPane >

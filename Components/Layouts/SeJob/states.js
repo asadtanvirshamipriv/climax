@@ -1,4 +1,5 @@
 import * as yup from "yup";
+import axios from "axios";
 
 const SignupSchema = yup.object().shape({
     // freightType: yup.string().required('Required'),
@@ -192,4 +193,20 @@ const initialState = {
   oldRecord:{},
 };
 
-export { recordsReducer, initialState, baseValues, SignupSchema };
+const getClients = (id) => {
+  const result = axios.get(process.env.NEXT_PUBLIC_CLIMAX_GET_CLIENTS_FOR_CHARGES, {
+    headers:{id:id}
+  })
+  .then((x)=>x.data.result)
+  return result;
+}
+
+const getVendors = (id) => {
+  const result = axios.get(process.env.NEXT_PUBLIC_CLIMAX_GET_VENDORS_FOR_CHARGES, {
+    headers:{id:id}
+  })
+  .then((x) => x.data.result)
+  return result;
+}
+
+export { recordsReducer, initialState, baseValues, SignupSchema, getClients, getVendors };

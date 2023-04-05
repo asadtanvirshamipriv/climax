@@ -130,6 +130,11 @@ const MainLayout = ({children}) => {
           key: '5-2',
           children: `Content of Tab Pane 2`,
         }),
+        getItem('Balance Sheet', '5-3',<></>, null, {
+          label: `Balance Sheet`,
+          key: '5-3',
+          children: `Content of Tab Pane 3`,
+        }),
       ]
     ),
   ];
@@ -165,6 +170,7 @@ const MainLayout = ({children}) => {
     paymentReceipt:false,
     jobBalancing:false,
     accountActivity:false,
+    balanceSheet:false,
   });
 
   useEffect(()=>{alterTabs()}, [tabs])
@@ -194,6 +200,7 @@ const MainLayout = ({children}) => {
         else if(tabs.key=='4-1'){ tempTabActive.seJob=true }
         else if(tabs.key=='5-1'){ tempTabActive.jobBalancing=true }
         else if(tabs.key=='5-2'){ tempTabActive.accountActivity=true }
+        else if(tabs.key=='5-3'){ tempTabActive.balanceSheet=true }
 
         setTabItems(tempTabs);
         setTabActive(tempTabActive)
@@ -217,6 +224,7 @@ const MainLayout = ({children}) => {
     else if(index=='4-1'){ Router.push('/seJob') }
     else if(index=='5-1'){ Router.push('/reports/jobBalancing') }
     else if(index=='5-2'){ Router.push('/reports/accountActivity') }
+    else if(index=='5-3'){ Router.push('/reports/balanceSheet') }
   };
 
   const removeTab = (index) => {

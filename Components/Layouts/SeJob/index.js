@@ -3,11 +3,12 @@ import { Row, Col, Table } from 'react-bootstrap';
 import { recordsReducer, initialState, baseValues } from './states';
 import { Modal } from 'antd';
 import CreateOrEdit from './CreateOrEdit';
-import { EditOutlined } from '@ant-design/icons';
 
 const SeJob = ({fieldsData, jobsData}) => {
   const [ state, dispatch ] = useReducer(recordsReducer, initialState);
   const { visible, viewHistory } = state;
+
+
 
   useEffect(() => {
     let tempChargeList = [];
@@ -15,6 +16,7 @@ const SeJob = ({fieldsData, jobsData}) => {
       tempChargeList.push({...x, label:x.code, value:x.code});
     });
     fieldsData.result.chargeList=tempChargeList
+    //console.log(fieldsData);
     dispatch({type:'toggle', fieldName:'fields', payload:fieldsData.result})
     dispatch({type:'toggle', fieldName:'records', payload:jobsData.result})
   }, [])

@@ -6,6 +6,7 @@ import { Select, Input, Modal, Tag } from 'antd';
 import PartySearch from './PartySearch';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
+import { getVendors, getClients } from '../states';
 
 
 const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
@@ -287,12 +288,46 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
             <Select className='table-dropdown' showSearch value={x.charge}
                 onChange={(e)=>{
                     let tempChargeList = [...chargeType];
-                    state.fields.chargeList.forEach((y, i) => {
+                    state.fields.chargeList.forEach(async(y, i) => {
                         if(y.code==e){
                             tempChargeList[index].charge=e;
                             tempChargeList[index].particular=y.name;
                             tempChargeList[index].basis=y.calculationType;
-                            //tempChargeList[index].currency=y.currency;
+                            //dispatch({type:'toggle', fieldName:state.chargesTab=='1'?'reciveableCharges':'paybleCharges', payload:tempChargeList});
+
+                            let partyType = "";
+
+                            partyType = y[state.chargesTab=='1'?'defaultRecivableParty':'defaultPaybleParty'];
+                            console.log(partyType);
+                            let searchPartyId;
+                            if(partyType=="Client"){
+                                searchPartyId = state.selectedRecord.ClientId;
+                            }else if(partyType=="Local-Agent"){
+                                searchPartyId = state.selectedRecord.localVendorId;
+                            }else if(partyType=="Custom-Agent"){
+                                searchPartyId = state.selectedRecord.customAgentId;
+                            }else if(partyType=="Transport-Agent"){
+                                searchPartyId = state.selectedRecord.transporterId;
+                            }else if(partyType=="Forwarding-Agent"){
+                                searchPartyId = state.selectedRecord.forwarderId;
+                            }else if(partyType=="Overseas-Agent"){
+                                searchPartyId = state.selectedRecord.overseasAgentId;
+                            }else if(partyType=="Shipping-Line"){
+                                searchPartyId = state.selectedRecord.shippingLineId;
+                            }
+
+                            let partyData = partyType=="Client"? await getClients(searchPartyId) : await getVendors(searchPartyId);
+                            //console.log(partyData[0]);
+
+                            if(state.chargesTab=='1'){
+                                tempChargeList[index].invoiceType = partyData[0].types.includes("Overseas Agent")?"Agent Bill":"Job Invoice" ;
+                            }else{
+                            tempChargeList[index].invoiceType = partyData[0].types.includes("Overseas Agent")?"Agent Invoice":"Job Bill" ;
+                            }
+                            tempChargeList[index].name = partyData[0].name;
+                            tempChargeList[index].partyId = partyData[0].id;
+                            tempChargeList[index].partyType = partyType=="Client"?"client":"vendor";
+                            
                             dispatch({type:'toggle', fieldName:state.chargesTab=='1'?'reciveableCharges':'paybleCharges', payload:tempChargeList});
                         }
                     })
@@ -404,7 +439,7 @@ const ChargesList = ({state, dispatch, chargeType, chargeVar}) => {
             />
         </td>
         <td>{x.local_amount}</td>
-        <td className='text-center'>
+        <td className='text-center'>{/* Party Selection */}
             <div className=''>
                 {x.id==null && <RightCircleOutlined style={{position:'relative', bottom:3}}
                     onClick={()=>{

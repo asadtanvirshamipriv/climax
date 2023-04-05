@@ -35,14 +35,18 @@ const PartySearch = ({state, dispatch}) => {
           return(
           <tr key={i} className={`${x.check?"table-select-list-selected":"table-select-list"}`}
             onClick={()=>{
+
               if(!x.check){
+
                 let temp = props.type=="vendors"?[...state.vendorParties]:[...state.clientParties];
                 temp.forEach((y, i2)=>{
                   if(y.id==x.id){ temp[i2].check=true
                   } else { temp[i2].check=false }
                 })
                 dispatch({type:'toggle', fieldName:props.type=="vendors"?'vendorParties':'clientParties', payload:temp});
-              }else{
+
+              } else {
+
                 let temp = [];
                 if(state.chargesTab=='1'){
                   temp = [...state.reciveableCharges];
@@ -51,6 +55,7 @@ const PartySearch = ({state, dispatch}) => {
                   temp = [...state.paybleCharges];
                   temp[state.headIndex].invoiceType = x.types.includes("Overseas Agent")?"Agent Invoice":"Job Bill" ;
                 }
+
                 temp[state.headIndex].name = x.name;
                 temp[state.headIndex].partyId = x.id;
                 temp[state.headIndex].partyType = partyType;
@@ -58,14 +63,17 @@ const PartySearch = ({state, dispatch}) => {
                 dispatch({type:'toggle', fieldName:'headVisible', payload:false});
                 let tempOne = [...state.vendorParties];
                 let tempTwo = [...state.clientParties];
+
                 tempOne.forEach((y, i1)=>{
                   tempOne[i1].check=false
                 })
                 tempTwo.forEach((y, i1)=>{
                   tempTwo[i1].check=false
                 })
+
                 dispatch({type:'toggle', fieldName:'vendorParties', payload:tempOne});
                 dispatch({type:'toggle', fieldName:'clientParties', payload:tempTwo});
+
               }
             }}
           >

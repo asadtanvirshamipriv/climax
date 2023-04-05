@@ -3,6 +3,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import InputComp from '../../Shared/Form/InputComp';
+import InputNumComp from '../../Shared/Form/InputNumComp';
 import SelectComp from '../../Shared/Form/SelectComp';
 import RadioComp from '../../Shared/Form/RadioComp';
 import { Row, Col, Spinner } from 'react-bootstrap';
@@ -132,32 +133,36 @@ const CreateOrEdit = ({state, dispatch, baseValues}) => {
             {errors.taxApply && <div className='error-line'>{errors.taxApply.message}*</div>}
         </Col>
         <Col md={2} className="my-2">
-            <InputComp register={register} name='taxPerc' control={control} label='Tax Percentage' disabled={taxApply=="No"?true:false} />
+            <InputNumComp register={register} name='taxPerc' control={control} label='Tax Percentage' disabled={taxApply=="No"?true:false} />
             {errors.taxPerc && <div className='error-line'>{errors.taxPerc.message}*</div>}
         </Col>
         <Col md={8}></Col>
         <Col md={3} className="my-2">
-            <SelectComp register={register} name='defaultPaybleParty' control={control} label='Default Payble Party Type'
+            <SelectComp register={register} name='defaultPaybleParty' control={control} label='Default Payble Party Type' width={180}
                 options={[
-                {id:'L-Agent', name:'L-Agent'},
-                {id:'O-Agent', name:'O-Agent'},
-                {id:'Terminal', name:'Terminal'},
-                {id:'CFS Facility', name:'CFS Facility'},
-                {id:'Others', name:'Others'},
-                {id:'Principal', name:'Principal'}
-            ]} />
+                    {id:'Client', name:'Client'},
+                    {id:'Local-Agent', name:'Local-Agent'},
+                    {id:'Overseas-Agent', name:'Overseas-Agent'},
+                    {id:'Transport-Agent', name:'Transport-Agent'},
+                    {id:'Forwarding-Agent', name:'Forwarding-Agent'},
+                    {id:'Custom-Agent', name:'Custom-Agent'},
+                    {id:'Shipping-Line', name:'Shipping-Line'},
+                ]}
+            />
             {errors.defaultPaybleParty && <div className='error-line'>{errors.defaultPaybleParty.message}*</div>}
         </Col>
         <Col md={4} className="my-2">
-            <SelectComp register={register} name='defaultRecivableParty' control={control} label='Default Receivable Party Type'
+            <SelectComp register={register} name='defaultRecivableParty' control={control} label='Default Receivable Party Type' width={180}
                 options={[
-                {id:'Client', name:'Client'},
-                {id:'O-Agent', name:'O-Agent'},
-                {id:'Terminal', name:'Terminal'},
-                {id:'CFS Facility', name:'CFS Facility'},
-                {id:'Others', name:'Others'},
-                {id:'Principal', name:'Principal'}
-            ]} />
+                    {id:'Client', name:'Client'},
+                    {id:'Local-Agent', name:'Local-Agent'},
+                    {id:'Overseas-Agent', name:'Overseas-Agent'},
+                    {id:'Transport-Agent', name:'Transport-Agent'},
+                    {id:'Forwarding-Agent', name:'Forwarding-Agent'},
+                    {id:'Custom-Agent', name:'Custom-Agent'},
+                    {id:'Shipping-Line', name:'Shipping-Line'},
+                ]} 
+            />
             {errors.defaultPaybleParty && <div className='error-line'>{errors.defaultPaybleParty.message}*</div>}
         </Col>
       </Row>

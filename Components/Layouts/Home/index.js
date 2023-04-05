@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Row, Col } from 'react-bootstrap';
 import Cookies from 'js-cookie';
 import Accounts from './Accounts';
+import axios from 'axios';
 
 const Home = ({sessionData}) => {
-
+  
   const [userType, setUserType] = useState("");
-  useEffect(() => { setUserType(JSON.parse(Cookies.get("access")).split(", ")[0]) }, [])
+  useEffect(() => { setUserType(JSON.parse(Cookies.get("access")).split(", ")[0]) }, []);
 
   return (
     <div className='base-page-layout'>
