@@ -19,6 +19,7 @@ const InputNumComp = (props) => {
              min="0"
              step={props.step}
              stringMode
+             disabled={props.disabled}
              {...field} 
              />
           </>

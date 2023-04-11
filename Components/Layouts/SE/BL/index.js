@@ -1,38 +1,26 @@
 import React, { useEffect, useReducer } from 'react';
 import { Row, Col, Table } from 'react-bootstrap';
-import { recordsReducer, initialState, baseValues } from './states';
 import { Modal } from 'antd';
-import CreateOrEdit from './CreateOrEdit';
 import { useSelector } from 'react-redux';
+import { recordsReducer, initialState, baseValues } from './states';
+import CreateOrEdit from './CreateOrEdit';
 
-const SeJob = ({fieldsData, jobsData}) => {
+const SeJob = () => {
+
   const companyId = useSelector((state) => state.company.value);
   const [ state, dispatch ] = useReducer(recordsReducer, initialState);
-  const { visible, viewHistory } = state;
+  const { visible } = state;
 
   useEffect(() => {
-    let tempChargeList = [];
-    fieldsData.result.chargeList.forEach((x) => {
-      tempChargeList.push({...x, label:x.code, value:x.code});
-    });
-    fieldsData.result.chargeList=tempChargeList
-    //console.log(fieldsData);
-    dispatch({type:'toggle', fieldName:'fields', payload:fieldsData.result})
-    dispatch({type:'toggle', fieldName:'records', payload:jobsData.result})
+    // let tempChargeList = [];
+    // fieldsData.result.chargeList.forEach((x) => {
+    //   tempChargeList.push({...x, label:x.code, value:x.code});
+    // });
+    // fieldsData.result.chargeList=tempChargeList
+    // //console.log(fieldsData);
+    // dispatch({type:'toggle', fieldName:'fields', payload:fieldsData.result})
+    // dispatch({type:'toggle', fieldName:'records', payload:jobsData.result})
   }, [])
-
-  useEffect(() => {
-    console.log(companyId=='')
-  }, [companyId])
-  
-
-  const getVessel = (id) => {
-    let name = "";
-    fieldsData.result.vessel.forEach((x) => {
-      if(x.id==id){ name= x.name }
-    })
-    return name
-  }
 
   return (
   <>
@@ -41,9 +29,7 @@ const SeJob = ({fieldsData, jobsData}) => {
       <Row>
         <Col><h5>Sea Export Job</h5></Col>
         <Col>
-          <button className='btn-custom right' 
-            onClick={()=>dispatch({type:'create'})}
-          >
+          <button className='btn-custom right' onClick={()=>dispatch({type:'create'})}>
             Create
           </button>
         </Col>
@@ -99,9 +85,9 @@ const SeJob = ({fieldsData, jobsData}) => {
       <Modal
         open={visible} maskClosable={false}
         onOk={()=>dispatch({ type: 'modalOff' })} onCancel={()=>dispatch({ type: 'modalOff' })}
-        width={1000} footer={false} centered={true}
+        width={1000} footer={false} //centered={true}
       >
-        {!viewHistory && <CreateOrEdit state={state} dispatch={dispatch} baseValues={baseValues} companyId={companyId} />}
+        <CreateOrEdit state={state} dispatch={dispatch} baseValues={baseValues} companyId={companyId} />
       </Modal>
       </div>
     }

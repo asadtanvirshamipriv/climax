@@ -14,6 +14,7 @@ const CheckGroupComp = (props) => {
             <div>{props.label}</div>
             <Checkbox.Group 
                 {...field}
+                disabled={props.disabled}
                 options={props.options}
             />
             </>

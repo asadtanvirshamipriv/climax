@@ -20,12 +20,7 @@ const SeJob = ({fieldsData, jobsData}) => {
     dispatch({type:'toggle', fieldName:'fields', payload:fieldsData.result})
     dispatch({type:'toggle', fieldName:'records', payload:jobsData.result})
   }, [])
-
-  useEffect(() => {
-    console.log(companyId=='')
-  }, [companyId])
   
-
   const getVessel = (id) => {
     let name = "";
     fieldsData.result.vessel.forEach((x) => {

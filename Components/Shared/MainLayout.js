@@ -1,6 +1,9 @@
 import { AccountBookOutlined, CloseOutlined, HomeOutlined, SettingOutlined } from '@ant-design/icons';
+import { companySelect, addCompanies } from '../../redux/company/companySlice';
 import { AiOutlineLeft, AiOutlineRight } from "react-icons/ai";
 import { HiOutlineDocumentSearch } from "react-icons/hi";
+import { incrementTab } from '../../redux/tabs/tabSlice';
+import { useSelector, useDispatch } from 'react-redux';
 import React, { useState, useEffect } from 'react';
 import { IoMdArrowDropleft } from "react-icons/io";
 import { RiShipLine } from "react-icons/ri";
@@ -11,10 +14,6 @@ import axios from 'axios';
 
 const { Header, Content, Sider } = Layout;
 
-import { companySelect, addCompanies } from '../../redux/company/companySlice';
-import { incrementTab } from '../../redux/tabs/tabSlice';
-import { useSelector, useDispatch } from 'react-redux';
-
 const MainLayout = ({children}) => {
 
   const [load, setLoad] = useState(true);
@@ -22,7 +21,6 @@ const MainLayout = ({children}) => {
   const [collapsed, setCollapsed] = useState(false);
   const [company, setCompany] = useState('');
   const tabs = useSelector((state) => state.tabs.value);
-
   const dispatch = useDispatch();
   useEffect(() => { getCompanies() }, [])
 
@@ -116,6 +114,11 @@ const MainLayout = ({children}) => {
           key: '4-1',
           children: `Content of Tab Pane 2`,
         }),
+        getItem('SE BL', '4-2',<></>, null, {
+          label: `SE BL`,
+          key: '4-2',
+          children: `Content of Tab Pane 2`,
+        }),
       ]
     ),
     getParentItem('Reports', '5', <HiOutlineDocumentSearch/>,
@@ -165,6 +168,7 @@ const MainLayout = ({children}) => {
     commodity:false,
     vessel:false,
     seJob:false,
+    seBl:false,
     charges:false,
     invoiceBills:false,
     paymentReceipt:false,
@@ -198,6 +202,7 @@ const MainLayout = ({children}) => {
         else if(tabs.key=='3-3'){ tempTabActive.invoiceBills=true }
         else if(tabs.key=='3-4'){ tempTabActive.paymentReceipt=true }
         else if(tabs.key=='4-1'){ tempTabActive.seJob=true }
+        else if(tabs.key=='4-2'){ tempTabActive.seBl=true }
         else if(tabs.key=='5-1'){ tempTabActive.jobBalancing=true }
         else if(tabs.key=='5-2'){ tempTabActive.accountActivity=true }
         else if(tabs.key=='5-3'){ tempTabActive.balanceSheet=true }
@@ -222,6 +227,7 @@ const MainLayout = ({children}) => {
     else if(index=='3-3'){ Router.push('/accounts/invoiceAndBills') }
     else if(index=='3-4'){ Router.push('/accounts/paymentReceipt') }
     else if(index=='4-1'){ Router.push('/seJob') }
+    else if(index=='4-2'){ Router.push('/seBl') }
     else if(index=='5-1'){ Router.push('/reports/jobBalancing') }
     else if(index=='5-2'){ Router.push('/reports/accountActivity') }
     else if(index=='5-3'){ Router.push('/reports/balanceSheet') }
@@ -243,7 +249,7 @@ const MainLayout = ({children}) => {
 
   return (
     <Layout className="main-dashboard-layout">
-      {(!load) && 
+      {!load && 
       <Sider trigger={null} collapsible collapsed={collapsed} style={{maxHeight:'100vh', overflowY:'auto'}}>
         <div className={!collapsed?'big-logo':'small-logo'} >
           <span>

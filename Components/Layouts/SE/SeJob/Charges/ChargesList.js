@@ -1,6 +1,6 @@
 import { CloseCircleOutlined, RightCircleOutlined } from '@ant-design/icons';
 import { Row, Col, Table, Spinner } from 'react-bootstrap';
-import PopConfirm from '../../../Shared/PopConfirm';
+import PopConfirm from '../../../../Shared/PopConfirm';
 import React, { useEffect, useState } from 'react';
 import { Select, Input, Modal, Tag, InputNumber } from 'antd';
 import PartySearch from './PartySearch';
@@ -140,7 +140,7 @@ const ChargesList = ({state, dispatch, chargeType }) => {
         dispatch({type:'toggle', fieldName:'paybleCharges', payload:payload.paybleCharges});
         console.log(payload.exRate)
         dispatch({type:'toggle', fieldName:'chargeLoad', payload:false});
-    }
+      }
 
     const ApproveCharges = async() => {
         dispatch({type:'toggle', fieldName:'chargeLoad', payload:true})

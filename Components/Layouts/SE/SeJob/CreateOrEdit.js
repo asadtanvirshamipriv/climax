@@ -6,7 +6,7 @@ import { Spinner } from 'react-bootstrap';
 import moment from 'moment';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import openNotification from '../../Shared/Notification';
+import openNotification from '../../../Shared/Notification';
 import { SignupSchema } from './states';
 import BookingInfo from './BookingInfo';
 import EquipmentInfo from './EquipmentInfo';

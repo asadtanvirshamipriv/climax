@@ -1,12 +1,12 @@
 import { Popover, InputNumber } from "antd";
-import SelectComp from '../../Shared/Form/SelectComp';
-import SelectSearchComp from '../../Shared/Form/SelectSearchComp';
-import DateComp from '../../Shared/Form/DateComp';
-import TimeComp from '../../Shared/Form/TimeComp';
-import CheckGroupComp from '../../Shared/Form/CheckGroupComp';
+import SelectComp from '../../../Shared/Form/SelectComp';
+import SelectSearchComp from '../../../Shared/Form/SelectSearchComp';
+import DateComp from '../../../Shared/Form/DateComp';
+import TimeComp from '../../../Shared/Form/TimeComp';
+import CheckGroupComp from '../../../Shared/Form/CheckGroupComp';
 import { Row, Col } from 'react-bootstrap';
 import Dates from './Dates';
-import InputNumComp from '../../Shared/Form/InputNumComp';
+import InputNumComp from '../../../Shared/Form/InputNumComp';
 import Notes from "./Notes";
 
 const BookingInfo = ({register, control, errors, state, useWatch, dispatch}) => {
@@ -43,7 +43,7 @@ const BookingInfo = ({register, control, errors, state, useWatch, dispatch}) => 
     <Row>
       <Col md={2} className=''>
         <div className="">Job No.</div>
-        <div className="p-1 px-2" style={{border:'1px solid silver', marginTop:3, borderRadius:2}}>
+        <div className="dummy-input">
           {state.edit?(state.selectedRecord.jobNo):<span style={{color:'white'}}>.</span>}
         </div>
       </Col>

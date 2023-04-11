@@ -397,3 +397,19 @@
 .fl-r{
   float: right;
 }
+
+.dummy-input{
+  border: 1px solid rgb(204, 212, 217);
+  padding: 5px 4px 4px 7px;
+  height: 32px;
+  margin-top: 3px;
+  border-radius: 2px;
+}
+.dummy-input:hover{
+  cursor: pointer;
+  border: 1px solid rgb(132, 198, 239);
+}
+
+.center{
+  text-align: center;
+}
