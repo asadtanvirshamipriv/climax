@@ -402,7 +402,7 @@
   border: 1px solid rgb(204, 212, 217);
   padding: 5px 4px 4px 7px;
   height: 32px;
-  margin-top: 3px;
+  margin-top: 0px;
   border-radius: 2px;
 }
 .dummy-input:hover{
@@ -412,4 +412,32 @@
 
 .center{
   text-align: center;
+}
+
+.no-lineBr > th{
+  white-space: nowrap!important;
+}
+
+.close-btn{
+  cursor: pointer;
+  color: black;
+}
+.close-btn:hover{
+  transition-duration: 300ms;
+  color : rgb(193, 37, 37);
+  border-radius: 25px;
+}
+
+.my-custom-paragraph{
+  margin: 0px;
+  margin-left: 5px;
+}
+
+.brdr-grey{
+  border: 1px solid rgb(202, 202, 202);
+}
+
+
+.ProseMirror:focus{
+  outline: none;
 }

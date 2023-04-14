@@ -13,11 +13,6 @@ const SelectComp = (props) => {
         <>
           <div>{props.label}</div>
           <Select disabled={props.disabled} style={{minWidth:props.width}} 
-            showSearch
-            optionFilterProp="children"
-            filterOption={(input, option) =>
-              (option?.name ?? '').toLowerCase().includes(input.toLowerCase())
-            }
             {...field}
           >
             {

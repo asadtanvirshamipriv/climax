@@ -5,13 +5,16 @@ import { useSelector } from 'react-redux';
 import { recordsReducer, initialState, baseValues } from './states';
 import CreateOrEdit from './CreateOrEdit';
 
-const SeJob = () => {
+const SeJob = ({partiesData}) => {
 
+  const set = (a, b) => dispatch({type:'toggle', fieldName:a, payload:b});
   const companyId = useSelector((state) => state.company.value);
   const [ state, dispatch ] = useReducer(recordsReducer, initialState);
   const { visible } = state;
 
   useEffect(() => {
+    set('partiesData',partiesData)
+    // partiesData
     // let tempChargeList = [];
     // fieldsData.result.chargeList.forEach((x) => {
     //   tempChargeList.push({...x, label:x.code, value:x.code});
@@ -85,7 +88,7 @@ const SeJob = () => {
       <Modal
         open={visible} maskClosable={false}
         onOk={()=>dispatch({ type: 'modalOff' })} onCancel={()=>dispatch({ type: 'modalOff' })}
-        width={1000} footer={false} //centered={true}
+        width={1000} footer={false} centered={true}
       >
         <CreateOrEdit state={state} dispatch={dispatch} baseValues={baseValues} companyId={companyId} />
       </Modal>
