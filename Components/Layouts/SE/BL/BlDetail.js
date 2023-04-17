@@ -25,7 +25,7 @@ const BlDetail = ({control, register, state, useWatch, dispatch}) => {
         //setState(editor.getJSON());
         set(variable, editor.getHTML())
     },
-  })
+  },[state.updateContent])
 
   const partyDetail = {
     height:80,
@@ -37,6 +37,7 @@ const BlDetail = ({control, register, state, useWatch, dispatch}) => {
     {id:'LBS', name:'LBS'},
     {id:'MTON', name:'MTON'}
   ]
+  const allValues = useWatch({control})
 
 return(
 <div style={{height:600, overflowY:'auto', overflowX:'hidden'}}>
@@ -77,13 +78,13 @@ return(
     <Col md={3}>
       <Row className='pt-1'>
         <Col md={12}>
-          <InputComp register={register} name='pol' control={control} label='Port of Loading' width={150} />
+          <InputComp register={register} name='polTwo' control={control} label='Port of Loading' width={150} />
         </Col>
         <Col md={12} className='mt-2'>
-          <InputComp register={register} name='pod' control={control} label='Port of Discharge' width={150} />
+          <InputComp register={register} name='podTwo' control={control} label='Port of Discharge' width={150} />
         </Col>
         <Col md={12} className='mt-2'>
-          <InputComp register={register} name='poDelivery' control={control} label='Port of Delivery' width={150} />
+          <InputComp register={register} name='poDeliveryTwo' control={control} label='Port of Delivery' width={150} />
         </Col>
         <Col md={12} className='mt-2'>
           <InputComp register={register} name='AgentStamp' control={control} label='Agent Stamp' width={150} />
@@ -94,27 +95,27 @@ return(
     <Row>
       <Col md={7} className='mt-1'>
         Freight Type
-        <div className='dummy-input'>{state.freightType}</div>
+        <div className='dummy-input'>{allValues.freightType}</div>
       </Col>
       <Col md={5} className='mt-1'>
         Unit
-        <div className='dummy-input'>{state.wtUnit}</div>
+        <div className='dummy-input'>{allValues.wtUnit}</div>
       </Col>
       <Col md={6} className='mt-2'>
         <div>Net WT</div>
-        <div className='dummy-input'>{state.net}</div>
+        <div className='dummy-input'>{allValues.net}</div>
       </Col>
       <Col md={6} className='mt-2'>
         <div>Gross WT</div>
-        <div className='dummy-input'>{state.gross}</div>
+        <div className='dummy-input'>{allValues.gross}</div>
       </Col>
       <Col md={6} className='mt-2'>
         <div>Tare WT</div>
-        <div className='dummy-input'>{state.tare}</div>
+        <div className='dummy-input'>{allValues.tare}</div>
       </Col>
       <Col md={6} className='mt-2'>
         <div>CBM</div>
-        <div className='dummy-input'>{state.cbm}</div>
+        <div className='dummy-input'>{allValues.cbm}</div>
       </Col>
       <Col md={6} className='mt-2'>
         <InputComp register={register} name='agentM3' control={control} label='Agent M3' width={150} />
@@ -124,11 +125,11 @@ return(
       </Col>
       <Col md={6} className='mt-2'>
         <div>Packages</div>
-        <div className='dummy-input'>{state.pkgs}</div>
+        <div className='dummy-input'>{allValues.pkgs}</div>
       </Col>
       <Col md={6} className='mt-2'>
         <div>Units</div>
-        <div className='dummy-input'>{state.unit}</div>
+        <div className='dummy-input'>{allValues.unit}</div>
       </Col>
       <Col md={6} className='mt-2'>
         <InputComp register={register} name='hs' control={control} label='HS Code' width={150} />

@@ -4,8 +4,10 @@ import { DatePicker, Input, InputNumber, Select } from 'antd';
 import { CloseCircleOutlined } from "@ant-design/icons";
 import { calculateContainerInfos } from './states';
 
-const ContainerInfo = ({control, register, state, useWatch, dispatch}) => {
+const ContainerInfo = ({control, register, state, useWatch, dispatch, reset}) => {
   const set = (a, b) => dispatch({type:'toggle', fieldName:a, payload:b});
+
+  const allValues = useWatch({control})
 
   const onChange = (e, i, variable, type) => {
     let temp = [...state.containersInfo];
@@ -109,7 +111,7 @@ return (
 </Col>
 <Col md={2}>
     {state.saveContainers &&<div className='div-btn-custom-green text-center py-1' 
-        onClick={()=>calculateContainerInfos(state, set)}
+        onClick={()=>calculateContainerInfos(state, set, reset, allValues)}
     >Save</div>}
 </Col>
 <Col md={12}>
@@ -159,15 +161,15 @@ return (
     <td className='text-center p-0'>{i + 1}</td>
     <td className='p-0'><Input  value={x.no}         style={{width: 120  }} size='small' onChange={(e)=>onChange(e,i,'no'          )}   /></td>
     <td className='p-0'><Input  value={x.seal}       style={{width: 65   }} size='small' onChange={(e)=>onChange(e,i,'seal'        )}   /></td>
-    <td className='p-0'><Select value={x.size}       style={{width: 65   }} size='small' onChange={(e)=>onChange(e,i,'size','e'    )} options={weightOpt}/></td>
+    <td className='p-0'><Select value={x.size}       style={{width: 75   }} size='small' onChange={(e)=>onChange(e,i,'size','e'    )} options={weightOpt}/></td>
     <td className='p-0'><Input  value={x.rategroup}  style={{width:'100%'}} size='small' onChange={(e)=>onChange(e,i,'rategroup'   )}    /></td>
-    <td className='p-0'><InputNumber value={x.gross} style={{width: 79   }} size='small' onChange={(e)=>onChange(e,i,'gross','e'   )}    /></td>
-    <td className='p-0'><InputNumber value={x.net}   style={{width: 79   }} size='small' onChange={(e)=>onChange(e,i,'net','e'     )}    /></td>
-    <td className='p-0'><InputNumber value={x.tare}  style={{width: 79   }} size='small' onChange={(e)=>onChange(e,i,'tare','e'    )}    /></td>
-    <td className='p-0'><Select value={x.wtUnit}     style={{width: 120  }} size='small' onChange={(e)=>onChange(e,i,'wtUnit','e'  )} options={weightUnit}/></td>
-    <td className='p-0'><InputNumber value={x.cbm}   style={{width: 70   }} size='small' onChange={(e)=>onChange(e,i,'cbm','e'     )}    /></td>
-    <td className='p-0'><InputNumber value={x.pkgs}  style={{width:'100%'}} size='small' onChange={(e)=>onChange(e,i,'pkgs','e')}    /></td>
-    <td className='p-0'><Select value={x.unit}       style={{width: 80   }} size='small' onChange={(e)=>onChange(e,i,'unit','e'    )} options={PackagrUnits}/></td>
+    <td className='p-0'><InputNumber value={x.gross} style={{width: 79   }} size='small' onChange={(e)=>onChange(e,i,'gross','e')} min="0.01"/></td>
+    <td className='p-0'><InputNumber value={x.net}   style={{width: 79   }} size='small' onChange={(e)=>onChange(e,i,'net','e')}   min="0.01"/></td>
+    <td className='p-0'><InputNumber value={x.tare}  style={{width: 79   }} size='small' onChange={(e)=>onChange(e,i,'tare','e')}  min="0.01"/></td>
+    <td className='p-0'><Select value={x.wtUnit}     style={{width: 80   }} size='small' onChange={(e)=>onChange(e,i,'wtUnit','e'  )} options={weightUnit}/></td>
+    <td className='p-0'><InputNumber value={x.cbm}   style={{width: 70   }} size='small' onChange={(e)=>onChange(e,i,'cbm','e'  )} min="0.01"/></td>
+    <td className='p-0'><InputNumber value={x.pkgs}  style={{width:'100%'}} size='small' onChange={(e)=>onChange(e,i,'pkgs','e')}  min="0.01"/></td>
+    <td className='p-0'><Select value={x.unit}       style={{width: 100  }} size='small' onChange={(e)=>onChange(e,i,'unit','e'    )} options={PackagrUnits}/></td>
     <td className='p-0'><Input  value={x.temp}       style={{width:'100%'}} size='small' onChange={(e)=>onChange(e,i,'temp'        )}    /></td>
     <td className='p-0'><Select value={x.loadType}   style={{width:'100%'}} size='small' onChange={(e)=>onChange(e,i,'loadType','e')}options={loadType}/></td>
     <td className='p-0'><Input  value={x.remarks}    style={{width: 200  }} size='small' onChange={(e)=>onChange(e,i,'remarks'     )}    /></td>

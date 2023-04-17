@@ -7,18 +7,32 @@ import SelectSearchComp from '../../../Shared/Form/SelectSearchComp';
 import { Row, Col } from 'react-bootstrap';
 import { Modal } from 'antd';
 import PartySearch from './PartySearch';
-import { fetchJobsData } from './states';
+import { fetchJobsData, convetAsHtml } from './states';
 import moment from 'moment';
 
 const BlInfo = ({control, register, state, useWatch, dispatch, reset}) => {
 
   const set = (a, b) => dispatch({type:'toggle', fieldName:a, payload:b})
-  const notifyPartyOneId = useWatch({control,name:'notifyPartyOneId'})
-  const notifyPartyTwoId = useWatch({control,name:'notifyPartyTwoId'})
+  const allValues = useWatch({control});
+
   useEffect(() => {
-    console.log(notifyPartyOneId)
-    console.log(notifyPartyTwoId)
-  }, [notifyPartyOneId, notifyPartyTwoId])
+        if(state.partiesData.length>1){ 
+            findNotifyParty(allValues.notifyPartyOneId,allValues.notifyPartyTwoId) 
+        }
+        set('updateContent',!state.updateContent)
+    }, [allValues.notifyPartyOneId, allValues.notifyPartyTwoId])
+
+    const findNotifyParty = (one,two) => {
+        state.partiesData.forEach((x, i)=>{
+            if(one==x.id){
+                set('notifyOneContent',convetAsHtml(x))
+            }
+            if(two==x.id){
+                convetAsHtml(x);
+                set('notifyTwoContent',convetAsHtml(x))
+            }
+        })
+    }
 
   return (
     <div style={{height:600, overflowY:'auto', overflowX:'hidden'}}>
@@ -28,7 +42,7 @@ const BlInfo = ({control, register, state, useWatch, dispatch, reset}) => {
                 <Col md={10}>
                 <div className="" style={{lineHeight:1.35}}>Job No.</div>
                 <div className='dummy-input' onClick={()=>fetchJobsData(set)}>
-                    {state.values.jobNo}
+                    {allValues.jobNo}
                 </div>
                 </Col>
                 <Col md={12}>
@@ -37,7 +51,7 @@ const BlInfo = ({control, register, state, useWatch, dispatch, reset}) => {
                 </Col>
                 <Col md={12}>
                     <div className='mt-2'></div>
-                    <InputComp register={register} name='mlb' control={control} label='MBL #' width={150} />
+                    <InputComp register={register} name='mbl' control={control} label='MBL #' width={150} />
                 </Col>
             </Row>
         </Col>
@@ -110,11 +124,11 @@ const BlInfo = ({control, register, state, useWatch, dispatch, reset}) => {
             <Row>
                 <Col md={12}>
                 <div className="" style={{lineHeight:1.35}}>Shipper</div>
-                <div className='dummy-input'>{state.values.shipper}</div>
+                <div className='dummy-input'>{allValues.shipper}</div>
                 </Col>
                 <Col md={12}>
                 <div className="mt-2" style={{lineHeight:1.35}}>Consignee</div>
-                <div className='dummy-input'>{state.values.consignee}</div>
+                <div className='dummy-input'>{allValues.consignee}</div>
                 </Col>
                 <Col md={12}>
                     <SelectSearchComp register={register} name='notifyPartyOneId'control={control} label='Notify Party #1' width={'100%'}
@@ -124,10 +138,10 @@ const BlInfo = ({control, register, state, useWatch, dispatch, reset}) => {
                         options={state.partiesData}
                     />
                     <div className="mt-2" style={{lineHeight:1.35}}>Vessel</div>
-                    <div className='dummy-input'>{state.values.vessel}</div>
+                    <div className='dummy-input'>{allValues.vessel}</div>
 
                     <div className="mt-2" style={{lineHeight:1.35}}>Sailing Date</div>
-                    <div className='dummy-input'>{moment(state.values.shipDate).format("DD-MM-YYYY")}</div>
+                    <div className='dummy-input'>{moment(allValues.shipDate).format("DD-MM-YYYY")}</div>
                 </Col>
             </Row>
         </Col>
@@ -137,20 +151,20 @@ const BlInfo = ({control, register, state, useWatch, dispatch, reset}) => {
                 <Col md={5}>
                 <Row>
                     <Col md={12}>
-                        <div className="mt-2" style={{lineHeight:1.35}}>POD</div>
-                        <div className='dummy-input'>{state.values.pod}</div>
+                        <div className="mt-2" style={{lineHeight:1.35}}>POL</div>
+                        <div className='dummy-input'>{allValues.pol}</div>
                     </Col>
                     <Col md={12}>
-                        <div className="mt-2" style={{lineHeight:1.35}}>POL</div>
-                        <div className='dummy-input'>{state.values.pol}</div>
+                        <div className="mt-2" style={{lineHeight:1.35}}>POFD</div>
+                        <div className='dummy-input'>{allValues.pofd}</div>
                     </Col>
                     <Col md={12}>
                         <div className="mt-2" style={{lineHeight:1.35}}>Final Dest.</div>
-                        <div className='dummy-input'>{state.values.fd}</div>
+                        <div className='dummy-input'>{allValues.fd}</div>
                     </Col>
                     <Col md={12}>
                         <div className="mt-2" style={{lineHeight:1.35}}>Commodity</div>
-                        <div className='dummy-input'>{state.values.commodity}</div>
+                        <div className='dummy-input'>{allValues.commodity}</div>
                     </Col>
                 </Row>
                 </Col>
@@ -159,16 +173,16 @@ const BlInfo = ({control, register, state, useWatch, dispatch, reset}) => {
                 <Row>
                     <Col md={12}>
                         <div className="mt-2" style={{lineHeight:1.35}}>Overseas Agent</div>
-                        <div className='dummy-input'>{state.values.overseas_agent}</div>
+                        <div className='dummy-input'>{allValues.overseas_agent}</div>
                     </Col>
                     <Col md={12}>
                         <div className="mt-2" style={{lineHeight:1.35}}>S/Line Carrier</div>
-                        <div className='dummy-input'>{state.values.pol}</div>
+                        <div className='dummy-input'>{allValues.pol}</div>
                     </Col>
                     <Col md={12}>
                         <div className="mt-2" style={{lineHeight:1.35}}>Total Container</div>
                         <div className='dummy-input'>
-                            {state.values.equip.map((x, i)=>{
+                            {allValues.equip.map((x, i)=>{
                                 return(<span key={i}>{x.qty} X {x.size}</span>)
                             })
                             }
@@ -176,7 +190,7 @@ const BlInfo = ({control, register, state, useWatch, dispatch, reset}) => {
                     </Col>
                     <Col md={12}>
                         <div className="mt-2" style={{lineHeight:1.35}}>Delivery</div>
-                        <div className='dummy-input'>{state.values.commodity}</div>
+                        <div className='dummy-input'>{allValues.delivery}</div>
                     </Col>
                 </Row>
                 </Col>

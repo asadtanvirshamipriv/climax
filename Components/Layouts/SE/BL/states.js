@@ -61,7 +61,6 @@ const baseValues = {
   releaseInstruction:'',
   remarks:'',
   sailingDate:'',
-  AgentStamp:'',
   onBoardDate:'',
   issuePlace:'',
   issueDate:'',
@@ -69,6 +68,7 @@ const baseValues = {
   SEJobId:'',
   notifyPartyOneId:'',
   notifyPartyTwoId:'',
+
   //Values Drawn From Job
   jobNo:'',
   shipper:'',
@@ -78,15 +78,28 @@ const baseValues = {
   shipDate:'',
   vessel:'',
   pol:'',
-  pod:'',
-  poDelivery:'',
-  unit:'',
-  fs:'',
+  pofd:'',
+  pot:'',
   fd:'',
+  //Second Ports Option
+  polTwo:'',
+  podTwo:'',
+  poDeliveryTwo:'',
+  AgentStamp:'',
+
+  freightType:"",
+  unit:'',
   hs:'',
   agentM3:'',
   coloadM3:'',
-  equip:[]
+  equip:[],
+  gross:0,
+  net:0,
+  tare:0,  
+  wtUnit:0,
+  pkgs:0,  
+  unit:0,  
+  cbm:0   
 };
 
 const initialState = {
@@ -98,7 +111,8 @@ const initialState = {
   partiesData:[],
   containersInfo:[],
   deletingContinersList:[],
-  freightType:"",
+  //setNotifyParties:false,
+  updateContent:false,
   shipperContent:"",
   consigneeContent:"",
   notifyOneContent:"",
@@ -112,7 +126,6 @@ const initialState = {
   measurementContent:"",
   jobLoad:false,
   edit:false,
-  gross:0, net:0, tare:0, wtUnit:0, cbm:0, pkgs:0, unit:0,
   values:baseValues,
   jobId:'',
   selectedRecord:{}
@@ -136,17 +149,25 @@ const fetchJobsData = async(set) => {
   set('jobLoad', false);
 }
 
-const ParseAsHtml = (values) => {
+const convetAsHtml = (values) => {
+  const getVar = (val) => {
+    let result = ""
+    if(val=="telephone1"){ result='TEL'; }
+    else if(val=="telephone1"){ result='TEL'; }
+    else if(val=="telephone2"){ result='TEL'; }
+    return result;
+  }
   let result = "";
-  values.forEach((x, i)=>{
-    if(x!=""){
-      result = result + `<p> ${x} </p>`
-    }
+  let gottenValues = {...values};
+  delete gottenValues.id;
+  Object.keys(gottenValues).forEach((x)=>{
+    result = result + `<p> ${getVar(x)} ${gottenValues[x]}</P> `;
+
   })
   return result
 }
 
-const setJob = (set, x, state, reset) => {
+const setJob = (set, x, state, reset, allValues) => {
   if(!x.check){
     let temp = [...state.jobsData];
     temp.forEach((y, i2) => {
@@ -158,38 +179,32 @@ const setJob = (set, x, state, reset) => {
     })
     set('jobData', temp);
   } else {
-    console.log(x)
-    let temp = state.values;
-    temp.SEJobId = x.id;
-    temp.jobNo = x.jobNo;
-    temp.consignee = x.consignee.name;
-    temp.shipper = x.shipper.name;
-    temp.overseas_agent=x.overseas_agent.name;
-    temp.fd = x.fd;
-    temp.pod = x.pod;
-    temp.pol = x.pol;
-    temp.vessel = x.vessel;
-    temp.shipDate = x.shipDate;
-    temp.commodity = x.commodity.name;
-    temp.equip = x.SE_Equipments;
-    console.log(temp)
-    
-    // set('shipperContent',ParseAsHtml(x.Client.address1.split("  ")));
-    // set('consigneeContent',ParseAsHtml(x.consignee.address1.split("  ")));
-    // set('deliveryContent',ParseAsHtml(x.overseas_agent.address1.split("  ")));
-    
-    set('freightType',x.freightType);
-    set('deliveryContent',x.overseas_agent.address1);
-    set('consigneeContent',x.consignee.address1);
-    set('shipperContent',x.Client.address1);
-
-    set('values', temp);
-    //reset(state.values)
+    allValues.SEJobId =      x.id;                 
+    allValues.jobNo =        x.jobNo;                        
+    allValues.consignee =    x.consignee.name;     
+    allValues.shipper =      x.shipper.name;            
+    allValues.overseas_agent=x.overseas_agent.name;
+    allValues.pol =          x.pol;                
+    allValues.pofd =          x.pod;                
+    allValues.fd =           x.fd;                 
+    allValues.vessel =       x.vessel;             
+    allValues.shipDate =     x.shipDate;             
+    allValues.commodity =    x.commodity.name;     
+    allValues.equip =        x.SE_Equipments;      
+    allValues.freightType =  x.freightType;      
+    allValues.delivery =  x.delivery;      
+  
+    set('deliveryContent',convetAsHtml(x.overseas_agent));
+    set('consigneeContent',convetAsHtml(x.consignee));
+    set('shipperContent',convetAsHtml(x.Client));
+    //set('values', allValues);
+    reset(allValues)
     set('partyVisible', false);
+    set('updateContent', !state.updateContent);
   }
 }
 
-const calculateContainerInfos = (state, set) => {
+const calculateContainerInfos=(state, set, reset, allValues)=>{
   let tempContainers = state.containersInfo;
   let cbm = 0.0
   let tare = 0.0
@@ -199,26 +214,28 @@ const calculateContainerInfos = (state, set) => {
   let unit = ""
   let wtUnit = ""
   tempContainers.forEach((x,i)=>{
-    console.log(x)
     if(i==0){
-      unit= x.unit
-      wtUnit= x.wtUnit
+      unit= x.unit;
+      wtUnit= x.wtUnit;
     }
-    cbm = cbm + x.cbm
-    tare = tare + x.tare
-    net = net + x.net
-    gross = gross + x.gross
-    pkgs = pkgs + x.pkgs
+    cbm = cbm + x.cbm;
+    tare = tare + x.tare;
+    net = net + x.net;
+    gross = gross + x.gross;
+    pkgs = pkgs + x.pkgs;
   })
-  console.log(gross, net, tare, wtUnit, cbm, pkgs, unit)
-  set('gross',gross);
-  set('net',net);
-  set('tare',tare);
-  set('wtUnit',wtUnit);
-  set('cbm',cbm);
-  set('pkgs',pkgs);
-  set('unit',unit);
   set('saveContainers',false);
+
+  console.log(allValues);
+  allValues.gross =  gross;
+  allValues.net =    net;
+  allValues.tare =   tare;
+  allValues.wtUnit = wtUnit;
+  allValues.pkgs =   pkgs;
+  allValues.unit =   unit;
+  allValues.cbm =    cbm;
+  reset(allValues);
+
 }
 
-export {calculateContainerInfos, recordsReducer, initialState, baseValues, fetchJobsData, setJob };
+export { convetAsHtml, calculateContainerInfos, recordsReducer, initialState, baseValues, fetchJobsData, setJob };

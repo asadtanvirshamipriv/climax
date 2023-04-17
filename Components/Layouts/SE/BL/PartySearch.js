@@ -7,7 +7,7 @@ import { setJob } from "./states";
 
 const PartySearch = ({state, useWatch, dispatch, control, reset}) => {
   const set = (a, b) => dispatch({type:'toggle', fieldName:a, payload:b});
-    
+  const allValues = useWatch({control})
   return (
     <div style={{minHeight:250}}>
       {state.jobLoad && <div className='center' style={{paddingTop:'15%'}}><Spinner /></div>}
@@ -29,7 +29,7 @@ const PartySearch = ({state, useWatch, dispatch, control, reset}) => {
           {state.jobsData.map((x, i)=> {
           return(
           <tr key={i} className={`${x.check?"table-select-list-selected":"table-select-list"}`}
-            onClick={()=>setJob(set, x, state, reset)}
+            onClick={()=>setJob(set, x, state, reset, allValues)}
           >
             <td className='text-center px-3'>
               {x.check?<CheckCircleOutlined style={{color:'green', position:'relative', bottom:2}} />:i+1 }

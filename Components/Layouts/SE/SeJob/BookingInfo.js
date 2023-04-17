@@ -1,3 +1,4 @@
+import React, { useEffect } from 'react'
 import { Popover, InputNumber } from "antd";
 import SelectComp from '../../../Shared/Form/SelectComp';
 import SelectSearchComp from '../../../Shared/Form/SelectSearchComp';
@@ -8,6 +9,7 @@ import { Row, Col } from 'react-bootstrap';
 import Dates from './Dates';
 import InputNumComp from '../../../Shared/Form/InputNumComp';
 import Notes from "./Notes";
+import ports from "/jsonData/ports"
 
 const BookingInfo = ({register, control, errors, state, useWatch, dispatch}) => {
 
@@ -23,7 +25,7 @@ const BookingInfo = ({register, control, errors, state, useWatch, dispatch}) => 
     result = list.filter((x)=>{ return x.carrier==carrier })
     return result
   }
-
+  const getStatus = (val) => {  return val.length==0?false:val[0]=="1"?false:true }
   function getWeight(){
     let weight = 0.0;
     let teu = 0;
@@ -48,7 +50,7 @@ const BookingInfo = ({register, control, errors, state, useWatch, dispatch}) => 
         </div>
       </Col>
       <Col md={2} className='py-1'>
-        <SelectComp register={register} name='jobType' control={control} label='Job Type' width={150} disabled={approved}
+        <SelectComp register={register} name='jobType' control={control} label='Job Type' width={150} disabled={getStatus(approved)}
           options={[  
             {id:'Direct', name:'Direct'},
             {id:'Coloaded', name:'Coloaded'},
@@ -57,30 +59,30 @@ const BookingInfo = ({register, control, errors, state, useWatch, dispatch}) => 
         ]}/>
       </Col>
       <Col md={2} className='py-1'>
-        <SelectComp register={register} name='jobKind' control={control} label='Job Kind' width={150} disabled={approved}
+        <SelectComp register={register} name='jobKind' control={control} label='Job Kind' width={150} disabled={getStatus(approved)}
           options={[  
             {id:'Current', name:'Current'},
             {id:'Opening', name:'Opening'},
           ]}/>
       </Col>
       <Col md={2} className='py-1'>     
-        <DateComp register={register} name='jobDate' control={control} label='Job Date' disabled={approved} />
+        <DateComp register={register} name='jobDate' control={control} label='Job Date' disabled={getStatus(approved)} />
         {errors.registerDate && <div className='error-line'>Required*</div>}
       </Col>
       <Col md={2} className='py-1'>     
-          <DateComp register={register} name='shipDate' control={control} label='Ship Date' disabled={approved} />
+          <DateComp register={register} name='shipDate' control={control} label='Ship Date' disabled={getStatus(approved)} />
           {errors.registerDate && <div className='error-line'>Required*</div>}
       </Col>
       <Col md={1}></Col>
       <Col md={2} className='py-1'>
-        <SelectComp register={register} name='costCenter' control={control} label='Cost Center' width={140} disabled={approved}
+        <SelectComp register={register} name='costCenter' control={control} label='Cost Center' width={140} disabled={getStatus(approved)}
           options={[  
             {id:'FSD', name:'FSD'},
             {id:'KHI', name:'KHI'}
           ]} />
       </Col>
       <Col md={2} className='py-1'>
-        <SelectComp register={register} name='shipStatus' control={control} label='Ship Status:' width={150} disabled={approved}
+        <SelectComp register={register} name='shipStatus' control={control} label='Ship Status:' width={150} disabled={getStatus(approved)}
           options={[  
             {id:'Hold', name:'Hold'},
             {id:'Booked', name:'Booked'},
@@ -90,7 +92,7 @@ const BookingInfo = ({register, control, errors, state, useWatch, dispatch}) => 
           ]} />
       </Col>
       <Col md={1} className='py-1'>
-        <SelectComp register={register} name='subType' control={control} disabled={approved || state.selectedRecord.id!=null} label='Sub Type' width={50}
+        <SelectComp register={register} name='subType' control={control} disabled={getStatus(approved) || state.selectedRecord.id!=null} label='Sub Type' width={50}
         
           options={[  
             {id:'FCL', name:'FCL'},
@@ -98,7 +100,7 @@ const BookingInfo = ({register, control, errors, state, useWatch, dispatch}) => 
         ]} />
       </Col>
       <Col md={2} className='py-1'>
-        <SelectComp register={register} name='dg' control={control} label='DG' width={68} disabled={approved}
+        <SelectComp register={register} name='dg' control={control} label='DG' width={68} disabled={getStatus(approved)}
           options={[  
             {id:'DG', name:'DG'},
             {id:'non-DG', name:'non-DG'},
@@ -106,14 +108,14 @@ const BookingInfo = ({register, control, errors, state, useWatch, dispatch}) => 
         ]} />
       </Col>
       <Col md={2} className='py-1'>
-        <SelectComp register={register} name='freightType' control={control} label='Freight Type' width={150} disabled={approved}
+        <SelectComp register={register} name='freightType' control={control} label='Freight Type' width={150} disabled={getStatus(approved)}
           options={[  
             {id:'Prepaid', name:'Prepaid'},
             {id:'Collect', name:'Collect'},
         ]} />
       </Col>
       <Col md={2} className='py-1'>
-        <SelectComp register={register} name='nomination' control={control} label='Nomination' width={120} disabled={approved}
+        <SelectComp register={register} name='nomination' control={control} label='Nomination' width={120} disabled={getStatus(approved)}
           options={[  
             {id:'Free Hand', name:'Free Hand'},
             {id:'Nominated', name:'Nominated'},
@@ -124,56 +126,44 @@ const BookingInfo = ({register, control, errors, state, useWatch, dispatch}) => 
     <hr className='my-1' />
     <Row>
       <Col md={3}>
-        <SelectSearchComp register={register} name='ClientId' control={control} label='Client' disabled={approved}
+        <SelectSearchComp register={register} name='ClientId' control={control} label='Client' disabled={getStatus(approved)}
           options={state.fields.party.client} />
-        <SelectSearchComp register={register} name='shipperId' control={control} label='Shipper' disabled={approved}
+        <SelectSearchComp register={register} name='shipperId' control={control} label='Shipper' disabled={getStatus(approved)}
           options={state.fields.party.shipper} />
-        <SelectSearchComp register={register} name='consigneeId' control={control} label='Consignee' disabled={approved}
+        <SelectSearchComp register={register} name='consigneeId' control={control} label='Consignee' disabled={getStatus(approved)}
           options={state.fields.party.consignee} />
-        <SelectSearchComp register={register} name='commodityId' control={control} label='Commodity' disabled={approved}
+        <SelectSearchComp register={register} name='commodityId' control={control} label='Commodity' disabled={getStatus(approved)}
           options={state.fields.commodity} />
-        <SelectSearchComp register={register} name='pol' control={control} label='Port Of Loading' disabled={approved}
-          options={[
-            {id:'PKKHI', name:'Karachi, Pakistan'},
-            {id:'PBHI', name:'Balochistan, Pakistan'},
-            {id:'PFLI', name:'Faislabad, Pakistan'},
-          ]} />
-        <SelectSearchComp register={register} name='pod' control={control} label='Port Of Discharge' disabled={approved}
-          options={[
-            {id:'PKKHI', name:'Karachi, Pakistan-PKKHI'},
-            {id:'PBHI', name:'Balochistan, Pakistan'},
-            {id:'PFLI', name:'Faislabad, Pakistan'},
-          ]} />
-        <SelectSearchComp register={register} name='fd' control={control} label='Final Destination' disabled={approved}
-          options={[
-            {id:'PKKHI', name:'Karachi, Pakistan-PKKHI'},
-            {id:'PBHI', name:'Balochistan, Pakistan'},
-            {id:'PFLI', name:'Faislabad, Pakistan'},
-          ]} />
-        <SelectSearchComp register={register} name='forwarderId' control={control} label='Forwarder/Coloader' disabled={approved}
+        <SelectSearchComp register={register} name='pol' control={control} label='Port Of Loading' disabled={getStatus(approved)}
+          options={ports.ports} />
+        <SelectSearchComp register={register} name='pod' control={control} label='Port Of Discharge' disabled={getStatus(approved)}
+          options={ports.ports} />
+        <SelectSearchComp register={register} name='fd' control={control} label='Final Destination' disabled={getStatus(approved)}
+          options={ports.ports} />
+        <SelectSearchComp register={register} name='forwarderId' control={control} label='Forwarder/Coloader' disabled={getStatus(approved)}
           options={state.fields.vendor.forwarder} />
       </Col>
       <Col md={3}>
-        <SelectSearchComp register={register} name='salesRepresentatorId' control={control} label='Sales Representator' disabled={approved}
+        <SelectSearchComp register={register} name='salesRepresentatorId' control={control} label='Sales Representator' disabled={getStatus(approved)}
           options={state.fields.sr} />
-        <SelectSearchComp register={register} name='overseasAgentId' control={control} label='Overseas Agent' disabled={approved}
+        <SelectSearchComp register={register} name='overseasAgentId' control={control} label='Overseas Agent' disabled={getStatus(approved)}
           options={state.fields.vendor.overseasAgent} />
-        <SelectSearchComp register={register} name='localVendorId' control={control} label='Local Vendor' disabled={approved}
+        <SelectSearchComp register={register} name='localVendorId' control={control} label='Local Vendor' disabled={getStatus(approved)}
           options={state.fields.vendor.localVendor} />
         <div className='px-2 pb-2 mt-3' style={{border:'1px solid silver'}}>
-        <SelectSearchComp register={register} name='carrier' control={control} label='SLine/Carrier'disabled={approved}
+        <SelectSearchComp register={register} name='carrier' control={control} label='SLine/Carrier'disabled={getStatus(approved)}
           options={carriesrs} />
-        <SelectSearchComp register={register} name='vessel' control={control} label='Vessel'disabled={approved}
+        <SelectSearchComp register={register} name='vessel' control={control} label='Vessel'disabled={getStatus(approved)}
           options={filterVessels(state.fields.vessel)} />
         <div className='my-2'></div>
-        <DateComp register={register} name='eta' control={control} label='ETA' disabled={approved} />
+        <DateComp register={register} name='eta' control={control} label='ETA' disabled={getStatus(approved)} />
         <div className='my-2'></div>
-        <DateComp register={register} name='cutOffDate' control={control} label='Cut Off' disabled={approved} />
+        <DateComp register={register} name='cutOffDate' control={control} label='Cut Off' disabled={getStatus(approved)} />
         <div className='mt-1'></div>
-        <TimeComp register={register} name='cutOffTime' control={control} label='' disabled={approved} />
+        <TimeComp register={register} name='cutOffTime' control={control} label='' disabled={getStatus(approved)} />
         <Popover content={
             <div className='p-2 m-0' style={{border:'1px solid silver'}}>
-              <Dates register={register} control={control} disabled={approved} />
+              <Dates register={register} control={control} disabled={getStatus(approved)} />
             </div>
           } trigger="click">
           <span className='ex-btn'>Dates</span>
@@ -195,45 +185,25 @@ const BookingInfo = ({register, control, errors, state, useWatch, dispatch}) => 
         <div className='px-2 pb-2' style={{border:'1px solid silver'}}>
           <Row>
             <Col md={6} className='mt-2'>
-            <div>Weight</div>
-              <InputNumber value={getWeight().weight} disabled style={{ color:'black'}}  />
-              {/* <InputNumComp register={register} name='weight' control={control} 
-                label='Weight' step={'0.01'}
-              /> */}
+            <div>Weight</div><InputNumber value={getWeight().weight} disabled style={{ color:'black'}} />
             </Col>
             <Col md={6} className='mt-2'>
-              <InputNumComp register={register} name='bkg' control={control} 
-                label='BKG Weight' step={'0.01'} disabled={approved}
-              />
+              <InputNumComp register={register} name='bkg' control={control} label='BKG Weight' step={'0.01'} disabled={approved} />
             </Col>
             <Col md={12} className='mt-2'>
-            <div>Container</div>
-            <InputNumber value={getWeight().qty} disabled style={{minWidth:200, color:'black'}} />
-              {/* <InputNumComp register={register} name='container' control={control} 
-                label='Container' width={200}
-              /> */}
+            <div>Container</div><InputNumber value={getWeight().qty} disabled style={{minWidth:200, color:'black'}} />
             </Col>
             <Col md={6} className='mt-2'>
-              <InputNumComp register={register} name='shpVol' control={control} 
-                label='Shp Vol' step={'0.01'} disabled={approved}
-              />
+              <InputNumComp register={register} name='shpVol' control={control} label='Shp Vol' step={'0.01'} disabled={approved} />
             </Col>
             <Col md={6} className='mt-2'>
-              <div>TEU</div>
-              <InputNumber value={getWeight().teu} disabled style={{ color:'black'}} />
-              {/* <InputNumComp register={register} name='teu' control={control} 
-                label='TEU'
-              /> */}
+              <div>TEU</div><InputNumber value={getWeight().teu} disabled style={{ color:'black'}} />
             </Col>
             <Col md={6} className='mt-2'>
-              <InputNumComp register={register} name='vol' control={control} 
-                label='Vol' step={'0.00001'} disabled={approved}
-              />
+              <InputNumComp register={register} name='vol' control={control} label='Vol' step={'0.00001'} disabled={approved}/>
             </Col>
             <Col md={6} className='mt-2'>
-              <InputNumComp register={register} name='pcs' control={control} 
-                label='PCS' disabled={approved}
-              />
+              <InputNumComp register={register} name='pcs' control={control}  label='PCS' disabled={approved} />
             </Col>
           </Row>
         </div>

@@ -49,11 +49,11 @@ const CreateOrEdit = ({state, dispatch, baseValues, companyId}) => {
         <BlInfo control={control} register={register} state={state} useWatch={useWatch} dispatch={dispatch} reset={reset} /> 
       </Tabs.TabPane>
       <Tabs.TabPane tab="Container Info" key="2">
-        <ContainerInfo control={control} register={register} state={state} useWatch={useWatch} dispatch={dispatch} /> 
+        <ContainerInfo control={control} register={register} state={state} useWatch={useWatch} dispatch={dispatch} reset={reset} /> 
       </Tabs.TabPane>
-      {state.shipperContent!="" &&<Tabs.TabPane tab="BL Detail" key="3">
+      <Tabs.TabPane tab="BL Detail" key="3">
         <BlDetail control={control} register={register} state={state} useWatch={useWatch} dispatch={dispatch} /> 
-      </Tabs.TabPane >}
+      </Tabs.TabPane >
       <Tabs.TabPane tab="Ref No's / Stamps" key="4">
       </Tabs.TabPane>
     </Tabs>

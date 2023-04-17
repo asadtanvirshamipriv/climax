@@ -1,0 +1,9 @@
+{
+    "ports": [
+        {"id":"PKKHI", "name":"Karachi (PKKHI)"},
+        {"id":"PKBQM", "name":"Port Qasim (PKBQM)"},
+        {"id":"BGBOJ", "name":"Burgas (BGBOJ)"},
+        {"id":"BGVAR", "name":"Varna (BGVAR)"}
+    ]
+}
+  

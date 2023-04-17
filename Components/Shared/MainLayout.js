@@ -76,8 +76,8 @@ const MainLayout = ({children}) => {
           key: '2-3',
           children: `Content of Tab Pane 2`,
         }),
-        getItem('Vessel', '2-4',<></>, null, {
-          label: `Vessel`,
+        getItem('Voyage', '2-4',<></>, null, {
+          label: `Voyage`,
           key: '2-4',
           children: `Content of Tab Pane 2`,
         }),
@@ -166,7 +166,7 @@ const MainLayout = ({children}) => {
     history:false,
     vendor:false,
     commodity:false,
-    vessel:false,
+    voyage:false,
     seJob:false,
     seBl:false,
     charges:false,
@@ -195,7 +195,7 @@ const MainLayout = ({children}) => {
         else if(tabs.key=='2-1'){ tempTabActive.employee=true }
         else if(tabs.key=='2-2'){ tempTabActive.clients=true }
         else if(tabs.key=='2-3'){ tempTabActive.commodity=true }
-        else if(tabs.key=='2-4'){ tempTabActive.vessel=true }
+        else if(tabs.key=='2-4'){ tempTabActive.voyage=true }
         else if(tabs.key=='2-5'){ tempTabActive.vendor=true }
         else if(tabs.key=='2-6'){ tempTabActive.charges=true }
         else if(tabs.key=='3-1'){ tempTabActive.accounts=true }
@@ -219,7 +219,7 @@ const MainLayout = ({children}) => {
     else if(index=='2-1'){ Router.push('/employees') }
     else if(index=='2-2'){ Router.push('/client') }
     else if(index=='2-3'){ Router.push('/commodity') }
-    else if(index=='2-4'){ Router.push('/vessel') }
+    else if(index=='2-4'){ Router.push('/voyage') }
     else if(index=='2-5'){ Router.push('/vendor') }
     else if(index=='2-6'){ Router.push('/charges') }
     else if(index=='3-1'){ Router.push('/accounts/chartOfAccount') }
