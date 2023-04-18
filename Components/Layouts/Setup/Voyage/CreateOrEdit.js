@@ -33,18 +33,16 @@ const CreateOrEdit = ({state, dispatch, baseValues, register, control, useWatch}
           options={ports.ports}/>
         </Col>
         <Col md={12}><hr className='my-2' />
-            <b>Actual :</b>
-            <hr className='my-2' />
             <Row className='mt-3' >
                 <Col md={2} className='py-3'><b>Import :</b></Col>
                 <Col md={3} >
                     <DateComp register={register} name='importOriginSailDate' control={control} label='Origin Sailing Date' width={150} 
-                        disabled={type=="Export"?true:false} 
+                        disabled={type=="Export"?true:type=="Both"?false:type=="Import"?false:true} 
                     />
                 </Col>
                 <Col md={3} >
                     <DateComp register={register} name='importArrivalDate' control={control} label='Arrival Date' width={150} 
-                        disabled={type=="Export"?true:false} 
+                        disabled={type=="Export"?true:type=="Both"?false:type=="Import"?false:true} 
                     />
                 </Col>
             </Row>
@@ -53,38 +51,43 @@ const CreateOrEdit = ({state, dispatch, baseValues, register, control, useWatch}
                 <Col md={2} className='py-3'><b>Export :</b></Col>
                 <Col md={3} >
                     <DateComp register={register} name='exportSailDate' control={control} label='Sailing Date' width={150}
-                        disabled={type!="Export"?true:false}  
+                        //disabled={type!="Export"?true:false}
+                        disabled={type=="Export"?false:type=="Both"?false:type=="Import"?true:true} 
                     />
                 </Col>
                 <Col md={3} >
                     <DateComp register={register} name='destinationEta' control={control} label='Destination ETA' width={150} 
-                        disabled={type!="Export"?true:false} 
+                        disabled={type=="Export"?false:type=="Both"?false:type=="Import"?true:true} 
                     />
                 </Col>
                 <Col md={3} className='my-3 py-3'></Col>
                 <Col md={2} className='my-3 py-3'></Col>
                 <Col md={3} >
                     <DateComp register={register} name='cutOffDate' control={control} label='Cut-Off Date' width={150} 
-                        disabled={type!="Export"?true:false}
+                        disabled={type=="Export"?false:type=="Both"?false:type=="Import"?true:true} 
                     />
                 </Col>
                 <Col md={3} >
                     <TimeComp register={register} name='cutOffTime' control={control} label='Cut-Off Time' width={150} 
-                        disabled={type!="Export"?true:false}
+                        disabled={type=="Export"?false:type=="Both"?false:type=="Import"?true:true} 
                     />
                 </Col>
             </Row>
-            <hr/>
-            <RadioComp register={register} name='type' control={control} label='Calculation Type'
-                options={[
-                    { label: "Import", value: "Import" },
-                    { label: "Export", value: "Export" },
-                ]}
-            />
+            <hr className='mt-2' />
+            <div className=''>
+                <RadioComp register={register} name='type' control={control} label='Calculation Type'
+                    options={[
+                        { label:"Import", value:"Import" },
+                        { label:"Export", value:"Export" },
+                        { label:"Both",   value:"Both" },
+                    ]}
+                />
+            </div>
+            <div className='my-4' />
         </Col>
       </Row>
       <button type="submit" className='btn-custom'>
-      {state.load?<Spinner animation="border" size='sm' className='mx-3' />:'Submit'}
+      {state.submitLoad?<Spinner animation="border" size='sm' className='mx-3' />:<>{state.edit?"Update":"Save"}</>}
     </button>
     </div>
   )

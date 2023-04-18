@@ -12,7 +12,7 @@ const TimeComp = (props) => {
       render={({ field }) => (
         <>
           <div>{props.label}</div>
-          <TimePicker disabled={props.disabled} {...field} />
+          <TimePicker disabled={props.disabled} use12Hours format={'h:mm A'} {...field} />
         </>
       )}
     />

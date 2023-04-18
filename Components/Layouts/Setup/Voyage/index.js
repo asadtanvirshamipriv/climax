@@ -4,6 +4,9 @@ import axios from 'axios';
 import { Modal } from 'antd';
 import CreateOrEdit from './CreateOrEdit';
 import { useForm, useWatch } from "react-hook-form";
+import moment from 'moment';
+import openNotification from '../../../Shared/Notification';
+import { delay } from "/functions/delay";
 
 function recordsReducer(state, action){
     switch (action.type) {
@@ -28,10 +31,10 @@ function recordsReducer(state, action){
       case 'edit': {
         return {
             ...state,
-            selectedRecord:{},
+            selectedVoyage:{},
             edit: true,
             visible: true,
-            selectedRecord:action.payload
+            selectedVoyage:action.payload
         }
       }
       case 'modalOff': {
@@ -40,13 +43,14 @@ function recordsReducer(state, action){
           visible: false,
           edit: false
         };
-        state.edit?returnVal.selectedRecord={}:null
+        state.edit?returnVal.selectedVoyage={}:null
         return returnVal
       }
       default: return state 
     }
 }
 const baseValues = {
+  id:"",
   pol:"",
   pod:"",
   voyage:"",
@@ -57,53 +61,83 @@ const baseValues = {
   cutOffDate:"",
   cutOffTime:"",
   type:"Export",
-  vesselId:""
+  //vesselId:""
 }
-
 const initialState = {
     records: [],
     voyagerecords: [],
     load:false,
+    selectedVoyage:{},
+    submitLoad:false,
     visible:false,
     edit:false,
     values:baseValues,
     selectedRecord:{},
     selectedId:'',
 };
-
 const Voyage = ({vesselsData}) => {
-    const [ state, dispatch ] = useReducer(recordsReducer, initialState);
-    const set = (a, b) => dispatch({type:'toggle', fieldName:a, payload:b});
 
-    const {register, control, handleSubmit, reset, formState:{errors} } = useForm({
-        defaultValues:state.values
-      });
+  const [ state, dispatch ] = useReducer(recordsReducer, initialState);
+  const set = (a, b) => dispatch({type:'toggle', fieldName:a, payload:b});
 
-    const findVoyages = async(data) => {
-        set('load', true);
-        set('selectedRecord', data);
-        await axios.post(process.env.NEXT_PUBLIC_CLIMAX_POST_FIND_ALL_VOYAGES,{id:data.id})
-        .then((x)=>{
-            set('voyagerecords', x.data.result);
-        });
-        set('load', false);
-    }
-    useEffect(() => { set('records', vesselsData) }, [])
-    useEffect(() => { console.log(state.selectedRecord) }, [state.selectedRecord])
-    const onSubmit = async(data) => {
-        console.log(data)
+  const{ register, control, handleSubmit, reset, formState:{errors} } = useForm({defaultValues:state.values});
 
-    };
-    const onEdit = async(data) => {
+  const getRecords = async(id) => {
+    await axios.post(process.env.NEXT_PUBLIC_CLIMAX_POST_FIND_ALL_VOYAGES, {id:id})
+    .then((x)=>{
+      set('voyagerecords', x.data.result);
+  }); 
+  }
 
-    };
-    
-    const onError = (errors) => console.log(errors);
+  const findVoyages = async(data) => {
+    set('load', true);
+    set('selectedRecord', data);
+    await axios.post(process.env.NEXT_PUBLIC_CLIMAX_POST_FIND_ALL_VOYAGES,{id:data.id})
+    .then((x)=>{
+        set('voyagerecords', x.data.result);
+    }); 
+    set('load', false);
+  }
+
+  useEffect(()=>{set('records',vesselsData)}, [])
+  
+  const onSubmit = async(data) => {
+    set('submitLoad', true);
+
+    await axios.post(process.env.NEXT_PUBLIC_CLIMAX_POST_CREATE_VOYAGE,{...data, VesselId:state.selectedRecord.id})
+    .then((x)=>{
+      x.data.status=="success"?
+      openNotification("Success", "Voyage Created", "green"):
+      openNotification("Error", "Something Went Wrong", "red")
+    }); 
+
+    await delay(200);
+    set('submitLoad', false);
+    dispatch({ type: 'modalOff' })
+    await getRecords(state.selectedRecord.id);
+  };
+
+  const onEdit = async(data) => {
+    set('submitLoad', true);
+
+    await axios.post(process.env.NEXT_PUBLIC_CLIMAX_POST_EDIT_VOYAGE,{...data, VesselId:state.selectedRecord.id})
+    .then((x)=>{
+      x.data.status=="success"?
+      openNotification("Success", "Voyage Updated", "green"):
+      openNotification("Error", "Something Went Wrong", "red")
+    }); 
+
+    await delay(200);
+    set('submitLoad', false);
+    dispatch({ type: 'modalOff' })
+    await getRecords(state.selectedRecord.id);
+   };
+
+  const onError = (errors) => console.log(errors);
+
   return (
     <div className='base-page-layout'>
-    
-    <Row><Col><h5>Sea Export Job</h5></Col></Row>
-    <hr/>
+    <Row><Col><h5>Sea Export Job</h5></Col></Row><hr/>
     <Row>
     <Col md={4}>
       <div className='mt-3' style={{maxHeight:500, overflowY:'auto'}}>
@@ -113,7 +147,7 @@ const Voyage = ({vesselsData}) => {
         {
         state.records.map((x, index) => {
         return (
-        <tr key={index} className='f row-hov' onClick={()=>findVoyages(x)} >
+        <tr key={index} className={`f row-hov ${x.id==state.selectedRecord.id?"bg-blue-selected":""}`} onClick={()=>findVoyages(x)} >
           <td>{index + 1}</td>
           <td className='blue-txt fw-7'> {x.code}</td>
           <td style={{minWidth:150}}>
@@ -127,44 +161,73 @@ const Voyage = ({vesselsData}) => {
       </div>
     </Col>
     <Col md={8}>
-        <div className='border p-2 mt-3' style={{minHeight:100}}>
-        {Object.keys(state.selectedRecord).length==0 &&<div className='text-center my-4'>Select A Vessel</div>}
-        {Object.keys(state.selectedRecord).length>0 &&<>
-        {!state.load && 
-        <Row>
-            <Col md={12}>
-             <button className='btn-custom'  onClick={()=>dispatch({type:'create'})}>Create</button>
-                <hr className='my-0 mt-1'  />
-            </Col>
-         {state.voyagerecords.length==0 && <div className='text-center my-5'>Empty</div>}
-        </Row>
+    <div className='border p-2 mt-3' style={{minHeight:100}}>
+      {Object.keys(state.selectedRecord).length==0 &&<div className='text-center my-4'>Select A Vessel</div>}
+      {Object.keys(state.selectedRecord).length>0 &&<>
+      {!state.load && 
+      <Row>
+        <Col md={12}>
+          <button className='btn-custom'  onClick={()=>{ reset(baseValues); dispatch({type:'create'})}}>Create</button>
+        </Col>
+        {state.voyagerecords.length==0 && <div className='text-center my-5'>Empty</div>}
+        {state.voyagerecords.length>0 && <div className=''>
+        <div className='mt-3' style={{maxHeight:500, overflowY:'auto'}}>
+          <Table className='tableFixHead' style={{fontSize:13}}>
+            <thead><tr><th>Voyage #</th><th>Arrival</th><th>Sailing</th><th>Cut-Off Date</th><th>Cut-Off Time</th><th>Ports</th></tr></thead>
+            <tbody>
+            {state.voyagerecords.map((x,i)=>{
+            return (
+            <tr key={i} className='f row-hov' onClick={()=>{
+              dispatch({type:'edit', payload:x});
+              
+              reset({
+                ...x,
+                cutOffDate:x.cutOffDate==""?"":moment(x.cutOffDate),
+                cutOffTime:x.cutOffTime==""?"":moment(x.cutOffTime),
+                destinationEta:x.destinationEta==""?"":moment(x.destinationEta),
+                exportSailDate:x.exportSailDate==""?"":moment(x.exportSailDate),
+                importArrivalDate:x.importArrivalDate==""?"":moment(x.importArrivalDate),
+                importOriginSailDate:x.importOriginSailDate==""?"":moment(x.importOriginSailDate),
+              });
+            }}>
+              <td className='blue-txt fw-7'> {x.voyage}</td>
+              <td>{x.importArrivalDate!="" && moment(x.importArrivalDate).format("DD-MM-YY")}</td>
+              <td>{x.exportSailDate!="" && moment(x.exportSailDate).format("DD-MM-YY")}</td>
+              <td>{x.cutOffDate!="" && moment(x.cutOffDate).format("DD-MM-YY")}</td>
+              <td>{x.cutOffTime!="" && moment(x.cutOffTime).format("hh:mm a")}</td>
+              <td style={{fontSize:10}}>POL : {x.pol}<br/>POD: {x.pod}</td>
+            </tr>)})}
+            </tbody>
+          </Table>
+          </div>
+          </div>
         }
-        </>}
-        {state.load && <div className='text-center py-5'><Spinner  /></div>}
-        </div>
+      </Row>
+      }
+      </>}
+      {state.load && <div className='text-center py-5'><Spinner  /></div>}
+    </div>
     </Col>
     </Row>
-    <Modal
-        open={state.visible} maskClosable={false}
-        onOk={()=>dispatch({ type: 'modalOff' })} onCancel={()=>dispatch({ type: 'modalOff' })}
-        width={800} footer={false} //centered={true}
+    <Modal open={state.visible} maskClosable={false}
+      onOk={()=>dispatch({ type: 'modalOff' })} onCancel={()=>dispatch({type:'modalOff'})}
+      width={800} footer={false} //centered={true}
     >
-        {state.visible && 
-        <form onSubmit={handleSubmit(state.edit?onEdit:onSubmit, onError)}>
+      {state.visible && 
+      <form onSubmit={handleSubmit(state.edit?onEdit:onSubmit, onError)}>
         <CreateOrEdit 
-            state={state} 
-            dispatch={dispatch} 
-            baseValues={baseValues} 
-            register={register} 
-            control={control} 
-            useWatch={useWatch} 
+          state={state} 
+          dispatch={dispatch} 
+          baseValues={baseValues} 
+          register={register} 
+          control={control} 
+          useWatch={useWatch} 
         />
-        </form>
-        }
+      </form>
+      }
     </Modal>
-
-    
     </div>
   )
 }
+
 export default Voyage

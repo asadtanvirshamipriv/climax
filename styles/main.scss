@@ -437,7 +437,10 @@
   border: 1px solid rgb(202, 202, 202);
 }
 
-
 .ProseMirror:focus{
   outline: none;
+}
+
+.bg-blue-selected{
+  background-color:rgba(63, 179, 195, 0.215);
 }
