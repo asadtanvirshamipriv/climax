@@ -28,6 +28,8 @@ const CreateOrEdit = ({state, dispatch, baseValues, companyId}) => {
         customCheck: tempState.customCheck.split(", "),
         transportCheck: tempState.transportCheck.split(", "),
         eta: tempState.eta==""?"":moment(tempState.eta),
+        approved:tempState.approved?["1"]:[],
+        //val.length==0?false:val[0]=="1"?false:true 
         polDate: tempState.polDate==""?"":moment(tempState.polDate),
         podDate: tempState.podDate==""?"":moment(tempState.podDate),
         aesDate: tempState.aesDate==""?"":moment(tempState.aesDate),
@@ -65,6 +67,7 @@ const CreateOrEdit = ({state, dispatch, baseValues, companyId}) => {
     data.transporterId = data.transportCheck.length>0?data.transporterId:null;
 
     data.ClientId = data.ClientId!=""?data.ClientId:null;
+    data.shippingLineId = data.shippingLineId!=""?data.shippingLineId:null;
     data.shipperId = data.shipperId!=""?data.shipperId:null;
     data.consigneeId = data.consigneeId!=""?data.consigneeId:null;
     data.overseasAgentId = data.overseasAgentId!=""?data.overseasAgentId:null;
@@ -104,6 +107,7 @@ const CreateOrEdit = ({state, dispatch, baseValues, companyId}) => {
     data.customAgentId = data.customCheck.length>0?data.customAgentId:null;
     data.transporterId = data.transportCheck.length>0?data.transporterId:null;
     data.shippingLineId = data.shippingLineId!=""?data.shippingLineId:null;
+    data.shippingLineId = data.shippingLineId!=""?data.shippingLineId:null;
     data.companyId = companyId
     dispatch({type:'toggle', fieldName:'load', payload:true});
     setTimeout(async() => {
@@ -139,7 +143,7 @@ const CreateOrEdit = ({state, dispatch, baseValues, companyId}) => {
     <Tabs defaultActiveKey={state.tabState} activeKey={state.tabState}
      onChange={(e)=> dispatch({type:'toggle', fieldName:'tabState', payload:e}) }>
       <Tabs.TabPane tab="Booking Info" key="1">
-        <BookingInfo control={control} register={register} errors={errors} state={state} useWatch={useWatch} dispatch={dispatch}/>
+        <BookingInfo control={control} register={register} errors={errors} state={state} useWatch={useWatch} dispatch={dispatch} reset={reset}/>
       </Tabs.TabPane>
       {subType=="FCL" &&
       <Tabs.TabPane tab="Equipment" key="2">
@@ -159,11 +163,6 @@ const CreateOrEdit = ({state, dispatch, baseValues, companyId}) => {
         <Invoice state={state} dispatch={dispatch} companyId={companyId} />
       </Tabs.TabPane>
       }
-      {/* {state.edit &&
-      <Tabs.TabPane tab="Bill of Lading" key="6">
-        <BL state={state} dispatch={dispatch} />
-      </Tabs.TabPane>
-      } */}
     </Tabs>
       {(state.tabState!="4" && state.tabState!="5" && state.tabState!="6") &&
       <>

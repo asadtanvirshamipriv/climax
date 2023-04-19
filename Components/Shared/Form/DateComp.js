@@ -12,7 +12,7 @@ const DateComp = (props) => {
       render={({ field }) => (
         <>
           <div>{props.label}</div>
-          <DatePicker disabled={props.disabled} {...field} />
+          <DatePicker disabled={props.disabled} size={props.size} style={{minWidth:props.width}} {...field} />
         </>
       )}
     />

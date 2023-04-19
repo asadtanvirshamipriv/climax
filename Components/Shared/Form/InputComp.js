@@ -13,7 +13,7 @@ const InputComp = (props) => {
       render={({ field }) => (
           <>
             <div>{props.label}</div>
-            <Input disabled={props.disabled} {...field} />
+            <Input disabled={props.disabled} style={{minWidth:props.width}} {...field} />
           </>
       )}
     />

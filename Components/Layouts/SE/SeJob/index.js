@@ -16,7 +16,7 @@ const SeJob = ({fieldsData, jobsData}) => {
       tempChargeList.push({...x, label:x.code, value:x.code});
     });
     fieldsData.result.chargeList=tempChargeList
-    //console.log(fieldsData);
+    console.log(fieldsData);
     dispatch({type:'toggle', fieldName:'fields', payload:fieldsData.result})
     dispatch({type:'toggle', fieldName:'records', payload:jobsData.result})
   }, [])
