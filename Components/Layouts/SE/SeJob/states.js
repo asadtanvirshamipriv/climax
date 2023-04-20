@@ -29,6 +29,15 @@ function recordsReducer(state, action){
         }
       }
 
+      case 'voyageSelection': {
+        let temp = state.fields.vessel.filter((x)=> x.id == action.payload)[0].Voyages;
+        temp.forEach((x)=>{ x.check=false });
+        return {
+            ...state,
+            voyageVisible: true,
+            voyageList:temp,
+        }
+      }
       case 'edit': {
         return {
             ...state,
@@ -83,7 +92,7 @@ const baseValues = {
   localVendorId:'',
   shippingLineId:'',
   vessel:'',
-  voyage:'',
+  VoyageId:'',
   cutOffDate:'',
   cutOffTime:'',
   eta:'',
@@ -124,6 +133,7 @@ const initialState = {
   chargeLoad:false,
   visible:false,
   headVisible:false,
+  voyageVisible:false,
   edit:false,
   popShow:false,
   viewHistory:false,
@@ -152,19 +162,14 @@ const initialState = {
   invoiceData:{},
   exRate:"1",
   
+  voyageList:[],
   consigneeList:[],
   shipperList:[],
   forwarderList:[],
   salesRepList:[],
   carrierList:[
-    {
-      id:'Emirates',
-      name:'Emirates'
-    },
-    {
-      id:'Elton',
-      name:'Elton'
-    },
+    { id:'Emirates', name:'Emirates' },
+    { id:'Elton', name:'Elton' },
   ],
   equipments:[
     {id:'', size:'', qty:'', dg:'', gross:'', teu:''}

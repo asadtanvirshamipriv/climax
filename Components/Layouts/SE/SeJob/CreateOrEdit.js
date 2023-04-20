@@ -24,11 +24,14 @@ const CreateOrEdit = ({state, dispatch, baseValues, companyId}) => {
   useEffect(() => {
     if(state.edit){
       let tempState = {...state.selectedRecord};
+      let tempVoyageList = [...state.voyageList];
+      tempVoyageList.length>0?null:tempVoyageList.push(tempState.Voyage)
+      dispatch({type:'toggle', fieldName:'voyageList', payload:tempVoyageList});
       tempState = { ...tempState,
         customCheck: tempState.customCheck.split(", "),
         transportCheck: tempState.transportCheck.split(", "),
         eta: tempState.eta==""?"":moment(tempState.eta),
-        approved:tempState.approved?["1"]:[],
+        approved: tempState.approved=="true"?["1"]:[],
         //val.length==0?false:val[0]=="1"?false:true 
         polDate: tempState.polDate==""?"":moment(tempState.polDate),
         podDate: tempState.podDate==""?"":moment(tempState.podDate),
@@ -56,6 +59,7 @@ const CreateOrEdit = ({state, dispatch, baseValues, companyId}) => {
         dispatch({type:'toggle', fieldName:'equipments', payload:[{id:'', size:'', qty:'', dg:tempState.dg=="Mix"?"DG":tempState.dg, gross:'', teu:''}]});
       }
       dispatch({type:'toggle', fieldName:'oldRecord', payload:tempState});
+      console.log(tempState.approved=="true")
       reset(tempState);
     }
     if(!state.edit){ reset(baseValues) }
@@ -66,6 +70,7 @@ const CreateOrEdit = ({state, dispatch, baseValues, companyId}) => {
     data.customAgentId = data.customCheck.length>0?data.customAgentId:null;
     data.transporterId = data.transportCheck.length>0?data.transporterId:null;
 
+    data.VoyageId = data.VoyageId!=""?data.VoyageId:null;
     data.ClientId = data.ClientId!=""?data.ClientId:null;
     data.shippingLineId = data.shippingLineId!=""?data.shippingLineId:null;
     data.shipperId = data.shipperId!=""?data.shipperId:null;
@@ -86,7 +91,6 @@ const CreateOrEdit = ({state, dispatch, baseValues, companyId}) => {
         await axios.post(process.env.NEXT_PUBLIC_CLIMAX_POST_CREATE_SEAJOB,{
             data
         }).then((x)=>{
-          console.log(x.data)
             if(x.data.status=='success'){
                 let tempRecords = [...state.records];
                 tempRecords.unshift(x.data.result);
@@ -103,18 +107,39 @@ const CreateOrEdit = ({state, dispatch, baseValues, companyId}) => {
   };
 
   const onEdit = async(data) => {
-    data.equipments = state.equipments;
+    data.equipments = state.equipments
     data.customAgentId = data.customCheck.length>0?data.customAgentId:null;
     data.transporterId = data.transportCheck.length>0?data.transporterId:null;
+
+    data.VoyageId = data.VoyageId!=""?data.VoyageId:null;
+    data.ClientId = data.ClientId!=""?data.ClientId:null;
     data.shippingLineId = data.shippingLineId!=""?data.shippingLineId:null;
+    data.shipperId = data.shipperId!=""?data.shipperId:null;
+    data.consigneeId = data.consigneeId!=""?data.consigneeId:null;
+    data.overseasAgentId = data.overseasAgentId!=""?data.overseasAgentId:null;
+    data.salesRepresentatorId = data.salesRepresentatorId!=""?data.salesRepresentatorId:null;
+    data.forwarderId = data.forwarderId!=""?data.forwarderId:null;
+    data.localVendorId = data.localVendorId!=""?data.localVendorId:null;
+    data.commodityId = data.commodityId!=""?data.commodityId:null;
     data.shippingLineId = data.shippingLineId!=""?data.shippingLineId:null;
-    data.companyId = companyId
+    data.approved = data.approved[0]=="1"?true:false;
+    data.companyId = companyId;
+
+    // data.equipments = state.equipments;
+    // data.VoyageId = data.VoyageId!=""?data.VoyageId:null;
+    // data.customAgentId = data.customCheck.length>0?data.customAgentId:null;
+    // data.transporterId = data.transportCheck.length>0?data.transporterId:null;
+    // data.shippingLineId = data.shippingLineId!=""?data.shippingLineId:null;
+    // data.shippingLineId = data.shippingLineId!=""?data.shippingLineId:null;
+    // data.approved = data.approved[0]=="1"?true:false;
+    // data.companyId = companyId
     dispatch({type:'toggle', fieldName:'load', payload:true});
     setTimeout(async() => {
         await axios.post(process.env.NEXT_PUBLIC_CLIMAX_POST_EDIT_SEAJOB,{data}).then((x)=>{
             if(x.data.status=='success'){
                 let tempRecords = [...state.records];
                 let i = tempRecords.findIndex((y=>data.id==y.id));
+                console.log(x.data.result)
                 tempRecords[i] = x.data.result;
                 dispatch({type:'toggle', fieldName:'records', payload:tempRecords});
                 dispatch({type:'modalOff'});

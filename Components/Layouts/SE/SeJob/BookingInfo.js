@@ -1,24 +1,25 @@
 import React, { useEffect } from 'react'
 import { Popover, InputNumber } from "antd";
-import SelectComp from '../../../Shared/Form/SelectComp';
-import SelectSearchComp from '../../../Shared/Form/SelectSearchComp';
-import DateComp from '../../../Shared/Form/DateComp';
-import TimeComp from '../../../Shared/Form/TimeComp';
-import CheckGroupComp from '../../../Shared/Form/CheckGroupComp';
+import SelectComp from '/Components/Shared/Form/SelectComp';
+import SelectSearchComp from '/Components/Shared/Form/SelectSearchComp';
+import DateComp from '/Components/Shared/Form/DateComp';
+import TimeComp from '/Components/Shared/Form/TimeComp';
+import CheckGroupComp from '/Components/Shared/Form/CheckGroupComp';
 import { Row, Col } from 'react-bootstrap';
 import Dates from './Dates';
-import InputNumComp from '../../../Shared/Form/InputNumComp';
+import InputNumComp from '/Components/Shared/Form/InputNumComp';
 import Notes from "./Notes";
 import ports from "/jsonData/ports";
 import moment from 'moment';
-import CustomBoxSelect from '../../../Shared/Form/CustomBoxSelect';
+import CustomBoxSelect from '/Components/Shared/Form/CustomBoxSelect';
 
 const BookingInfo = ({register, control, errors, state, useWatch, dispatch, reset}) => {
 
   const transportCheck = useWatch({control, name:"transportCheck"});
   const customCheck = useWatch({control, name:"customCheck"});
   const approved = useWatch({control, name:"approved"});
-  const Vessel = useWatch({control, name:"Vessel"});
+  const vessel = useWatch({control, name:"vessel"});
+  const VoyageId = useWatch({control, name:"VoyageId"});
 
   const filterVessels = (list) => {
     let result = [];
@@ -27,42 +28,13 @@ const BookingInfo = ({register, control, errors, state, useWatch, dispatch, rese
     })
     return result
   }
-  const filterVoyages = (list, vessel) => {
-    let myVessel = list.filter((x)=> { return x.id==vessel })
-    console.log(myVessel)
-    let result = [];
-
-    myVessel.length>0?
-    myVessel[0].Voyages.forEach((x)=>{
-      result.push({
-        id:x.id,
-        name:<Row>
-          <Col md={5}>no.</Col>
-          <Col md={3}>{x.voyage}</Col>
-
-          <Col md={5}>Arrival</Col>
-          <Col md={3}>{moment(x.importArrivalDate).format("DD-MM-YY")}</Col>
-
-          <Col md={5}>Sailing</Col>
-          <Col md={3}>{moment(x.importArrivalDate).format("DD-MM-YY")}</Col>
-          
-          <Col md={5}>Cut-Date</Col>
-          <Col md={3}>{moment(x.importArrivalDate).format("DD-MM-YY")}</Col>
-
-          <Col md={5}>Cut-Time</Col>
-          <Col md={3}>{moment(x.importArrivalDate).format("DD-MM-YY")}</Col>
-        </Row>,
-      })
-    }):null;
-    return result
-  }
   const getStatus = (val) => {
-    return val.length==0?false:val[0]=="1"?false:true 
-  }
+    //console.log(val.length==0?false:val[0]=="1"?false:true)
+    return val[0]=="1"?true:false
+  };
+  
   function getWeight(){
-    let weight = 0.0;
-    let teu = 0;
-    let qty = 0;
+    let weight = 0.0, teu = 0, qty = 0;
     state.equipments.forEach((x) => {
       if(x.gross!=''&&x.teu!=''){
         weight = weight + parseFloat(x.gross.replace(/,/g, ''));
@@ -72,6 +44,21 @@ const BookingInfo = ({register, control, errors, state, useWatch, dispatch, rese
     });
     return {weight, teu, qty}
   }
+
+  function getVoyageNumber (id) {
+    let result = '';
+    state.voyageList.length>0?
+    state.voyageList.forEach((x)=>{
+      if(x.id==id){
+        result = x.voyage
+      }
+    }):null
+    return result
+  }
+
+  useEffect(() => {
+    console.log(approved)
+  }, [approved])
 
   return (
   <>
@@ -178,19 +165,19 @@ const BookingInfo = ({register, control, errors, state, useWatch, dispatch, rese
           options={state.fields.sr} />
       </Col>
       <Col md={3}>
-        <SelectSearchComp register={register} name='overseasAgentId' control={control} label='Overseas Agent' disabled={getStatus(approved)}
-          options={state.fields.vendor.overseasAgent} />
-        <SelectSearchComp register={register} name='localVendorId' control={control} label='Local Vendor' disabled={getStatus(approved)}
-          options={state.fields.vendor.localVendor} />
-        <SelectSearchComp register={register} name='shippingLineId' control={control} label='Sline/Carrier' disabled={getStatus(approved)}
-          options={state.fields.vendor.sLine} />
+        <SelectSearchComp register={register} name='overseasAgentId' control={control} label='Overseas Agent' disabled={getStatus(approved)}options={state.fields.vendor.overseasAgent} />
+        <SelectSearchComp register={register} name='localVendorId' control={control} label='Local Vendor' disabled={getStatus(approved)}options={state.fields.vendor.localVendor} />
+        <SelectSearchComp register={register} name='shippingLineId' control={control} label='Sline/Carrier' disabled={getStatus(approved)}options={state.fields.vendor.sLine} />
         <div className='px-2 pb-2 mt-3' style={{border:'1px solid silver'}}>
-        <SelectSearchComp register={register} name='Vessel' control={control} label='Vessel'disabled={getStatus(approved)} width={"100%"}
-          options={filterVessels(state.fields.vessel)} />
-        <CustomBoxSelect reset={reset} useWatch={useWatch} control={control} name="Voyage" label="Vessel"
+        <SelectSearchComp register={register} name='vessel' control={control} label='Vessel'disabled={getStatus(approved)} width={"100%"}
+          options={filterVessels(state.fields.vessel)} 
         />
-        <SelectComp register={register} name='vessel' control={control} label='Voyage'disabled={getStatus(approved)} width={"100%"}
-          options={filterVoyages(state.fields.vessel, Vessel)} />
+          <div className='mt-2'>Voyage</div>
+          <div className="dummy-input"
+           onClick={()=>{
+            vessel!=''?dispatch({type:'voyageSelection', payload:vessel}):null
+          }}
+          >{getVoyageNumber(VoyageId)}</div>
         <div className='my-2'></div>
         <DateComp register={register} name='eta' control={control} label='ETA' disabled={getStatus(approved)} />
         <div className='my-2'></div>
@@ -251,11 +238,11 @@ const BookingInfo = ({register, control, errors, state, useWatch, dispatch, rese
         {state.edit &&
           <Notes state={state} dispatch={dispatch} />
         }
-        {approved=="approved" && <img src={'approve.png'} height={100} />}
-        <CheckGroupComp register={register}name='approved'control={control}label='_____________________' options={[{label:"Approve Job",value:"approved"}]}/>
+        {approved=="1" && <img src={'approve.png'} height={100} />}
+        <CheckGroupComp register={register}name='approved'control={control}label='_____________________' options={[{label:"Approve Job",value:"1"}]}/>
       </Col>
     </Row>
+    {(state.voyageVisible && approved[0]!="1") && <CustomBoxSelect reset={reset} useWatch={useWatch} control={control} state={state} dispatch={dispatch}/>}
   </>
 )}
-
 export default BookingInfo
