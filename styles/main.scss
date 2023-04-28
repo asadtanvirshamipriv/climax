@@ -10,6 +10,8 @@
 .silver-txt{ color: silver!important; }
 .blue-txt{ color: rgb(45, 148, 176)!important; }
 
+.fs-10 { font-size: 10px!important; }
+.fs-11 { font-size: 11px!important; }
 .fs-12 { font-size: 12px!important; }
 .fs-13 { font-size: 13px!important; }
 .fs-14 { font-size: 14px!important; }
@@ -446,4 +448,15 @@
 }
 
 .ant-select-item-option-content{
+}
+
+.bl-print > p{
+  line-height: 11px;
+  margin: 0px;
+  padding: 0px;
+  font-weight: 600;
+}
+
+.invert{
+  filter: invert(0.6);
 }

@@ -3,12 +3,16 @@ import { Row, Col, Table } from 'react-bootstrap';
 import { recordsReducer, initialState, baseValues } from './states';
 import { Modal } from 'antd';
 import CreateOrEdit from './CreateOrEdit';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { incrementTab } from '/redux/tabs/tabSlice';
+import Router from 'next/router';
 
 const SeJob = ({fieldsData, jobsData}) => {
   const companyId = useSelector((state) => state.company.value);
+  const tabs = useSelector((state) => state.tabs.value);
   const [ state, dispatch ] = useReducer(recordsReducer, initialState);
   const { visible, viewHistory } = state;
+  const dispatchRedux = useDispatch();
 
   useEffect(() => {
     let tempChargeList = [];
@@ -19,14 +23,6 @@ const SeJob = ({fieldsData, jobsData}) => {
     dispatch({type:'toggle', fieldName:'fields', payload:fieldsData.result})
     dispatch({type:'toggle', fieldName:'records', payload:jobsData.result})
   }, [])
-  
-  const getVessel = (id) => {
-    let name = "";
-    fieldsData.result.vessel.forEach((x) => {
-      if(x.id==id){ name= x.name }
-    })
-    return name
-  }
 
   return (
   <>
@@ -37,6 +33,10 @@ const SeJob = ({fieldsData, jobsData}) => {
         <Col>
           <button className='btn-custom right' 
             onClick={()=>dispatch({type:'create'})}
+            // onClick={()=>{
+            //   dispatchRedux(incrementTab({"label":"Create SE JOB","key":"4-3","id":"new"}))
+            //   Router.push(`/seJob/new`)
+            // }}
           >
             Create
           </button>
@@ -50,16 +50,26 @@ const SeJob = ({fieldsData, jobsData}) => {
             <th>Sr.</th>
             <th>Basic Info</th>
             <th>Shipment Info</th>
-            <th>Company Info</th>
             <th>Container Info</th>
             <th>Other Info</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
         {
         state.records.map((x, index) => {
         return (
-        <tr key={index} className='f row-hov' onClick={()=>dispatch({type:'edit', payload:x})} >
+        <tr key={index} className='f row-hov' 
+          onClick={()=>dispatch({type:'edit', payload:x})} 
+          // onClick={()=>{
+          //   dispatchRedux(incrementTab({
+          //     "label": "SE JOB",
+          //     "key": "4-3",
+          //     "id":x.id
+          //   }))
+          //   Router.push(`/seJob/${x.id}`)
+          // }} 
+        >
           <td>{index + 1}</td>
           <td>
             <span className='blue-txt fw-7'>{x.jobNo}</span>
@@ -67,12 +77,10 @@ const SeJob = ({fieldsData, jobsData}) => {
             <br/>Freight Type: <span className='grey-txt'>{x.freightType}</span>
           </td>
           <td>
-            Vessel: <span className='grey-txt'>{getVessel(x.vessel)}</span><br/>
+            {/* Vessel: <span className='grey-txt'>{x.vessel}</span><br/> */}
             POL: <span className='grey-txt'>{x.pol}</span><br/>
-            POD: <span className='grey-txt'>{x.pod}</span>
-          </td>
-          <td>
-            Cost Center: <span className='blue-txt fw-5'>{x.costCenter}</span>
+            POD: <span className='grey-txt'>{x.pod}</span><br/>
+            FLD: <span className='grey-txt'> {x.fd}</span>
           </td>
           <td>
             Container: <span className='grey-txt'>{x.container}</span><br/>
@@ -83,6 +91,9 @@ const SeJob = ({fieldsData, jobsData}) => {
             Transportion: <span className='blue-txt fw-5'>{x.transportCheck!=''?'Yes':'No'}</span>
             <br/>
             Custom Clearance: <span className='blue-txt fw-5'>{x.customCheck!=''?'Yes':'No'}</span>
+          </td>
+          <td>
+            {x.approved=="true"?<img src={'approve.png'} height={70} className='' />:"Not Approved"}
           </td>
         </tr>
           )

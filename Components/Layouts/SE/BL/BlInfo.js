@@ -41,7 +41,7 @@ const BlInfo = ({control, register, state, useWatch, dispatch, reset}) => {
             <Row>
                 <Col md={10}>
                 <div className="" style={{lineHeight:1.35}}>Job No.</div>
-                <div className='dummy-input' onClick={()=>fetchJobsData(set)}>
+                <div className='dummy-input' onClick={()=>{ !state.edit?fetchJobsData(set):null}}>
                     {allValues.jobNo}
                 </div>
                 </Col>
@@ -94,7 +94,7 @@ const BlInfo = ({control, register, state, useWatch, dispatch, reset}) => {
                     />
                 </Col>
                 <Col md={4}>
-                    <SelectComp register={register} name='blHandoverType' control={control} label='Handover Type' width={'100%'}
+                    <SelectComp register={register} name='blhandoverType' control={control} label='Handover Type' width={'100%'}
                         options={[ 
                             {id:'By Hand', name:'By Hand'}, 
                             {id:'Courier', name:'Courier'},
@@ -121,7 +121,7 @@ const BlInfo = ({control, register, state, useWatch, dispatch, reset}) => {
         </Col>
         <Col md={12}><hr/></Col>
         <Col md={3} className=''>
-            <Row>
+            <Row className='pt-1'>
                 <Col md={12}>
                 <div className="" style={{lineHeight:1.35}}>Shipper</div>
                 <div className='dummy-input'>{allValues.shipper}</div>
@@ -140,14 +140,14 @@ const BlInfo = ({control, register, state, useWatch, dispatch, reset}) => {
                     <div className="mt-2" style={{lineHeight:1.35}}>Vessel</div>
                     <div className='dummy-input'>{allValues.vessel}</div>
 
-                    <div className="mt-2" style={{lineHeight:1.35}}>Sailing Date</div>
+                    <div className="mt-2" style={{lineHeight:1.35}}>Shipment Date</div>
                     <div className='dummy-input'>{moment(allValues.shipDate).format("DD-MM-YYYY")}</div>
                 </Col>
             </Row>
         </Col>
         <Col md={7}>
-            <h6 className='text-center'>Booking Info</h6> 
-            <Row style={{border:'1px solid silver'}} className='pb-3 pt-2'>
+            <div className='text-center'>Booking Info</div> 
+            <Row style={{border:'1px solid silver'}} className='pb-3 pt-0'>
                 <Col md={5}>
                 <Row>
                     <Col md={12}>

@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Paragraph from '@tiptap/extension-paragraph'
 import { Row, Col } from 'react-bootstrap';
 import InputComp from '/Components/Shared/Form/InputComp';
-import SelectComp from '../../../Shared/Form/SelectComp';
-import DateComp from '../../../Shared/Form/DateComp';
+import InputNumComp from '/Components/Shared/Form/InputNumComp';
+import SelectComp from '/Components/Shared/Form/SelectComp';
+import DateComp from '/Components/Shared/Form/DateComp';
 
 const BlDetail = ({control, register, state, useWatch, dispatch}) => {
   const set = (a, b) => dispatch({type:'toggle', fieldName:a, payload:b});
@@ -32,11 +33,6 @@ const BlDetail = ({control, register, state, useWatch, dispatch}) => {
     overflowY:'auto',
     padding:0
   }
-  const weightUnit = [
-    {id:'KG', name:'KG'},
-    {id:'LBS', name:'LBS'},
-    {id:'MTON', name:'MTON'}
-  ]
   const allValues = useWatch({control})
 
 return(
@@ -118,10 +114,10 @@ return(
         <div className='dummy-input'>{allValues.cbm}</div>
       </Col>
       <Col md={6} className='mt-2'>
-        <InputComp register={register} name='agentM3' control={control} label='Agent M3' width={150} />
+        <InputNumComp register={register} name='agentM3' control={control} label='Agent M3' width={"100%"} />
       </Col>
       <Col md={6} className='mt-2'>
-        <InputComp register={register} name='coloadM3' control={control} label='Coload M3' width={150} />
+        <InputNumComp register={register} name='coloadM3' control={control} label='Coload M3' width={"100%"} />
       </Col>
       <Col md={6} className='mt-2'>
         <div>Packages</div>

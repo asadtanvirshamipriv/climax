@@ -8,13 +8,15 @@ import React, { useState, useEffect } from 'react';
 import { IoMdArrowDropleft } from "react-icons/io";
 import { RiShipLine } from "react-icons/ri";
 import { Layout, Menu, Select } from 'antd';
-import Router from 'next/router';
+import Router, { useRouter } from 'next/router';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 
 const { Header, Content, Sider } = Layout;
 
 const MainLayout = ({children}) => {
+
+  const newRouter = useRouter();
 
   const [load, setLoad] = useState(true);
   const [companies, setCompanies] = useState([]);
@@ -109,8 +111,8 @@ const MainLayout = ({children}) => {
     ),
     getParentItem('Sea Export', '4', <span className=''><RiShipLine /><IoMdArrowDropleft className='flip' /></span>,
       [
-        getItem('SE Job', '4-1',<></>, null, {
-          label: `SE Job`,
+        getItem('SE Job List', '4-1',<></>, null, {
+          label: `SE Job List`,
           key: '4-1',
           children: `Content of Tab Pane 2`,
         }),
@@ -155,6 +157,12 @@ const MainLayout = ({children}) => {
     Router.push('/')
   };
 
+  useEffect(() => {
+    if(newRouter.pathname.includes("seJob/")){
+      setToggleState('4-3')
+    }
+  }, [newRouter])
+
   const [toggleState, setToggleState] = useState(0);
   const [tabItems, setTabItems] = useState([]);
 
@@ -167,6 +175,7 @@ const MainLayout = ({children}) => {
     vendor:false,
     commodity:false,
     voyage:false,
+    seJobList:false,
     seJob:false,
     seBl:false,
     charges:false,
@@ -177,19 +186,19 @@ const MainLayout = ({children}) => {
     balanceSheet:false,
   });
 
-  useEffect(()=>{alterTabs()}, [tabs])
+  useEffect(()=>{alterTabs();}, [tabs])
 
   const alterTabs = () => {
     if(Object.keys(tabs).length>0){
       let tempTabs = [...tabItems];
       let cancel = false;
-      tempTabs.forEach((x)=>{
+      tempTabs.forEach((x,i)=>{
         if(x.key==tabs.key){
           cancel = true;
         }
       })
       if(cancel==false){
-        tempTabs.push({ key:tabs.key, label:tabs.label })
+        tempTabs.push(tabs)
         let tempTabActive = {...tabActive};
         if(tabs.key=='1-1'){ tempTabActive.home=true }
         else if(tabs.key=='2-1'){ tempTabActive.employee=true }
@@ -201,8 +210,9 @@ const MainLayout = ({children}) => {
         else if(tabs.key=='3-1'){ tempTabActive.accounts=true }
         else if(tabs.key=='3-3'){ tempTabActive.invoiceBills=true }
         else if(tabs.key=='3-4'){ tempTabActive.paymentReceipt=true }
-        else if(tabs.key=='4-1'){ tempTabActive.seJob=true }
+        else if(tabs.key=='4-1'){ tempTabActive.seJobList=true }
         else if(tabs.key=='4-2'){ tempTabActive.seBl=true }
+        else if(tabs.key=='4-3'){ tempTabActive.seJob=true }
         else if(tabs.key=='5-1'){ tempTabActive.jobBalancing=true }
         else if(tabs.key=='5-2'){ tempTabActive.accountActivity=true }
         else if(tabs.key=='5-3'){ tempTabActive.balanceSheet=true }
@@ -213,24 +223,48 @@ const MainLayout = ({children}) => {
     }
   };
 
-  const toggleTab = (index) => {
-    setToggleState(index);
-    if(index=='1-1'){ Router.push('/home') }
-    else if(index=='2-1'){ Router.push('/employees') }
-    else if(index=='2-2'){ Router.push('/client') }
-    else if(index=='2-3'){ Router.push('/commodity') }
-    else if(index=='2-4'){ Router.push('/voyage') }
-    else if(index=='2-5'){ Router.push('/vendor') }
-    else if(index=='2-6'){ Router.push('/charges') }
-    else if(index=='3-1'){ Router.push('/accounts/chartOfAccount') }
-    else if(index=='3-2'){ Router.push('/accounts/accountActivity') }
-    else if(index=='3-3'){ Router.push('/accounts/invoiceAndBills') }
-    else if(index=='3-4'){ Router.push('/accounts/paymentReceipt') }
-    else if(index=='4-1'){ Router.push('/seJob') }
-    else if(index=='4-2'){ Router.push('/seBl') }
-    else if(index=='5-1'){ Router.push('/reports/jobBalancing') }
-    else if(index=='5-2'){ Router.push('/reports/accountActivity') }
-    else if(index=='5-3'){ Router.push('/reports/balanceSheet') }
+  const setKey = (value) => {
+    let result = "";
+    let index = 0;
+    console.log(value.key)
+    if(tabs.id!=value.id && tabs.key==value.key){
+      let tempTabes = [...tabItems];
+      tempTabes.forEach((x, i)=>{
+        if(x.key==value.key){
+          index = i
+        }
+      })
+      tempTabes = tempTabes.filter((x)=>{
+        return x.key!=value.key;
+      })
+      tempTabes.splice(index,0,tabs);
+      setTabItems(tempTabes)
+      result = tabs.id
+    }else{
+      result = value.id
+    }
+    return result
+  }
+
+  const toggleTab = (x) => {
+    setToggleState(x.key);
+    if(x.key=='1-1'){ Router.push('/home') }
+    else if(x.key=='2-1'){ Router.push('/employees') }
+    else if(x.key=='2-2'){ Router.push('/client') }
+    else if(x.key=='2-3'){ Router.push('/commodity') }
+    else if(x.key=='2-4'){ Router.push('/voyage') }
+    else if(x.key=='2-5'){ Router.push('/vendor') }
+    else if(x.key=='2-6'){ Router.push('/charges') }
+    else if(x.key=='3-1'){ Router.push('/accounts/chartOfAccount') }
+    else if(x.key=='3-2'){ Router.push('/accounts/accountActivity') }
+    else if(x.key=='3-3'){ Router.push('/accounts/invoiceAndBills') }
+    else if(x.key=='3-4'){ Router.push('/accounts/paymentReceipt') }
+    else if(x.key=='4-1'){ Router.push('/seJobList') }
+    else if(x.key=='4-2'){ Router.push('/seBl') }
+    else if(x.key=='4-3'){ Router.push(`/seJob/${setKey(x)}`) }
+    else if(x.key=='5-1'){ Router.push('/reports/jobBalancing') }
+    else if(x.key=='5-2'){ Router.push('/reports/accountActivity') }
+    else if(x.key=='5-3'){ Router.push('/reports/balanceSheet') }
   };
 
   const removeTab = (index) => {
@@ -247,61 +281,61 @@ const MainLayout = ({children}) => {
     }
   };
 
-  return (
-    <Layout className="main-dashboard-layout">
-      {!load && 
-      <Sider trigger={null} collapsible collapsed={collapsed} style={{maxHeight:'100vh', overflowY:'auto'}}>
-        <div className={!collapsed?'big-logo':'small-logo'} >
-          <span>
-            <img src={company=='1'?'/seanet-logo.png':company=='2'?'aircargo-logo.png':company=='3'?'cargolinkers-logo.png':null}/>
-            <p>Dashboard</p>
-          </span>
-        </div>
-        <Menu mode="inline" theme="dark" defaultSelectedKeys={['1']} items={!collapsed?items:itemsTwo} />
-      </Sider>
-      }
-      <Layout className="site-layout">
-      <Header className="site-layout-background" style={{padding:0}}>
-      {collapsed && <span className="menu-toggler" onClick={() => setCollapsed(!collapsed)}><AiOutlineRight /></span>}
-      {!collapsed && <span className="menu-toggler" onClick={() => setCollapsed(!collapsed)} ><AiOutlineLeft /></span>}
-      <Select
-        style={{
-          width: 155, opacity:0.7
-        }}
-        onChange={handleChange}
-        options={companies}
-      />
-      </Header>
-      <Content className="site-layout-background"
-        style={{
-          margin: '24px 16px',
-          padding: 24,
-          minHeight: 280,
-        }}
-      > 
-      <div className='dashboard-styles'>
-        <div className="bloc-tabs">
-          {tabItems.map((x, index)=>{
-            return(
-              <div key={index} className={toggleState===x.key?"tabs active-tabs":"tabs"}>
-                <button onClick={()=> toggleTab(x.key)}>
-                  {x.label}
-                </button>
-                <span>
-                  <CloseOutlined onClick={()=>removeTab(x.key)} className='clos-btn'/>
-                </span>
-              </div>
-            )
-          })}
-        </div>
-        <div className="content-tabs">
-            {children}
-        </div>
+return (
+  <Layout className="main-dashboard-layout">
+    {!load && 
+    <Sider trigger={null} collapsible collapsed={collapsed} style={{maxHeight:'100vh', overflowY:'auto'}}>
+      <div className={!collapsed?'big-logo':'small-logo'} >
+        <span>
+          <img src={company=='1'?'/seanet-logo.png':company=='2'?'aircargo-logo.png':company=='3'?'cargolinkers-logo.png':null}/>
+          <p>Dashboard</p>
+        </span>
       </div>
-      </Content>
-      </Layout>
+      <Menu mode="inline" theme="dark" defaultSelectedKeys={['1']} items={!collapsed?items:itemsTwo} />
+    </Sider>
+    }
+    <Layout className="site-layout">
+    <Header className="site-layout-background" style={{padding:0}}>
+    {collapsed && <span className="menu-toggler" onClick={() => setCollapsed(!collapsed)}><AiOutlineRight /></span>}
+    {!collapsed && <span className="menu-toggler" onClick={() => setCollapsed(!collapsed)} ><AiOutlineLeft /></span>}
+    <Select
+      style={{
+        width: 155, opacity:0.7
+      }}
+      onChange={handleChange}
+      options={companies}
+    />
+    </Header>
+    <Content className="site-layout-background"
+      style={{
+        margin: '24px 16px',
+        padding: 24,
+        minHeight: 280,
+      }}
+    > 
+    <div className='dashboard-styles'>
+      <div className="bloc-tabs">
+        {tabItems.map((x, index)=>{
+          return(
+            <div key={index} className={toggleState===x.key?"tabs active-tabs":"tabs"}>
+              <button onClick={()=> {
+                toggleTab(x); 
+                }}>
+                {x.label}
+              </button>
+              <span>
+                <CloseOutlined onClick={()=>removeTab(x.key)} className='clos-btn'/>
+              </span>
+            </div>
+          )
+        })}
+      </div>
+      <div className="content-tabs">
+          {children}
+      </div>
+    </div>
+    </Content>
     </Layout>
-  );
-};
-  
+  </Layout>
+)};
 export default MainLayout;

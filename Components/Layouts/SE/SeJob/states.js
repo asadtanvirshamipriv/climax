@@ -91,7 +91,7 @@ const baseValues = {
   localVendorId:'',
   localVendorId:'',
   shippingLineId:'',
-  vessel:'',
+  vesselId:'',
   VoyageId:'',
   cutOffDate:'',
   cutOffTime:'',
@@ -124,7 +124,7 @@ const baseValues = {
   podDate:'',
   companyId:'',
   exRate:'1',
-  approved:["1"]
+  approved:[]
 };
 
 const initialState = {

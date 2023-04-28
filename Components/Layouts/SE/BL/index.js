@@ -4,8 +4,9 @@ import { Modal } from 'antd';
 import { useSelector } from 'react-redux';
 import { recordsReducer, initialState, baseValues } from './states';
 import CreateOrEdit from './CreateOrEdit';
+import moment from 'moment';
 
-const SeJob = ({partiesData}) => {
+const SeJob = ({partiesData, BlsData}) => {
 
   const set = (a, b) => dispatch({type:'toggle', fieldName:a, payload:b});
   const companyId = useSelector((state) => state.company.value);
@@ -14,15 +15,7 @@ const SeJob = ({partiesData}) => {
 
   useEffect(() => {
     set('partiesData',partiesData)
-    // partiesData
-    // let tempChargeList = [];
-    // fieldsData.result.chargeList.forEach((x) => {
-    //   tempChargeList.push({...x, label:x.code, value:x.code});
-    // });
-    // fieldsData.result.chargeList=tempChargeList
-    // //console.log(fieldsData);
-    // dispatch({type:'toggle', fieldName:'fields', payload:fieldsData.result})
-    // dispatch({type:'toggle', fieldName:'records', payload:jobsData.result})
+    set('records',BlsData)
   }, [])
 
   return (
@@ -43,11 +36,11 @@ const SeJob = ({partiesData}) => {
         <thead>
           <tr>
             <th>Sr.</th>
-            <th>Basic Info</th>
-            <th>Shipment Info</th>
-            <th>Company Info</th>
-            <th>Container Info</th>
-            <th>Other Info</th>
+            <th>Job #</th>
+            <th>MBL #</th>
+            <th>HBL #</th>
+            <th>Status</th>
+            <th>Date</th>
           </tr>
         </thead>
         <tbody>
@@ -56,29 +49,11 @@ const SeJob = ({partiesData}) => {
         return (
         <tr key={index} className='f row-hov' onClick={()=>dispatch({type:'edit', payload:x})} >
           <td>{index + 1}</td>
-          <td>
-            <span className='blue-txt fw-7'>{x.jobNo}</span>
-            <br/>Nomination: <span className='grey-txt'>{x.nomination}</span>
-            <br/>Freight Type: <span className='grey-txt'>{x.freightType}</span>
-          </td>
-          <td>
-            Vessel: <span className='grey-txt'>{getVessel(x.vessel)}</span><br/>
-            POL: <span className='grey-txt'>{x.pol}</span><br/>
-            POD: <span className='grey-txt'>{x.pod}</span>
-          </td>
-          <td>
-            Cost Center: <span className='blue-txt fw-5'>{x.costCenter}</span>
-          </td>
-          <td>
-            Container: <span className='grey-txt'>{x.container}</span><br/>
-            Weight: <span className='grey-txt'>{x.weight}</span>
-          </td>
-          <td>
-            Party:<span className='blue-txt fw-5'> {x.Client===null?"":x.Client.name}</span><br/>
-            Transportion: <span className='blue-txt fw-5'>{x.transportCheck!=''?'Yes':'No'}</span>
-            <br/>
-            Custom Clearance: <span className='blue-txt fw-5'>{x.customCheck!=''?'Yes':'No'}</span>
-          </td>
+          <td>{x.SE_Job.jobNo}</td>
+          <td>{x.mbl}</td>
+          <td>{x.hbl}</td>
+          <td>{x.status}</td>
+          <td>{moment(x.createdAt).format("DD-MM-YYYY")}</td>
         </tr>
           )
         })}

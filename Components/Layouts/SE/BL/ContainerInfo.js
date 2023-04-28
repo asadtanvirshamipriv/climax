@@ -10,22 +10,22 @@ const ContainerInfo = ({control, register, state, useWatch, dispatch, reset}) =>
   const allValues = useWatch({control})
 
   const onChange = (e, i, variable, type) => {
-    let temp = [...state.containersInfo];
+    let temp = [...state.Container_Infos];
     temp[i][variable] = type=='e'?e:e.target.value;
-    set('containersInfo', temp)
+    set('Container_Infos', temp)
   }
 
   const confirmClose = (index, id) => {
-    console.log(index);
-    console.log(id);
-    let temp = [...state.containersInfo];
+    let temp = [...state.Container_Infos];
     if(id!==null){
+        console.log(id);
         let tempDeleteList = [...temp];
-        //tempDeleteList = temp
-        temp.filter((x)=>{
-            return x.id!=id
+        temp = temp.filter((x)=>{
+          console.log(x.id, id)
+            return x.id!==id
         })
-        tempDeleteList.filter((x)=>{
+        console.log(temp)
+        tempDeleteList = tempDeleteList.filter((x)=>{
             return x.id==id
         })
         set('deletingContinersList', tempDeleteList)
@@ -38,8 +38,7 @@ const ContainerInfo = ({control, register, state, useWatch, dispatch, reset}) =>
             }
         })
     }
-    console.log(temp)
-    set('containersInfo', temp)
+    set('Container_Infos', temp)
   }
 
   const weightOpt = [
@@ -65,10 +64,7 @@ const ContainerInfo = ({control, register, state, useWatch, dispatch, reset}) =>
     {label:'DG', value:'DG'},
     {label:'non-DG', value:'non-DG'}
   ]
-
-  useEffect(() => {
-    set('saveContainers',true);
-  }, [state.containersInfo])
+  useEffect(()=>{ set('saveContainers',true); },[state.Container_Infos])
 
 return (
 <div style={{height:600}}>
@@ -76,7 +72,7 @@ return (
 <Col md={2}>
     <div className='div-btn-custom text-center py-1' 
         onClick={()=>{
-            let temp = [...state.containersInfo];
+            let temp = [...state.Container_Infos];
             temp.push({
                 id:null,
                 no:'1',
@@ -105,7 +101,7 @@ return (
                 front:'',
                 back:''
             })
-            set('containersInfo', temp)
+            set('Container_Infos', temp)
         }}
     >Add Row</div>
 </Col>
@@ -149,14 +145,14 @@ return (
     </tr>
     </thead>
     <tbody>
-    {state.containersInfo.map((x,i)=>{
+    {state.Container_Infos.map((x,i)=>{
     return (
     <tr key={i} className='f table-row-center-singleLine'>
     <td className='text-center p-0 px-2'>
-        <CloseCircleOutlined className='close-btn' 
-            style={{fontSize:12, position:'relative', bottom:2}}
-            onClick={()=>confirmClose(i, x.id)}
-        />
+    <CloseCircleOutlined className='close-btn' 
+        style={{fontSize:12, position:'relative', bottom:2}}
+        onClick={()=>confirmClose(i, x.id)}
+    />
     </td>
     <td className='text-center p-0'>{i + 1}</td>
     <td className='p-0'><Input  value={x.no}         style={{width: 120  }} size='small' onChange={(e)=>onChange(e,i,'no'          )}   /></td>

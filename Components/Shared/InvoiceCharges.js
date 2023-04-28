@@ -51,9 +51,7 @@ const InvoiceCharges = ({data, companyId}) => {
     }).then((x)=>{
         party = x.data.result
     });
-    //console.log(exp, income, party);
     if(tempInv.approved=="0"){ tempInv.approved="1" } else { tempInv.approved="0" }
-
     let vouchers = {};
     let amount = calculateTotal(tempInv.Charge_Heads);
     tempInv.total = amount;

@@ -18,7 +18,7 @@ const BookingInfo = ({register, control, errors, state, useWatch, dispatch, rese
   const transportCheck = useWatch({control, name:"transportCheck"});
   const customCheck = useWatch({control, name:"customCheck"});
   const approved = useWatch({control, name:"approved"});
-  const vessel = useWatch({control, name:"vessel"});
+  const vesselId = useWatch({control, name:"vesselId"});
   const VoyageId = useWatch({control, name:"VoyageId"});
 
   const filterVessels = (list) => {
@@ -152,7 +152,6 @@ const BookingInfo = ({register, control, errors, state, useWatch, dispatch, rese
           options={state.fields.party.shipper} />
         <SelectSearchComp register={register} name='consigneeId' control={control} label='Consignee' disabled={getStatus(approved)}
           options={state.fields.party.consignee} />
-
         <SelectSearchComp register={register} name='pol' control={control} label='Port Of Loading' disabled={getStatus(approved)}
           options={ports.ports} />
         <SelectSearchComp register={register} name='pod' control={control} label='Port Of Discharge' disabled={getStatus(approved)}
@@ -169,13 +168,13 @@ const BookingInfo = ({register, control, errors, state, useWatch, dispatch, rese
         <SelectSearchComp register={register} name='localVendorId' control={control} label='Local Vendor' disabled={getStatus(approved)}options={state.fields.vendor.localVendor} />
         <SelectSearchComp register={register} name='shippingLineId' control={control} label='Sline/Carrier' disabled={getStatus(approved)}options={state.fields.vendor.sLine} />
         <div className='px-2 pb-2 mt-3' style={{border:'1px solid silver'}}>
-        <SelectSearchComp register={register} name='vessel' control={control} label='Vessel'disabled={getStatus(approved)} width={"100%"}
+        <SelectSearchComp register={register} name='vesselId' control={control} label='Vessel'disabled={getStatus(approved)} width={"100%"}
           options={filterVessels(state.fields.vessel)} 
         />
           <div className='mt-2'>Voyage</div>
           <div className="dummy-input"
            onClick={()=>{
-            vessel!=''?dispatch({type:'voyageSelection', payload:vessel}):null
+            vesselId!=''?dispatch({type:'voyageSelection', payload:vesselId}):null
           }}
           >{getVoyageNumber(VoyageId)}</div>
         <div className='my-2'></div>
@@ -235,9 +234,7 @@ const BookingInfo = ({register, control, errors, state, useWatch, dispatch, rese
         </div>
       </Col>
       <Col md={3}>
-        {state.edit &&
-          <Notes state={state} dispatch={dispatch} />
-        }
+        {state.edit &&<Notes state={state} dispatch={dispatch} />}
         {approved=="1" && <img src={'approve.png'} height={100} />}
         <CheckGroupComp register={register}name='approved'control={control}label='_____________________' options={[{label:"Approve Job",value:"1"}]}/>
       </Col>
