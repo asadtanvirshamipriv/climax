@@ -16,6 +16,7 @@ const InvoiceCharges = ({data, companyId}) => {
   
   useEffect(()=>{
     if(Object.keys(data).length>0){
+        console.log(data.resultOne)
         setInvoice(data.resultOne);
         setRecords(data.resultOne.Charge_Heads);
     }
@@ -166,11 +167,13 @@ const InvoiceCharges = ({data, companyId}) => {
             ChildAccountId:income.id
         })
     }
+    console.log(vouchers);
     await axios.post(process.env.NEXT_PUBLIC_CLIMAX_POST_INVOICE_APPROVE_DISAPPROVE,{
         id:tempInv.id,
         total:tempInv.total,
         roundOff:tempInv.roundOff,
-        approved:tempInv.approved
+        approved:tempInv.approved,
+        exRate:vouchers.exRate
     }).then(async(x)=>{
         if(x.data.status=="success"){
             openNotification("Success", "Invoice Successfully Approved!", "green")
@@ -253,7 +256,7 @@ return (
         <div>
             <span className='inv-label'>Round Off:</span>
             <span className='inv-value mx-2'>
-                <input className='cur' type={"checkbox"} disabled={invoice.approved=="1"?true:false} checked={invoice.roundOff!="0"} 
+                <input className='cur' type={"checkbox"} disabled={invoice.type=="Agent Invoice"?true:invoice.approved=="1"?true:false} checked={invoice.roundOff!="0"} 
                 onChange={async()=>{
                     setLoad(true);
                     let tempInv = {...invoice};

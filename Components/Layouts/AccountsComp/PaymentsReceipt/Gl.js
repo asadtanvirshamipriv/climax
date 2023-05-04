@@ -10,7 +10,9 @@ import openNotification from '../../../Shared/Notification';
 const Gl = ({state, dispatch, selectedParty, payType, companyId}) => {
 
   const set = (a, b) => { dispatch({type:'set', var:a, pay:b}) }
-  const commas = (a) =>  { return a.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ", ")}
+  const commas = (a) =>  {
+    return a==0?'':parseFloat(a).toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ", ")
+  }
 
   const getTotal = (type, list) => {
     let result = 0.00;
@@ -60,14 +62,15 @@ const Gl = ({state, dispatch, selectedParty, payType, companyId}) => {
     }
     state.transactionCreation.forEach((x)=>{
       voucher.Voucher_Heads.push({
-        amount:x.tran.amount,
+        defaultAmount:`${x.tran.defaultAmount==0?'':x.tran.defaultAmount}`,
+        amount:`${x.tran.amount}`,
         type:x.tran.type,
         narration:invoicesIds.toString(),
         VoucherId:null,
         ChildAccountId:x.particular.id
       })
     })
-    console.log(state.transactionCreation)
+    console.log(voucher)
     await axios.post(process.env.NEXT_PUBLIC_CLIMAX_POST_CREATE_INVOICE_TRANSACTION,tempInvoices).then(async(x)=>{
       // await getInvoices(selectedParty.id);
       // set("glVisible", false);
@@ -102,36 +105,46 @@ const Gl = ({state, dispatch, selectedParty, payType, companyId}) => {
   return (
     <>
     <Modal title={`Transaction General Journal`} open={state.glVisible}
-        onOk={()=>set('glVisible', false)}
-        onCancel={()=>set('glVisible', false)}
-        footer={false} maskClosable={false}
-        width={'60%'}
+      onOk={()=>set('glVisible', false)}
+      onCancel={()=>set('glVisible', false)}
+      footer={false} maskClosable={false}
+      width={'75%'}
     >
-    <div style={{minHeight:260}}>
+    <div style={{minHeight:330}}>
       <h3 className='grey-txt'>Proceed With Following Transaction Against?</h3>
-      <div className='table-sm-1 mt-3' style={{maxHeight:260, overflowY:'auto'}}>
+      <div className='table-sm-1 mt-3' style={{maxHeight:330, overflowY:'auto'}}>
         <Table className='tableFixHead' bordered>
           <thead>
               <tr>
-                  <th className='' style={{width:260}}>Particular</th>
-                  <th className='text-center' style={{width:25}}>Debit</th>
-                  <th className='text-center' style={{width:25}}>Credit</th>
+                <th className='' colSpan={5} style={{textAlign:'end', fontWeight:100}}>
+                  <span className='mx-2'>Ex.Rates:</span>{parseFloat(state.autoOn?state.exRate:state.manualExRate).toFixed(2)}
+                </th>
+              </tr>
+              <tr>
+                <th className='' style={{width:260}}>Particular</th>
+                <th className='text-center' style={{width:25}}></th>
+                <th className='text-center' style={{width:25}}></th>
+                <th className='text-center' style={{width:25}}>Debit</th>
+                <th className='text-center' style={{width:25}}>Credit</th>
               </tr>
           </thead>
           <tbody>
           {state.transactionCreation.map((x, index) => {
           return (
               <tr key={index}>
-                  <td>{x.particular.title}</td>
-                  <td className='text-end'>{x.tran.type!="credit"?<><span className='gl-curr-rep'>Rs.{" "}</span>{commas(x.tran.amount)}</>:''}</td>
-                  <td className='text-end'>{x.tran.type=="credit"?<><span className='gl-curr-rep'>Rs.{" "}</span>{commas(x.tran.amount)}</>:''}</td>
+                <td>{x.particular.title}</td>
+                <td className='text-end'>{x.tran.type!="credit"?<><span className='gl-curr-rep'>{" "}</span>{commas(x.tran.defaultAmount)}</>:''}</td>
+                <td className='text-end'>{x.tran.type=="credit"?<><span className='gl-curr-rep'>{" "}</span>{commas(x.tran.defaultAmount)}</>:''}</td>
+                <td className='text-end'>{x.tran.type!="credit"?<><span className='gl-curr-rep'>Rs.{" "}</span>{commas(x.tran.amount)}</>:''}</td>
+                <td className='text-end'>{x.tran.type=="credit"?<><span className='gl-curr-rep'>Rs.{" "}</span>{commas(x.tran.amount)}</>:''}</td>
               </tr>
-              )
-          })}
+            )})}
             <tr>
-                <td>Balance</td>
-                <td className='text-end'><span className='gl-curr-rep'>Rs.{" "}</span>{commas(getTotal('debit', state.transactionCreation))}</td>
-                <td className='text-end'><span className='gl-curr-rep'>Rs.{" "}</span>{commas(getTotal('credit', state.transactionCreation))}</td>
+              <td>Balance</td>
+              <td></td>
+              <td></td>
+              <td className='text-end'><span className='gl-curr-rep'>{" "}Rs. </span>{commas(getTotal('debit', state.transactionCreation))}</td>
+              <td className='text-end'><span className='gl-curr-rep'>{" "}Rs. </span>{commas(getTotal('credit', state.transactionCreation))}</td>
             </tr>
           </tbody>
         </Table>

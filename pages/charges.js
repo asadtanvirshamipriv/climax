@@ -8,7 +8,6 @@ const charges = ({chargeData}) => {
     <Charges chargeData={chargeData} />
   )
 }
-
 export default charges
 
 export async function getServerSideProps({req,res}){
@@ -17,10 +16,10 @@ export async function getServerSideProps({req,res}){
     headers:{"x-access-token": `${cookies.get('token')}`}
   }).then((x)=>x.data);
 
-  const chargeData = await axios.get(process.env.NEXT_PUBLIC_CLIMAX_GET_ALL_CHARGES).then((x)=>x.data);
+  const chargeData = await axios.get(process.env.NEXT_PUBLIC_CLIMAX_GET_ALL_CHARGES)
+  .then((x)=>x.data);
 
-
-  return{
-      props: { sessionData:sessionRequest, chargeData:chargeData }
+  return{ 
+    props: { sessionData:sessionRequest, chargeData:chargeData }
   }
 }

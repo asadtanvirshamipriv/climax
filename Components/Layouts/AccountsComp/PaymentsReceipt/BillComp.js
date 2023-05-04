@@ -14,9 +14,8 @@ import Gl from './Gl';
 
 const BillComp = ({partytype, selectedParty, payType, companyId}) => {
 
-    const set = (a, b) => dispatch({type:'set', var:a, pay:b});
-
     const [ state, dispatch ] = useReducer(recordsReducer, initialState);
+    const set = (a, b) => dispatch({type:'set', var:a, pay:b});
 
     useEffect(() => { getInvoices(selectedParty.id); }, [selectedParty, payType]);
     useEffect(() => { {set('totalrecieving', totalRecieveCalc(state.invoices));} }, [state.invoices]);
@@ -32,7 +31,12 @@ const BillComp = ({partytype, selectedParty, payType, companyId}) => {
     const getInvoices = async(id) => {
         set('invoices', []);
         set('load', true);
-        await axios.get(process.env.NEXT_PUBLIC_CLIMAX_GET_INVOICE_BY_PARTY_ID, {headers:{id:id, pay:payType, party:partytype, companyId:companyId}}).then(async(x)=> {
+        //console.log(partytype)
+        await axios.get(process.env.NEXT_PUBLIC_CLIMAX_GET_INVOICE_BY_PARTY_ID, 
+            {
+                headers:{id:id, pay:payType, party:partytype, companyId:companyId}
+            }
+        ).then(async(x)=> {
             let temp = x.data.result;
             let accountData = {};
             if(x.data.status=="success" && x.data.account!=null){
@@ -102,8 +106,9 @@ const BillComp = ({partytype, selectedParty, payType, companyId}) => {
                 transTwo.push({
                     particular:state.taxAccountRecord,
                     tran:{
-                        type:state.taxAccountRecord.Parent_Account.Account[payType=="Recievable"?'inc':'dec'],
-                        amount:state.finalTax
+                        type:'debit',//state.taxAccountRecord.Parent_Account.Account[payType=="Recievable"?'inc':'dec'],
+                        amount:state.finalTax,
+                        defaultAmount:0
                     }
                 })
             }
@@ -112,8 +117,9 @@ const BillComp = ({partytype, selectedParty, payType, companyId}) => {
                 transTwo.push({
                     particular:state.bankChargesAccountRecord,
                     tran:{
-                        type:state.bankChargesAccountRecord.Parent_Account.Account[payType=="Recievable"?'inc':'dec'],
-                        amount:state.bankCharges
+                        type:'debit',//state.bankChargesAccountRecord.Parent_Account.Account[payType=="Recievable"?'inc':'dec'],
+                        amount:state.bankCharges,
+                        defaultAmount:0
                     }
                 })
             }
@@ -122,7 +128,8 @@ const BillComp = ({partytype, selectedParty, payType, companyId}) => {
                 tran:{
                     //type:state.partyAccountRecord.Parent_Account.Account[payType=="Recievable"?'dec':'inc'],
                     type:payType=="Recievable"?'credit':'debit',
-                    amount:state.totalrecieving
+                    amount:state.totalrecieving,
+                    defaultAmount:0
                 }
             })
 
@@ -130,11 +137,12 @@ const BillComp = ({partytype, selectedParty, payType, companyId}) => {
                 particular:state.payAccountRecord,  
                 tran:{ 
                     type:state.payAccountRecord.Parent_Account.Account[payType=="Recievable"?'inc':'dec'],// <-Checks the account type to make Debit or Credit
-                    amount:state.totalrecieving-removing
+                    amount:payType=="Recievable"? state.totalrecieving-removing: state.totalrecieving+removing,
+                    defaultAmount:0
                 }
             })
         }
-        console.log(transTwo);
+        //console.log(transTwo);
         set('removing', removing);
         set('transactionCreation', transTwo);
         set('glVisible', true);
@@ -246,7 +254,7 @@ const BillComp = ({partytype, selectedParty, payType, companyId}) => {
                 <th>MBL</th>
                 <th>Type</th>
                 <th>Currency</th>
-                <th>{payType=="Recievable"? 'Inv':'Bill Amount'} Bal</th>
+                <th>{payType=="Recievable"? 'Inv':'Bill'} Bal</th>
                 <th>{payType=="Recievable"? 'Receiving Amount':'Paying Amount'}</th>
                 <th>Balance</th>
                 <th>Select</th>
@@ -300,7 +308,7 @@ const BillComp = ({partytype, selectedParty, payType, companyId}) => {
         </div>
         </div>
             <div className=''>
-                Total Receiving Amount:{" "}
+                Total {payType} Amount:{" "}
                 <div style={{padding:3, border:'1px solid silver', minWidth:100, display:'inline-block', textAlign:'right'}}>
                     {state.totalrecieving.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ", ")}
                 </div>
