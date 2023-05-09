@@ -9,22 +9,7 @@ const seJob = ({jobData, id, fieldsData}) => {
   )
 }
 export default seJob
-  
-export async function getStaticPaths() {
-  const response = await fetch(process.env.NEXT_PUBLIC_CLIMAX_GET_SE_JOBS_IDS);
-  //console.log(response, "Over Here")
-  const data = await response.json();
-  const paths = data.result.map(x => {
-    return {
-      params: { id: `${x.id}` }
-    }
-  })
 
-  return {
-    paths,
-    fallback: false
-  }
-}
 
 export async function getStaticProps(context) {
   const { params } = context;
@@ -44,5 +29,21 @@ export async function getStaticProps(context) {
   return {
     props: { jobData:jobData, id:params.id, fieldsData:fieldsData  },
     revalidate: 10
+  }
+}
+
+export async function getStaticPaths() {
+  const response = await fetch(process.env.NEXT_PUBLIC_CLIMAX_GET_SE_JOBS_IDS);
+  //console.log(response, "Over Here")
+  const data = await response.json();
+  const paths = data.result.map(x => {
+    return {
+      params: { id: `${x.id}` }
+    }
+  })
+
+  return {
+    paths,
+    fallback: 'blocking'
   }
 }
