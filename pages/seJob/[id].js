@@ -10,28 +10,29 @@ const seJob = ({jobData, id, fieldsData}) => {
 }
 export default seJob
 
-
 export async function getStaticProps(context) {
-  const { params } = context;
-  let jobData = {};
-  const fieldsData = await axios.get(process.env.NEXT_PUBLIC_CLIMAX_GET_SEAJOB_VALUES).then((x)=>x.data);
-  if(params.id!="new"){
-    jobData = await axios.get(process.env.NEXT_PUBLIC_CLIMAX_GET_SE_JOB_BY_ID,{
-      headers:{ "id": `${params.id}` }
-    }).then((x)=>x.data.result);
-  
-    if (!jobData.id) {
-      return {
-        notFound: true
+    const { params } = context;
+    let jobData = {};
+
+    const fieldsData = await axios.get(process.env.NEXT_PUBLIC_CLIMAX_GET_SEAJOB_VALUES).then((x)=>x.data);
+    
+    if(params.id!="new"){
+      jobData = await axios.get(process.env.NEXT_PUBLIC_CLIMAX_GET_SE_JOB_BY_ID,{
+        headers:{ "id": `${params.id}` }
+      }).then((x)=>x.data.result);
+    
+      if (!jobData.id) {
+        return {
+          notFound: true
+        }
       }
     }
+    return {
+      props: { jobData:jobData, id:params.id, fieldsData:fieldsData,  },
+      revalidate: 30
+    }
   }
-  return {
-    props: { jobData:jobData, id:params.id, fieldsData:fieldsData  },
-    revalidate: 10
-  }
-}
-
+  
 export async function getStaticPaths() {
   const response = await fetch(process.env.NEXT_PUBLIC_CLIMAX_GET_SE_JOBS_IDS);
   //console.log(response, "Over Here")
@@ -44,6 +45,6 @@ export async function getStaticPaths() {
 
   return {
     paths,
-    fallback: 'blocking'
+    fallback: true
   }
 }
