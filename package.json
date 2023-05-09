@@ -23,7 +23,6 @@
     "cookies": "^0.8.0",
     "cron": "^2.2.0",
     "eslint": "8.27.0",
-    "eslint-config-next": "13.0.2",
     "formik": "^2.2.9",
     "formik-antd": "^2.0.4",
     "html-react-parser": "^3.0.4",
@@ -31,12 +30,12 @@
     "js-cookie": "^3.0.1",
     "jwt-decode": "^3.1.2",
     "moment": "^2.29.4",
-    "next": "13.0.2",
+    "next": "^13.4.1",
     "next-redux-wrapper": "^8.1.0",
     "npm": "^8.19.3",
-    "react": "18.2.0",
+    "react": "^18.2.0",
     "react-bootstrap": "^2.6.0",
-    "react-dom": "18.2.0",
+    "react-dom": "^18.2.0",
     "react-hook-form": "^7.40.0",
     "react-icons": "^4.6.0",
     "react-redux": "^8.0.5",
@@ -47,5 +46,8 @@
     "scss": "^0.2.4",
     "uninstall": "^0.0.0",
     "yup": "^0.32.11"
+  },
+  "devDependencies": {
+    "eslint-config-next": "^13.4.1"
   }
 }

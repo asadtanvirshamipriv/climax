@@ -11,7 +11,7 @@ import DateComp from '/Components/Shared/Form/DateComp';
 const BlDetail = ({control, register, state, useWatch, dispatch}) => {
   const set = (a, b) => dispatch({type:'toggle', fieldName:a, payload:b});
 
-  const editor = (variable) => useEditor({
+  const Editor = (variable) => useEditor({
     extensions: [
         StarterKit,
         Paragraph.configure({
@@ -41,31 +41,31 @@ return(
     <Col md={4}>
       <div>Shipper</div>
       <div className='brdr-grey'>
-      <EditorContent editor={editor('shipperContent')} style={partyDetail} />
+      <EditorContent editor={Editor('shipperContent')} style={partyDetail} />
       </div>
     </Col>
     <Col md={4}>
       <div>Consignee</div>
       <div className='brdr-grey'>
-      <EditorContent editor={editor('consigneeContent')} style={partyDetail} />
+      <EditorContent editor={Editor('consigneeContent')} style={partyDetail} />
       </div>
     </Col>
     <Col md={4} style={{paddingRight:20}}>
       <div>Notify One</div>
       <div className='brdr-grey'>
-      <EditorContent editor={editor('notifyOneContent')} style={partyDetail} />
+      <EditorContent editor={Editor('notifyOneContent')} style={partyDetail} />
       </div>
     </Col>
     <Col md={4} className='mt-2'>
       <div>Notify Two</div>
       <div className='brdr-grey'>
-      <EditorContent editor={editor('notifyTwoContent')} style={partyDetail} />
+      <EditorContent editor={Editor('notifyTwoContent')} style={partyDetail} />
       </div>
     </Col>
     <Col md={4} className='mt-2'>
       <div>Delivery Agent</div>
       <div className='brdr-grey'>
-      <EditorContent editor={editor('deliveryContent')} style={partyDetail} />
+      <EditorContent editor={Editor('deliveryContent')} style={partyDetail} />
       </div>
     </Col>
   </Row>
@@ -137,31 +137,31 @@ return(
         <Col md={6}>
         <div>Marks & No. Of Containers</div>
         <div className='brdr-grey mb-2'>
-          <EditorContent editor={editor('marksContent')} style={partyDetail} />
+          <EditorContent editor={Editor('marksContent')} style={partyDetail} />
         </div>
         </Col>
         <Col md={6} style={{paddingRight:20}}>
         <div>Packages or Shipping Units</div>
         <div className='brdr-grey mb-2'>
-          <EditorContent editor={editor('noOfPckgs')} style={partyDetail} />
+          <EditorContent editor={Editor('noOfPckgs')} style={partyDetail} />
         </div>
         </Col>
         <Col md={7}>
         <div>Description Of Goods</div>
         <div className='brdr-grey mb-2'>
-          <EditorContent editor={editor('descOfGoodsContent')} style={partyDetail} />
+          <EditorContent editor={Editor('descOfGoodsContent')} style={partyDetail} />
         </div>
         </Col>
         <Col md={5} style={{paddingRight:20}}>
         <div>Gross Weight</div>
         <div className='brdr-grey mb-2'>
-          <EditorContent editor={editor('grossWeightContent')} style={partyDetail} />
+          <EditorContent editor={Editor('grossWeightContent')} style={partyDetail} />
         </div>
         </Col>
         <Col md={5}>
         <div>Measurement</div>
         <div className='brdr-grey mb-2'>
-          <EditorContent editor={editor('measurementContent')} style={partyDetail} />
+          <EditorContent editor={Editor('measurementContent')} style={partyDetail} />
         </div>
         </Col>
         <Col md={7} style={{paddingRight:20}}>
