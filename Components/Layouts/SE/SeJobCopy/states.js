@@ -11,41 +11,19 @@ function recordsReducer(state, action){
       case 'toggle': {
         return { ...state, [action.fieldName]: action.payload } 
       }
-
-      case 'create': {
+      case 'set': {
         return {
-            ...state,
-            edit: false,
-            visible: true
+            ...state, ...action.payload
         }
       }
-
-      case 'history': {
+      case 'voyageSelection': {
+        let temp = state.fields.vessel.filter((x)=> x.id == action.payload)[0].Voyages;
+        temp.forEach((x)=>{ x.check=false });
         return {
             ...state,
-            edit: false,
-            viewHistory:true,
-            visible: true,
+            voyageVisible: true,
+            voyageList:temp,
         }
-      }
-
-      case 'edit': {
-        return {
-            ...state,
-            selectedRecord:{},
-            edit: true,
-            visible: true,
-            selectedRecord:action.payload
-        }
-      }
-      case 'modalOff': {
-        let returnVal = {
-          ...state, popShow:false, visible: false,
-          edit: false, viewHistory:false
-        };
-        state.edit?returnVal.selectedRecord={}:null
-        !state.edit?returnVal.equipments=[{id:'', size:'', qty:'', dg:'', gross:'', teu:''}]:null
-        return returnVal
       }
       default: return state 
     }
@@ -79,9 +57,11 @@ const baseValues = {
   transportCheck:[],
   transporterId:'',
   forwarderId:'',
-  carrier:'',
-  vessel:'',
   localVendorId:'',
+  localVendorId:'',
+  shippingLineId:'',
+  vesselId:'',
+  VoyageId:'',
   cutOffDate:'',
   cutOffTime:'',
   eta:'',
@@ -117,11 +97,13 @@ const baseValues = {
 };
 
 const initialState = {
+  fetched: false,
   records: [],
   load:false,
   chargeLoad:false,
   visible:false,
   headVisible:false,
+  voyageVisible:false,
   edit:false,
   popShow:false,
   viewHistory:false,
@@ -150,19 +132,14 @@ const initialState = {
   invoiceData:{},
   exRate:"1",
   
+  voyageList:[],
   consigneeList:[],
   shipperList:[],
   forwarderList:[],
   salesRepList:[],
   carrierList:[
-    {
-      id:'Emirates',
-      name:'Emirates'
-    },
-    {
-      id:'Elton',
-      name:'Elton'
-    },
+    { id:'Emirates', name:'Emirates' },
+    { id:'Elton', name:'Elton' },
   ],
   equipments:[
     {id:'', size:'', qty:'', dg:'', gross:'', teu:''}

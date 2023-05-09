@@ -1,6 +1,6 @@
 import React from 'react';
-import DateComp from '../../Shared/Form/DateComp';
-import TimeComp from '../../Shared/Form/TimeComp';
+import DateComp from '../../../Shared/Form/DateComp';
+import TimeComp from '../../../Shared/Form/TimeComp';
 import { Row, Col } from 'react-bootstrap'
 
 const Dates = ({register, control}) => {

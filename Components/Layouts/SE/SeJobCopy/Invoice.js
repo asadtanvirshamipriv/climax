@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import InvoiceCharges from '../../Shared/InvoiceCharges';
+import InvoiceCharges from '../../../Shared/InvoiceCharges';
 import { Spinner } from 'react-bootstrap';
 
 const Invoice = ({state, dispatch, companyId}) => {

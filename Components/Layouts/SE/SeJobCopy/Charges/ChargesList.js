@@ -1,6 +1,6 @@
 import { CloseCircleOutlined, RightCircleOutlined } from '@ant-design/icons';
 import { Row, Col, Table, Spinner } from 'react-bootstrap';
-import PopConfirm from '../../../Shared/PopConfirm';
+import PopConfirm from '../../../../Shared/PopConfirm';
 import React, { useEffect, useState } from 'react';
 import { Select, Input, Modal, Tag, InputNumber } from 'antd';
 import PartySearch from './PartySearch';
@@ -13,14 +13,14 @@ const ChargesList = ({state, dispatch, chargeType }) => {
 
     const companyId = useSelector((state) => state.company.value);
     //const [exRate, setExRate] = useState(1.00);
-
+    const [selectingId, setSelecingId] = useState("")
     useEffect(() => {
         let value = "";
         if(chargeType.length>0){
             chargeType.forEach((x)=>{
-                if(x.currency!="PKR" && x.type==(state.chargesTab=="1"?"Recievable":"Payble")){
-                    value=x.ex_rate;
-                }
+            if(chargeType[0].currency!="PKR" && chargeType[0].type==(state.chargesTab=="1"?"Recievable":"Payble")){
+                value=chargeType[0].ex_rate;
+            }
             })
             if(value!=""){
                 dispatch({type:'toggle', fieldName:'exRate', payload:value});
@@ -28,9 +28,23 @@ const ChargesList = ({state, dispatch, chargeType }) => {
         }else{
             dispatch({type:'toggle', fieldName:'exRate', payload:"1"});
         }
-    }, [state.chargesTab, state.chargeLoad, state.selectedRecord])
-    
+    }, [
+        //state.chargesTab, 
+        //state.chargeLoad, 
+        state.selectedRecord
+    ])
 
+    useEffect(() => {
+      let exist = false;
+      for(let i = 0; i<chargeType.length; i++){
+        if(chargeType[i].check){
+            exist=true;
+            break;
+        }
+      }
+      exist?null:setSelecingId("");
+    }, [chargeType])
+    
     function calculate (i, amount, discount, taxApply, tax_rate, exRate, qty){
         let tempChargeList = [...chargeType];
         tempChargeList[i].amount = amount;
@@ -138,9 +152,8 @@ const ChargesList = ({state, dispatch, chargeType }) => {
         let payload = await getHeads(state.selectedRecord.id);
         dispatch({type:'toggle', fieldName:'reciveableCharges', payload:payload.reciveableCharges});
         dispatch({type:'toggle', fieldName:'paybleCharges', payload:payload.paybleCharges});
-        console.log(payload.exRate)
         dispatch({type:'toggle', fieldName:'chargeLoad', payload:false});
-    }
+      }
 
     const ApproveCharges = async() => {
         dispatch({type:'toggle', fieldName:'chargeLoad', payload:true})
@@ -162,6 +175,7 @@ const ChargesList = ({state, dispatch, chargeType }) => {
             }
         });
     }
+
 
   return (
     <div>
@@ -187,23 +201,15 @@ const ChargesList = ({state, dispatch, chargeType }) => {
             >Add Charge</div>
         </Col>
         <Col>
-            <div className='div-btn-custom text-center mx-0 py-1 px-3' style={{float:'right'}}
-                onClick={()=>makeInvoice()}
-            >Save</div>
-            <div className='div-btn-custom-green text-center py-1 mx-2 px-3' style={{float:'right'}}
-                onClick={()=>{ApproveCharges()}}
-            >Approve</div>
-            <div className='mx-2' style={{float:'right'}}
-            >
-            <InputNumber placeholder='Ex.Rate' size='small' className='my-1' min={"0.1"} 
-                value={state.exRate} 
-                onChange={(e)=>dispatch({type:'toggle',fieldName:'exRate',payload:e})} 
-            />
-            </div>
-            <div className='my-1' style={{float:'right'}}
-            >
-            Ex.Rate
-            </div>
+        <div className='div-btn-custom text-center mx-0 py-1 px-3' style={{float:'right'}} onClick={()=>makeInvoice()}>Save</div>
+        <div className='div-btn-custom-green text-center py-1 mx-2 px-3' style={{float:'right'}}onClick={()=>{ApproveCharges()}}>Create Invoice</div>
+        <div className='mx-2' style={{float:'right'}}>
+        <InputNumber placeholder='Ex.Rate' size='small' className='my-1' min={"0.1"} 
+            value={state.exRate} 
+            onChange={(e)=>dispatch({type:'toggle',fieldName:'exRate',payload:e})} 
+        />
+        </div>
+        <div className='my-1' style={{float:'right'}}>Ex.Rate</div>
         </Col>
     </Row>
       <div className='table-sm-1 mt-3' style={{maxHeight:300, overflowY:'auto'}}>
@@ -259,10 +265,12 @@ const ChargesList = ({state, dispatch, chargeType }) => {
         </td>
         <td className='text-center'>
             <input type="checkbox" style={{cursor:'pointer'}}
-                checked={x.check} disabled={x.id==null?true:false}
+                checked={x.check} 
+                disabled={x.id==null?true:((selectingId!="" && selectingId!=x.partyId)?true:false)}
                 onChange={()=>{
                     let tempState = [...chargeType];
                     tempState[index].check=!tempState[index].check;
+                    tempState[index].check?setSelecingId(tempState[index].partyId):null;
                     dispatch({type:'toggle', fieldName:state.chargesTab=='1'?'reciveableCharges':'paybleCharges', payload:tempState});
                 }}
             />
@@ -299,8 +307,9 @@ const ChargesList = ({state, dispatch, chargeType }) => {
                             //dispatch({type:'toggle', fieldName:state.chargesTab=='1'?'reciveableCharges':'paybleCharges', payload:tempChargeList});
 
                             let partyType = "";
-
-                            partyType = y[state.chargesTab=='1'?'defaultRecivableParty':'defaultPaybleParty'];
+                            let choiceArr = ['', 'defaultRecivableParty', 'defaultPaybleParty'];
+                            //partyType = y[state.chargesTab=='1'?'defaultRecivableParty':'defaultPaybleParty'];
+                            partyType = y[choiceArr[parseInt(state.chargesTab)]];
                             let searchPartyId;
                             if(partyType=="Client"){
                                 searchPartyId = state.selectedRecord.ClientId;
@@ -317,9 +326,7 @@ const ChargesList = ({state, dispatch, chargeType }) => {
                             }else if(partyType=="Shipping-Line"){
                                 searchPartyId = state.selectedRecord.shippingLineId;
                             }
-
                             let partyData = partyType=="Client"? await getClients(searchPartyId) : await getVendors(searchPartyId);
-
                             if(state.chargesTab=='1'){
                                 tempChargeList[index].invoiceType = partyData[0].types.includes("Overseas Agent")?"Agent Bill":"Job Invoice" ;
                             }else{
@@ -328,7 +335,6 @@ const ChargesList = ({state, dispatch, chargeType }) => {
                             tempChargeList[index].name = partyData[0].name;
                             tempChargeList[index].partyId = partyData[0].id;
                             tempChargeList[index].partyType = partyType=="Client"?"client":"vendor";
-                            
                             dispatch({type:'toggle', fieldName:state.chargesTab=='1'?'reciveableCharges':'paybleCharges', payload:tempChargeList});
                         }
                     })

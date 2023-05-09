@@ -1,48 +1,49 @@
 import React from 'react';
-import { useRouter } from 'next/router';
+//import { useRouter } from 'next/router';
 import axios from "axios";
+import SeJobCopy from '../../Components/Layouts/SE/SeJobCopy';
 
-const seJob = () => {
+const seJob = ({jobData, id, fieldsData}) => {
   return (
-    <div>
-      Hello
-    </div>
+    <SeJobCopy jobData={jobData} id={id} fieldsData={fieldsData} />
   )
 }
-
 export default seJob
 
-// export async function getStaticProps(context) {
-//     const { params } = context
+export async function getStaticProps(context) {
+    const { params } = context;
+    let jobData = {};
 
-//       const tourData = await axios.get(process.env.NEXT_PUBLIC_GET_PRODUCT_BY_ID,{
-//         headers:{ "id": `${params.id}` }
-//       }).then((x)=>x.data.result);
-//       const transportData = await axios.get(process.env.NEXT_PUBLIC_GET_TRANSPORT).then((x)=>x.data.result)
+    const fieldsData = await axios.get(process.env.NEXT_PUBLIC_CLIMAX_GET_SEAJOB_VALUES).then((x)=>x.data);
+    
+    if(params.id!="new"){
+      jobData = await axios.get(process.env.NEXT_PUBLIC_CLIMAX_GET_SE_JOB_BY_ID,{
+        headers:{ "id": `${params.id}` }
+      }).then((x)=>x.data.result);
+    
+      if (!jobData.id) {
+        return {
+          notFound: true
+        }
+      }
+    }
+    return {
+      props: { jobData:jobData, id:params.id, fieldsData:fieldsData,  }
+    }
+  }
   
-//     if (!tourData.id) {
-//       return {
-//         notFound: true
-//       }
-//     }
-//     return {
-//       props: {
-//         tourData: tourData, id:params.id, transportData:transportData
-//       }
-//     }
-//   }
-  
-// export async function getStaticPaths() {
-//   const response = await fetch(process.env.NEXT_PUBLIC_GET_PRODUCT_IDS)
-//   const data = await response.json();
-//   const paths = data.result.map(x => {
-//     return {
-//       params: { id: `${x.id}` }
-//     }
-//   })
+export async function getStaticPaths() {
+  const response = await fetch(process.env.NEXT_PUBLIC_CLIMAX_GET_SE_JOBS_IDS);
+  //console.log(response, "Over Here")
+  const data = await response.json();
+  const paths = data.result.map(x => {
+    return {
+      params: { id: `${x.id}` }
+    }
+  })
 
-//   return {
-//     paths,
-//     fallback: true
-//   }
-// }
+  return {
+    paths,
+    fallback: true
+  }
+}

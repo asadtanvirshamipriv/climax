@@ -3,7 +3,7 @@ import { Popover, Input } from "antd";
 import { Row, Col, Spinner } from 'react-bootstrap';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import openNotification from '../../Shared/Notification';
+import openNotification from '../../../Shared/Notification';
 import moment from 'moment'
 
 const Notes = ({state, dispatch}) => {

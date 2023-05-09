@@ -14,25 +14,26 @@ const ChargesList = ({state, dispatch, chargeType }) => {
     const companyId = useSelector((state) => state.company.value);
     //const [exRate, setExRate] = useState(1.00);
     const [selectingId, setSelecingId] = useState("")
-    // useEffect(() => {
-    //     let value = "";
-    //     if(chargeType.length>0){
-    //         chargeType.forEach((x)=>{
-    //             if(x.currency!="PKR" && x.type==(state.chargesTab=="1"?"Recievable":"Payble")){
-    //                 value=x.ex_rate;
-    //             }
-    //         })
-    //         if(value!=""){
-    //             dispatch({type:'toggle', fieldName:'exRate', payload:value});
-    //         }
-    //     }else{
-    //         dispatch({type:'toggle', fieldName:'exRate', payload:"1"});
-    //     }
-    // }, [
-    //     state.chargesTab, 
-    //     state.chargeLoad, 
-    //     state.selectedRecord
-    // ])
+    useEffect(() => {
+        let value = "";
+        if(chargeType.length>0){
+            chargeType.forEach((x)=>{
+            if(chargeType[0].currency!="PKR" && chargeType[0].type==(state.chargesTab=="1"?"Recievable":"Payble")){
+                value=chargeType[0].ex_rate;
+            }
+            })
+            if(value!=""){
+                dispatch({type:'toggle', fieldName:'exRate', payload:value});
+            }
+        }else{
+            dispatch({type:'toggle', fieldName:'exRate', payload:"1"});
+        }
+    }, [
+        //state.chargesTab, 
+        //state.chargeLoad, 
+        state.selectedRecord
+    ])
+
     useEffect(() => {
       let exist = false;
       for(let i = 0; i<chargeType.length; i++){
@@ -201,7 +202,7 @@ const ChargesList = ({state, dispatch, chargeType }) => {
         </Col>
         <Col>
         <div className='div-btn-custom text-center mx-0 py-1 px-3' style={{float:'right'}} onClick={()=>makeInvoice()}>Save</div>
-        <div className='div-btn-custom-green text-center py-1 mx-2 px-3' style={{float:'right'}}onClick={()=>{ApproveCharges()}}>Approve</div>
+        <div className='div-btn-custom-green text-center py-1 mx-2 px-3' style={{float:'right'}}onClick={()=>{ApproveCharges()}}>Create Invoice</div>
         <div className='mx-2' style={{float:'right'}}>
         <InputNumber placeholder='Ex.Rate' size='small' className='my-1' min={"0.1"} 
             value={state.exRate} 

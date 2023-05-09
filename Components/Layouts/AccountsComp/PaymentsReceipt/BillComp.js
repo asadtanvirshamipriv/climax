@@ -76,10 +76,12 @@ const BillComp = ({partytype, selectedParty, payType, companyId}) => {
         if(state.auto=='0'||state.auto==null){
             openNotification('Alert', 'Please Enter A Number', 'orange');
         } else {
+            console.log(state.auto)
             let tempAmount = (parseFloat(state.auto) * parseFloat(state.exRate)).toFixed(2);
             let pendingFund = 0;
             val.forEach((x) => {
-                pendingFund = parseFloat((parseFloat(x.inVbalance) - parseFloat(x.receiving==null?0:x.receiving)).toFixed(2));
+                pendingFund = parseFloat((parseFloat(x.inVbalance) - parseFloat(x.receiving==null?0:x.receiving)).toFixed(2)) - parseFloat(x.recieved);
+
                 if(pendingFund > tempAmount){
                     x.receiving = (parseFloat(x.receiving) + parseFloat(tempAmount)).toFixed(2);
                     tempAmount = 0.00;
@@ -91,6 +93,7 @@ const BillComp = ({partytype, selectedParty, payType, companyId}) => {
                 }
                 pendingFund = 0.00;
             })
+            console.log(tempAmount);
             set('invoices', val);
         }
     }

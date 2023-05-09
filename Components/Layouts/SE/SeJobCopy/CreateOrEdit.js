@@ -6,7 +6,7 @@ import { Spinner } from 'react-bootstrap';
 import moment from 'moment';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import openNotification from '../../Shared/Notification';
+import openNotification from '/Components/Shared/Notification';
 import { SignupSchema } from './states';
 import BookingInfo from './BookingInfo';
 import EquipmentInfo from './EquipmentInfo';
@@ -14,7 +14,7 @@ import Routing from './Routing';
 import Charges from './Charges/';
 import Invoice from './Invoice';
 
-const CreateOrEdit = ({state, dispatch, baseValues, companyId}) => {
+const CreateOrEdit = ({state, dispatch, baseValues, companyId, jobData}) => {
 
   const {register, control, handleSubmit, reset, formState:{errors} } = useForm({
     resolver:yupResolver(SignupSchema), defaultValues:state.values
@@ -23,11 +23,16 @@ const CreateOrEdit = ({state, dispatch, baseValues, companyId}) => {
 
   useEffect(() => {
     if(state.edit){
-      let tempState = {...state.selectedRecord};
+    let tempState = {...jobData};
+      let tempVoyageList = [...state.voyageList];
+      tempVoyageList.length>0?null:tempVoyageList.push(tempState.Voyage)
+      dispatch({type:'toggle', fieldName:'voyageList', payload:tempVoyageList});
       tempState = { ...tempState,
-        customCheck: tempState.customCheck.split(", "),
-        transportCheck: tempState.transportCheck.split(", "),
+        customCheck: tempState.customCheck!==""?tempState.customCheck.split(", "):"",
+        transportCheck:tempState.transportCheck!==""?tempState.transportCheck.split(", "):"",// tempState.transportCheck.split(", "),
         eta: tempState.eta==""?"":moment(tempState.eta),
+        approved: tempState.approved=="true"?["1"]:[],
+        //val.length==0?false:val[0]=="1"?false:true 
         polDate: tempState.polDate==""?"":moment(tempState.polDate),
         podDate: tempState.podDate==""?"":moment(tempState.podDate),
         aesDate: tempState.aesDate==""?"":moment(tempState.aesDate),
@@ -55,6 +60,7 @@ const CreateOrEdit = ({state, dispatch, baseValues, companyId}) => {
       }
       dispatch({type:'toggle', fieldName:'oldRecord', payload:tempState});
       reset(tempState);
+    
     }
     if(!state.edit){ reset(baseValues) }
   }, [state.selectedRecord])
@@ -64,7 +70,9 @@ const CreateOrEdit = ({state, dispatch, baseValues, companyId}) => {
     data.customAgentId = data.customCheck.length>0?data.customAgentId:null;
     data.transporterId = data.transportCheck.length>0?data.transporterId:null;
 
+    data.VoyageId = data.VoyageId!=""?data.VoyageId:null;
     data.ClientId = data.ClientId!=""?data.ClientId:null;
+    data.shippingLineId = data.shippingLineId!=""?data.shippingLineId:null;
     data.shipperId = data.shipperId!=""?data.shipperId:null;
     data.consigneeId = data.consigneeId!=""?data.consigneeId:null;
     data.overseasAgentId = data.overseasAgentId!=""?data.overseasAgentId:null;
@@ -72,7 +80,9 @@ const CreateOrEdit = ({state, dispatch, baseValues, companyId}) => {
     data.forwarderId = data.forwarderId!=""?data.forwarderId:null;
     data.localVendorId = data.localVendorId!=""?data.localVendorId:null;
     data.commodityId = data.commodityId!=""?data.commodityId:null;
-    data.companyId = companyId
+    data.shippingLineId = data.shippingLineId!=""?data.shippingLineId:null;
+    data.approved = data.approved[0]=="1"?true:false;
+    data.companyId = companyId;
 
     let loginId = Cookies.get('loginId');
     data.createdById = loginId;
@@ -82,11 +92,11 @@ const CreateOrEdit = ({state, dispatch, baseValues, companyId}) => {
             data
         }).then((x)=>{
             if(x.data.status=='success'){
-                let tempRecords = [...state.records];
-                tempRecords.unshift(x.data.result);
-                dispatch({type:'toggle', fieldName:'records', payload:tempRecords});
-                dispatch({type:'modalOff'});
-                reset(baseValues)
+                //let tempRecords = [...state.records];
+                //tempRecords.unshift(x.data.result);
+                //dispatch({type:'toggle', fieldName:'records', payload:tempRecords});
+                //dispatch({type:'modalOff'});
+                //reset(baseValues)
                 openNotification('Success', `Job Created!`, 'green')
             }else{
                 openNotification('Error', `An Error occured Please Try Again!`, 'red')
@@ -97,20 +107,43 @@ const CreateOrEdit = ({state, dispatch, baseValues, companyId}) => {
   };
 
   const onEdit = async(data) => {
-    data.equipments = state.equipments;
+    data.equipments = state.equipments
     data.customAgentId = data.customCheck.length>0?data.customAgentId:null;
     data.transporterId = data.transportCheck.length>0?data.transporterId:null;
-    data.companyId = companyId
+
+    data.VoyageId = data.VoyageId!=""?data.VoyageId:null;
+    data.ClientId = data.ClientId!=""?data.ClientId:null;
+    data.shippingLineId = data.shippingLineId!=""?data.shippingLineId:null;
+    data.shipperId = data.shipperId!=""?data.shipperId:null;
+    data.consigneeId = data.consigneeId!=""?data.consigneeId:null;
+    data.overseasAgentId = data.overseasAgentId!=""?data.overseasAgentId:null;
+    data.salesRepresentatorId = data.salesRepresentatorId!=""?data.salesRepresentatorId:null;
+    data.forwarderId = data.forwarderId!=""?data.forwarderId:null;
+    data.localVendorId = data.localVendorId!=""?data.localVendorId:null;
+    data.commodityId = data.commodityId!=""?data.commodityId:null;
+    data.shippingLineId = data.shippingLineId!=""?data.shippingLineId:null;
+    data.approved = data.approved[0]=="1"?true:false;
+    data.companyId = companyId;
+
+    // data.equipments = state.equipments;
+    // data.VoyageId = data.VoyageId!=""?data.VoyageId:null;
+    // data.customAgentId = data.customCheck.length>0?data.customAgentId:null;
+    // data.transporterId = data.transportCheck.length>0?data.transporterId:null;
+    // data.shippingLineId = data.shippingLineId!=""?data.shippingLineId:null;
+    // data.shippingLineId = data.shippingLineId!=""?data.shippingLineId:null;
+    // data.approved = data.approved[0]=="1"?true:false;
+    // data.companyId = companyId
     dispatch({type:'toggle', fieldName:'load', payload:true});
     setTimeout(async() => {
         await axios.post(process.env.NEXT_PUBLIC_CLIMAX_POST_EDIT_SEAJOB,{data}).then((x)=>{
             if(x.data.status=='success'){
-                let tempRecords = [...state.records];
-                let i = tempRecords.findIndex((y=>data.id==y.id));
-                tempRecords[i] = x.data.result;
-                dispatch({type:'toggle', fieldName:'records', payload:tempRecords});
-                dispatch({type:'modalOff'});
-                reset(baseValues)
+                // let tempRecords = [...state.records];
+                // let i = tempRecords.findIndex((y=>data.id==y.id));
+                // console.log(x.data.result)
+                // tempRecords[i] = x.data.result;
+                // dispatch({type:'toggle', fieldName:'records', payload:tempRecords});
+                // dispatch({type:'modalOff'});
+                // reset(baseValues)
                 openNotification('Success', `Job Updated!`, 'green')
             }else{
                 openNotification('Error', `An Error occured Please Try Again!`, 'red')
@@ -121,8 +154,11 @@ const CreateOrEdit = ({state, dispatch, baseValues, companyId}) => {
   };
 
   useEffect(() => {
-    if(state.tabState!="5"){ dispatch({type:'toggle', fieldName:'selectedInvoice', payload:""}) }
+    if(state.tabState!="5"){ 
+      dispatch({type:'toggle', fieldName:'selectedInvoice', payload:""}) 
+    }
   }, [state.tabState])
+
   const onError = (errors) => console.log(errors);
 
   return(
@@ -132,11 +168,11 @@ const CreateOrEdit = ({state, dispatch, baseValues, companyId}) => {
     <Tabs defaultActiveKey={state.tabState} activeKey={state.tabState}
      onChange={(e)=> dispatch({type:'toggle', fieldName:'tabState', payload:e}) }>
       <Tabs.TabPane tab="Booking Info" key="1">
-        <BookingInfo control={control} register={register} errors={errors} state={state} useWatch={useWatch} dispatch={dispatch} />
+       <BookingInfo control={control} register={register} errors={errors} state={state} useWatch={useWatch} dispatch={dispatch} reset={reset}/>
       </Tabs.TabPane>
       {subType=="FCL" &&
       <Tabs.TabPane tab="Equipment" key="2">
-        <EquipmentInfo control={control} register={register} errors={errors} state={state} dispatch={dispatch} useWatch={useWatch} />
+        <EquipmentInfo control={control} register={register} errors={errors} state={state} dispatch={dispatch} useWatch={useWatch}/>
       </Tabs.TabPane>
       }
       <Tabs.TabPane tab="Routing" key="3">
@@ -147,16 +183,11 @@ const CreateOrEdit = ({state, dispatch, baseValues, companyId}) => {
         <Charges state={state} dispatch={dispatch} />
       </Tabs.TabPane>
       }
-      {(state.edit && state.selectedInvoice!='') &&
+      {(state.selectedInvoice!='') &&
       <Tabs.TabPane tab="Invoice / Bills" key="5">
         <Invoice state={state} dispatch={dispatch} companyId={companyId} />
       </Tabs.TabPane>
       }
-      {/* {state.edit &&
-      <Tabs.TabPane tab="Bill of Lading" key="6">
-        <BL state={state} dispatch={dispatch} />
-      </Tabs.TabPane>
-      } */}
     </Tabs>
       {(state.tabState!="4" && state.tabState!="5" && state.tabState!="6") &&
       <>

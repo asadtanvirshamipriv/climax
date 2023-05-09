@@ -2,14 +2,22 @@ import React from 'react';
 import { Table } from 'react-bootstrap';
 import { Select, Input  } from 'antd';
 import { CloseCircleOutlined } from '@ant-design/icons';
-import PopConfirm from '../../Shared/PopConfirm';
+import PopConfirm from '../../../Shared/PopConfirm';
 
 const EquipmentInfo = ({state, dispatch}) => {
 
   const width = 162
   return (
     <div style={{minHeight:630, maxHeight:630}}>
-    <Table >
+      <div className=''>
+        <button type='button' className='btn-custom right'
+          onClick={()=>{
+            let tempState = [...state.equipments];
+            tempState.push({size:'', qty:'', dg:'', gross:'', teu:''});
+            dispatch({type:'toggle', fieldName:'equipments', payload:tempState});
+          }}>Add</button>
+      </div>
+    <Table className='x-5'>
         <thead>
           <tr>
             <th>Size/Type</th>
@@ -23,13 +31,7 @@ const EquipmentInfo = ({state, dispatch}) => {
         <tbody>
           {state.equipments.map((x, i) => {
             return(
-              <tr className='f' key={i} onClick={()=>{
-                if(i==state.equipments.length-1 && (x.size!='')){
-                  let tempState = [...state.equipments];
-                  tempState.push({size:'', qty:'', dg:'', gross:'', teu:''});
-                  dispatch({type:'toggle', fieldName:'equipments', payload:tempState});
-                }
-              }}>
+              <tr className='f' key={i}>
                 <td>
                 <Select style={{width:width}} value={x.size}
                   onChange={(e)=>{
@@ -71,7 +73,6 @@ const EquipmentInfo = ({state, dispatch}) => {
                 <td><Input placeholder="Basic usage" style={{width:width}} value={x.gross} /></td>
                 <td><Input placeholder="Basic usage" style={{width:width}} value={x.teu} /></td>
                 <td>
-                    { state.equipments.length-1!=i && 
                       <CloseCircleOutlined className='mx-3 cross-icon' onClick={()=>{
                         PopConfirm(
                           "Confirmation",
@@ -83,7 +84,7 @@ const EquipmentInfo = ({state, dispatch}) => {
                           })
                         }}
                       />
-                    }
+                    
                 </td>
               </tr>
             )

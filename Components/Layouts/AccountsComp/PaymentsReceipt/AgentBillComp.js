@@ -129,7 +129,6 @@ const AgentBillComp = ({selectedParty, partytype, payType, invoiceCurrency, comp
             })
             set('gainLossAmount', (newExAmount-oldExAmount).toFixed(2));
             set('invoices', val);
-            //calculateGainLoss();
         }
     }
 

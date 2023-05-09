@@ -1,27 +1,17 @@
-import React, { useEffect, useReducer } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Row, Col, Table } from 'react-bootstrap';
-import { recordsReducer, initialState, baseValues } from './states';
-import { Modal } from 'antd';
-import CreateOrEdit from './CreateOrEdit';
 import { useSelector, useDispatch } from 'react-redux';
 import { incrementTab } from '/redux/tabs/tabSlice';
 import Router from 'next/router';
 
-const SeJob = ({fieldsData, jobsData}) => {
+const SEJobList = ({jobsData}) => {
   const companyId = useSelector((state) => state.company.value);
   const tabs = useSelector((state) => state.tabs.value);
-  const [ state, dispatch ] = useReducer(recordsReducer, initialState);
-  const { visible, viewHistory } = state;
-  const dispatchRedux = useDispatch();
+  const [records, setRecords] = useState([]);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    let tempChargeList = [];
-    fieldsData.result.chargeList.forEach((x) => {
-      tempChargeList.push({...x, label:x.code, value:x.code});
-    });
-    fieldsData.result.chargeList=tempChargeList;
-    dispatch({type:'toggle', fieldName:'fields', payload:fieldsData.result})
-    dispatch({type:'toggle', fieldName:'records', payload:jobsData.result})
+    setRecords(jobsData.result)
   }, [])
 
   return (
@@ -34,7 +24,7 @@ const SeJob = ({fieldsData, jobsData}) => {
           <button className='btn-custom right' 
             //onClick={()=>dispatch({type:'create'})}
             onClick={()=>{
-              dispatchRedux(incrementTab({"label":"SE JOB","key":"4-3","id":"new"}))
+              dispatch(incrementTab({"label":"SE JOB","key":"4-3","id":"new"}))
               Router.push(`/seJob/new`)
             }}
           >
@@ -57,12 +47,12 @@ const SeJob = ({fieldsData, jobsData}) => {
         </thead>
         <tbody>
         {
-        state.records.map((x, index) => {
+        records.map((x, index) => {
         return (
         <tr key={index} className='f row-hov' 
           //onClick={()=>dispatch({type:'edit', payload:x})} 
           onClick={()=>{
-            dispatchRedux(incrementTab({
+            dispatch(incrementTab({
               "label": "SE JOB",
               "key": "4-3",
               "id":x.id
@@ -101,17 +91,10 @@ const SeJob = ({fieldsData, jobsData}) => {
         </tbody>
         </Table>
       </div>
-      <Modal
-        open={visible} maskClosable={false}
-        onOk={()=>dispatch({ type: 'modalOff' })} onCancel={()=>dispatch({ type: 'modalOff' })}
-        width={1000} footer={false} centered={true}
-      >
-        {!viewHistory && <CreateOrEdit state={state} dispatch={dispatch} baseValues={baseValues} companyId={companyId} />}
-      </Modal>
       </div>
     }
   </>
   )
 }
 
-export default SeJob;
+export default SEJobList;
