@@ -11,7 +11,7 @@ const SEJobList = ({jobsData}) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    setRecords(jobsData.result)
+    setRecords(jobsData.result);
   }, [])
 
   return (
