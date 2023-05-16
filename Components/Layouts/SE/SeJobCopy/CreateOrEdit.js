@@ -11,8 +11,8 @@ import { SignupSchema } from './states';
 import BookingInfo from './BookingInfo';
 import EquipmentInfo from './EquipmentInfo';
 import Routing from './Routing';
-import Charges from './Charges/';
 import Invoice from './Invoice';
+import ChargesComp from './ChargesComp/'
 
 const CreateOrEdit = ({state, dispatch, baseValues, companyId, jobData}) => {
 
@@ -23,7 +23,7 @@ const CreateOrEdit = ({state, dispatch, baseValues, companyId, jobData}) => {
 
   useEffect(() => {
     if(state.edit){
-    let tempState = {...jobData};
+      let tempState = {...jobData};
       let tempVoyageList = [...state.voyageList];
       tempVoyageList.length>0?null:tempVoyageList.push(tempState.Voyage)
       dispatch({type:'toggle', fieldName:'voyageList', payload:tempVoyageList});
@@ -51,6 +51,7 @@ const CreateOrEdit = ({state, dispatch, baseValues, companyId, jobData}) => {
         vgmCutOffDate:tempState.vgmCutOffDate==""?"":moment(tempState.vgmCutOffDate),
         vgmCutOffTime:tempState.vgmCutOffTime==""?"":moment(tempState.vgmCutOffTime)
       }
+      console.log(tempState.exRate)
       if(tempState.SE_Equipments.length>0){
         let tempEquips = tempState.SE_Equipments;
         tempEquips.push({id:'', size:'', qty:'', dg:tempState.dg=="Mix"?"DG":tempState.dg, gross:'', teu:''})
@@ -58,9 +59,8 @@ const CreateOrEdit = ({state, dispatch, baseValues, companyId, jobData}) => {
       }else{
         dispatch({type:'toggle', fieldName:'equipments', payload:[{id:'', size:'', qty:'', dg:tempState.dg=="Mix"?"DG":tempState.dg, gross:'', teu:''}]});
       }
-      dispatch({type:'toggle', fieldName:'oldRecord', payload:tempState});
+      dispatch({type:'toggle', fieldName:'exRate', payload:tempState.exRate});
       reset(tempState);
-    
     }
     if(!state.edit){ reset(baseValues) }
   }, [state.selectedRecord])
@@ -180,7 +180,7 @@ const CreateOrEdit = ({state, dispatch, baseValues, companyId, jobData}) => {
       </Tabs.TabPane >
       {state.edit &&
       <Tabs.TabPane tab="Charges" key="4">
-        <Charges state={state} dispatch={dispatch} />
+        <ChargesComp state={state} dispatch={dispatch} />
       </Tabs.TabPane>
       }
       {(state.selectedInvoice!='') &&

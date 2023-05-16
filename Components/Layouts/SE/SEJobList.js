@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { incrementTab } from '/redux/tabs/tabSlice';
 import Router from 'next/router';
 
-const SEJobList = ({jobsData}) => {
+const SEJobList = ({jobsData, fieldsData}) => {
   const companyId = useSelector((state) => state.company.value);
   const tabs = useSelector((state) => state.tabs.value);
   const [records, setRecords] = useState([]);
@@ -21,7 +21,7 @@ const SEJobList = ({jobsData}) => {
       <Row>
         <Col><h5>Sea Export Job</h5></Col>
         <Col>
-          <button className='btn-custom right' 
+          <button className='btn-custom right'
             //onClick={()=>dispatch({type:'create'})}
             onClick={()=>{
               dispatch(incrementTab({"label":"SE JOB","key":"4-3","id":"new"}))
@@ -49,8 +49,8 @@ const SEJobList = ({jobsData}) => {
         {
         records.map((x, index) => {
         return (
-        <tr key={index} className='f row-hov' 
-          //onClick={()=>dispatch({type:'edit', payload:x})} 
+        <tr key={index} className='f row-hov'
+          //onClick={()=>dispatch({type:'edit', payload:x})}
           onClick={()=>{
             dispatch(incrementTab({
               "label": "SE JOB",
@@ -58,7 +58,7 @@ const SEJobList = ({jobsData}) => {
               "id":x.id
             }))
             Router.push(`/seJob/${x.id}`)
-          }} 
+          }}
         >
           <td>{index + 1}</td>
           <td>

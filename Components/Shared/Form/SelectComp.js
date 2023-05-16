@@ -12,7 +12,7 @@ const SelectComp = (props) => {
       render={({ field }) => (
         <>
           <div>{props.label}</div>
-          <Select disabled={props.disabled} style={{minWidth:props.width}} 
+          <Select disabled={props.disabled} style={{minWidth:props.width, fontSize:props.font}} 
             {...field}
           >
             {

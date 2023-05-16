@@ -130,7 +130,7 @@ const initialState = {
   chargesTab:'1',
   selectedInvoice:'',
   invoiceData:{},
-  exRate:"1",
+  exRate:1.00,
   
   voyageList:[],
   consigneeList:[],
@@ -220,4 +220,113 @@ const getHeads = async(id) => {
     return { reciveableCharges, paybleCharges }
 }
 
-export { recordsReducer, initialState, baseValues, SignupSchema, getClients, getVendors, getHeads };
+const saveHeads = async(charges, state, dispatch) => {
+  dispatch({type:'toggle', fieldName:'chargeLoad', payload:true})
+  await axios.post(process.env.NEXT_PUBLIC_CLIMAX_SAVE_SE_HEADS_NEW, 
+    {
+      charges, 
+      deleteList:state.deleteList, 
+      id:state.selectedRecord.id,
+      exRate:state.exRate
+    })
+  .then((x)=>{
+    console.log(x.data);
+    dispatch({type:'toggle', fieldName:'chargeLoad', payload:false})
+  })
+
+}
+
+const getHeadsNew = async(id, dispatch) => {
+  dispatch({type:'toggle', fieldName:'chargeLoad', payload:true})
+  let paybleCharges = [];
+  let reciveableCharges = [];
+  await axios.get(process.env.NEXT_PUBLIC_CLIMAX_GET_SE_HEADS_NEW,{
+      headers:{"id": `${id}`}
+  }).then((x)=>{
+      if(x.data.status=="success"){
+        let tempCharge = [];
+        x.data.result.forEach((x)=>{
+            if(x.type!='Payble'){
+              tempCharge.push({...x, sep:false});
+            }
+        });
+        reciveableCharges = tempCharge;
+        tempCharge = [];
+        x.data.result.forEach((x)=>{
+            if(x.type=='Payble'){
+              tempCharge.push({...x, sep:false});
+            }
+        })
+        paybleCharges = tempCharge;
+      }
+    });
+    let tempChargeHeadsArray = calculateChargeHeadsTotal([...reciveableCharges, ...paybleCharges], "full");
+    
+    dispatch({type:'set', 
+    payload:{
+      reciveableCharges,
+      paybleCharges,
+      chargeLoad:false,
+      ...tempChargeHeadsArray
+    }})
+}
+
+const calculateChargeHeadsTotal = (chageHeads, type) => {
+  let rec_ccCharges = 0, pay_ccCharges = 0;
+  let rec_ppCharges = 0, pay_ppCharges = 0;
+  let rec_tax = 0      , pay_tax = 0;      
+  if(chageHeads.length!=0){
+    type!="Payble"?chageHeads.forEach((x)=>{
+      if(x.pp_cc=="CC"){
+        x.type=="Recievable"?rec_ccCharges = rec_ccCharges + parseFloat(x.local_amount):null;
+      }else if(x.pp_cc=="PP"){
+        x.type=="Recievable"?rec_ppCharges = rec_ppCharges + parseFloat(x.local_amount):null;
+      }
+      if(x.tax_apply){
+        x.type=="Recievable"?rec_tax = rec_tax + parseFloat(x.tax_amount*x.ex_rate):null;
+      }
+    }):null
+    type!="Recievable"?chageHeads.forEach((x)=>{
+      if(x.pp_cc=="CC"){
+        x.type!="Recievable"?pay_ccCharges = pay_ccCharges + parseFloat(x.local_amount):null;
+      }else if(x.pp_cc=="PP"){
+        x.type!="Recievable"?pay_ppCharges = pay_ppCharges + parseFloat(x.local_amount):null;
+      }
+      if(x.tax_apply){
+        x.type!="Recievable"?pay_tax = pay_tax + parseFloat(x.tax_amount*x.ex_rate):null;
+      }
+    }):null
+  }
+  let obj = {
+    payble:{
+      pp:pay_ppCharges.toFixed(2) - (pay_tax).toFixed(2),
+      cc:pay_ccCharges.toFixed(2),
+      total:(pay_ppCharges+pay_ccCharges).toFixed(2),
+      tax:(pay_tax).toFixed(2)
+    },
+    reciveable:{
+      pp:rec_ppCharges.toFixed(2) - (rec_tax).toFixed(2),
+      cc:rec_ccCharges.toFixed(2),
+      total:(rec_ppCharges+rec_ccCharges).toFixed(2),
+      tax:(rec_tax).toFixed(2)
+    },
+  }
+  type=="Recievable"?delete obj.payble:null
+  type=="Payble"?delete obj.reciveable:null
+  return obj
+}
+
+const makeInvoice = async(list, companyId) => {
+  let tempList = list.filter((x)=>x.check);
+  //console.log(tempList);
+  await axios.post(process.env.NEXT_PUBLIC_CLIMAX_POST_CREATE_INVOICE_NEW,{
+    chargeList:tempList, companyId
+  }).then((x)=>console.log(x.data))
+
+}
+
+export { 
+  recordsReducer, initialState, baseValues, SignupSchema, 
+  getClients, getVendors, getHeads, saveHeads, getHeadsNew,
+  calculateChargeHeadsTotal, makeInvoice
+};

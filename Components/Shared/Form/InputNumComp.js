@@ -15,7 +15,7 @@ const InputNumComp = (props) => {
           <>
             <div>{props.label}</div>
             <InputNumber
-            style={{minWidth:props.width}}
+            style={{minWidth:props.width, fontSize:props.font}}
              min="0"
              step={props.step}
              stringMode

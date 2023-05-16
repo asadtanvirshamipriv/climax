@@ -33,7 +33,7 @@ return(
       {...props.register(`${props.name}`)}
       render={({ field }) => (
         <>
-          <div className="mt-2">{props.label}</div>
+          <div className="">{props.label}</div>
           <SelectSearch props={props} field={field} />
         </>
       )}

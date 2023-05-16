@@ -8,8 +8,7 @@ import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { getVendors, getClients, getHeads } from '../states';
 
-
-const ChargesList = ({state, dispatch, chargeType }) => {
+const ChargesList = ({state, dispatch, chargeType}) => {
 
     const companyId = useSelector((state) => state.company.value);
     //const [exRate, setExRate] = useState(1.00);
@@ -153,7 +152,7 @@ const ChargesList = ({state, dispatch, chargeType }) => {
         dispatch({type:'toggle', fieldName:'reciveableCharges', payload:payload.reciveableCharges});
         dispatch({type:'toggle', fieldName:'paybleCharges', payload:payload.paybleCharges});
         dispatch({type:'toggle', fieldName:'chargeLoad', payload:false});
-      }
+    }
 
     const ApproveCharges = async() => {
         dispatch({type:'toggle', fieldName:'chargeLoad', payload:true})
@@ -175,7 +174,6 @@ const ChargesList = ({state, dispatch, chargeType }) => {
             }
         });
     }
-
 
   return (
     <div>
