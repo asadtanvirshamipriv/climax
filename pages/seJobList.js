@@ -2,7 +2,12 @@ import React from 'react';
 import Cookies from 'cookies';
 import SEJobList from '../Components/Layouts/SE/SEJobList';
 
-export default ({sessionData, jobsData}) => <SEJobList sessionData={sessionData} jobsData={jobsData} />
+const seJobList = ({sessionData, jobsData}) => {
+  return (
+    <SEJobList sessionData={sessionData} jobsData={jobsData} />
+  )
+}
+export default seJobList
 
 export async function getServerSideProps({req,res}){
 
