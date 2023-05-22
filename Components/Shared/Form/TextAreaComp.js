@@ -1,26 +1,44 @@
-import { Input, Form } from "antd";
-import { Controller  } from "react-hook-form";
+// import { Input, Form } from "antd";
+// import { Controller  } from "react-hook-form";
 
+// const { TextArea } = Input;
+
+// const TextAreaComp = (props) => {
+
+//   return (
+//     <>
+//     <Controller
+//       name={`${props.name}`}
+//       defaultValue=""
+//       control={props.control}
+//       {...props.register(`${props.name}`)}
+//       render={({ field }) => (
+//           <>
+//             <div>{props.label}</div>
+//             <TextArea disabled={props.disabled} {...field} />
+//           </>
+//       )}
+//     />
+//     </>
+//   )
+// }
+
+// export default TextAreaComp
+
+import { Input, Form } from "antd";
+import { useController } from "react-hook-form";
 const { TextArea } = Input;
 
-const TextAreaComp = (props) => {
+const TextComp = (props) => {
+  const { control, name } = props;
+  const { field: { onChange, onBlur, value, name: fieldName, ref } } = useController({ control, name });
 
   return (
     <>
-    <Controller
-      name={`${props.name}`}
-      defaultValue=""
-      control={props.control}
-      {...props.register(`${props.name}`)}
-      render={({ field }) => (
-          <>
-            <div>{props.label}</div>
-            <TextArea disabled={props.disabled} {...field} />
-          </>
-      )}
-    />
+      <div>{props.label}</div>
+      <TextArea {...props.rest} name={fieldName} onChange={onChange} value={value} ref={ref} onBlur={onBlur} />
     </>
   )
 }
 
-export default TextAreaComp
+export default TextComp

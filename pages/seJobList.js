@@ -10,9 +10,8 @@ const seJobList = ({sessionData, jobsData}) => {
 export default seJobList
 
 export async function getServerSideProps({req,res}){
-
   const cookies = new Cookies(req, res);
-  const sessionRequest = await fetch(process.env.NEXT_PUBLIC_CLIMAX_GET_LOGIN_VERIFICATION,{
+  const sessionRequest = await fetch(process.env.NEXT_PUBLIC_CLIMAX_GET_LOGIN_VERIFICATION, {
     headers:{"x-access-token": `${cookies.get('token')}`}
   }).then((x)=>x.json());
 
@@ -22,7 +21,7 @@ export async function getServerSideProps({req,res}){
 
   return {
     props: {
-      sessionData:sessionRequest,
+      sessionData:sessionRequest, 
       jobsData:jobsData
     }
   }

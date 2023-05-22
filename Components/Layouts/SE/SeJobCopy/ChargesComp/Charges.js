@@ -53,8 +53,8 @@ const ChargesList = ({state, dispatch, type, append, reset, fields, chargeList, 
         <div className='div-btn-custom text-center py-1'
             onClick={()=>{
             append({
-                description:'', basis:'', pp_cc:state.selectedRecord.freightType=="Prepaid"?'PP':'CC', 
-                type:state.chargesTab=='1'?'Recievable':"Payble", new:true,  ex_rate: parseFloat(state.exRate), 
+                type:type, description:'', basis:'', 
+                new:true,  ex_rate: parseFloat(state.exRate), pp_cc:state.selectedRecord.freightType=="Prepaid"?'PP':'CC', 
                 local_amount: 0,  size_type:'40HC', dg_type:state.selectedRecord.dg=="Mix"?"DG":state.selectedRecord.dg, 
                 qty:1, currency:'USD', amount:0, check: false, bill_invoice: '', charge: '', particular: '',
                 discount:0, tax_apply:false, taxPerc:0.00, tax_amount:0, net_amount:0, invoiceType:"", name: "", 
@@ -141,7 +141,6 @@ const ChargesList = ({state, dispatch, type, append, reset, fields, chargeList, 
             <td className='text-center'>
                 <input type="checkbox" {...register(`chargeList.${index}.check`)}
                     style={{ cursor: 'pointer' }} 
-                    //disabled={x.id == null ? true : ((selectingId != "" && selectingId != x.partyId) ? true : false)}
                     disabled={x.partyId==selection.partyId?false:selection.partyId==null?false:true}
                 />
             </td>
@@ -163,29 +162,62 @@ const ChargesList = ({state, dispatch, type, append, reset, fields, chargeList, 
                         let tempChargeList = [...chargeList];
                         state.fields.chargeList.forEach(async (y, i) => {
                             if (y.code == e) {
-                                tempChargeList[index].charge = e;
-                                tempChargeList[index].particular = y.name;
-                                tempChargeList[index].basis = y.calculationType;
-                                tempChargeList[index].taxPerc = y.taxApply == "Yes" ? parseFloat(y.taxPerc) : 0.00;
+                                // tempChargeList[index].charge = e;
+                                // tempChargeList[index].particular = y.name;
+                                // tempChargeList[index].basis = y.calculationType;
+                                // tempChargeList[index].taxPerc = y.taxApply == "Yes" ? parseFloat(y.taxPerc) : 0.00;
+                                tempChargeList[index] = {
+                                    ...tempChargeList[index],
+                                    charge: e,
+                                    particular: y.name,
+                                    basis: y.calculationType,
+                                    taxPerc: y.taxApply == "Yes" ? parseFloat(y.taxPerc) : 0.00
+                                }
                                 let partyType = "";
                                 let choiceArr = ['', 'defaultRecivableParty', 'defaultPaybleParty'];// 0=null, 1=recivable, 2=payble
                                 partyType = y[choiceArr[parseInt(state.chargesTab)]];
                                 let searchPartyId;
-                                if (partyType == "Client") {
-                                    searchPartyId = state.selectedRecord.ClientId;
-                                } else if (partyType == "Local-Agent") {
-                                    searchPartyId = state.selectedRecord.localVendorId;
-                                } else if (partyType == "Custom-Agent") {
-                                    searchPartyId = state.selectedRecord.customAgentId;
-                                } else if (partyType == "Transport-Agent") {
-                                    searchPartyId = state.selectedRecord.transporterId;
-                                } else if (partyType == "Forwarding-Agent") {
-                                    searchPartyId = state.selectedRecord.forwarderId;
-                                } else if (partyType == "Overseas-Agent") {
-                                    searchPartyId = state.selectedRecord.overseasAgentId;
-                                } else if (partyType == "Shipping-Line") {
-                                    searchPartyId = state.selectedRecord.shippingLineId;
+                                switch (partyType) {
+                                    case "Client":
+                                        searchPartyId = state.selectedRecord.ClientId;
+                                        break;
+                                    case "Local-Agent":
+                                        searchPartyId = state.selectedRecord.localVendorId;
+                                        break;
+                                    case "Custom-Agent":
+                                        searchPartyId = state.selectedRecord.customAgentId;
+                                        break;
+                                    case "Transport-Agent":
+                                        searchPartyId = state.selectedRecord.transporterId;
+                                        break;
+                                    case "Forwarding-Agent":
+                                        searchPartyId = state.selectedRecord.forwarderId;
+                                        break;
+                                    case "Overseas-Agent":
+                                        searchPartyId = state.selectedRecord.overseasAgentId;
+                                        break;
+                                    case "Shipping-Line":
+                                        searchPartyId = state.selectedRecord.shippingLineId;
+                                        break;
+                                    default:
+                                        searchPartyId = state.selectedRecord.shippingLineId;
+                                        break;
                                 }
+                                // if (partyType == "Client") {
+                                //     searchPartyId = state.selectedRecord.ClientId;
+                                // } else if (partyType == "Local-Agent") {
+                                //     searchPartyId = state.selectedRecord.localVendorId;
+                                // } else if (partyType == "Custom-Agent") {
+                                //     searchPartyId = state.selectedRecord.customAgentId;
+                                // } else if (partyType == "Transport-Agent") {
+                                //     searchPartyId = state.selectedRecord.transporterId;
+                                // } else if (partyType == "Forwarding-Agent") {
+                                //     searchPartyId = state.selectedRecord.forwarderId;
+                                // } else if (partyType == "Overseas-Agent") {
+                                //     searchPartyId = state.selectedRecord.overseasAgentId;
+                                // } else if (partyType == "Shipping-Line") {
+                                //     searchPartyId = state.selectedRecord.shippingLineId;
+                                // }
                                 let partyData = partyType == "Client" ? await getClients(searchPartyId) : await getVendors(searchPartyId);
                                 if (state.chargesTab == '1') {
                                     tempChargeList[index].invoiceType = partyData[0].types.includes("Overseas Agent") ? "Agent Bill" : "Job Invoice";
@@ -195,7 +227,6 @@ const ChargesList = ({state, dispatch, type, append, reset, fields, chargeList, 
                                 tempChargeList[index].name = partyData[0].name;
                                 tempChargeList[index].partyId = partyData[0].id;
                                 tempChargeList[index].partyType = partyType == "Client" ? "client" : "vendor";
-                                console.log(tempChargeList)
                                 reset({ chargeList: tempChargeList })
                             }
                         })

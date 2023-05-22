@@ -1,20 +1,38 @@
+// import { TimePicker } from 'antd';
+// import { Controller } from "react-hook-form";
+
+// const TimeComp = (props) => {
+//   return (
+//   <>
+//     <Controller
+//       name={`${props.name}`}
+//       defaultValue=""
+//       control={props.control}
+//       {...props.register(`${props.name}`)}
+//       render={({ field }) => (
+//         <>
+//           <div>{props.label}</div>
+//           <TimePicker disabled={props.disabled} use12Hours size={props.size} style={{minWidth:props.width}} format={'h:mm A'} {...field} />
+//         </>
+//       )}
+//     />
+//   </>
+//   )
+// }
+// export default TimeComp
+
 import { TimePicker } from 'antd';
-import { Controller } from "react-hook-form";
+import { useController } from "react-hook-form";
 
 const TimeComp = (props) => {
+  const { control, name } = props;
+  const { field: { onChange, onBlur, value, name: fieldName, ref } } = useController({ control, name });
   return (
   <>
-    <Controller
-      name={`${props.name}`}
-      defaultValue=""
-      control={props.control}
-      {...props.register(`${props.name}`)}
-      render={({ field }) => (
-        <>
-          <div>{props.label}</div>
-          <TimePicker disabled={props.disabled} use12Hours size={props.size} style={{minWidth:props.width}} format={'h:mm A'} {...field} />
-        </>
-      )}
+    <div>{props.label}</div>
+    <TimePicker disabled={props.disabled} 
+      use12Hours size={props.size} style={{minWidth:props.width}} format={'h:mm A'} //{...field} 
+      {...props.rest} name={fieldName} onChange={onChange} value={value} ref={ref} onBlur={onBlur} 
     />
   </>
   )
